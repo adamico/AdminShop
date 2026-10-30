@@ -25,3 +25,18 @@ Can buy and sell Items and Fluids
     versionRange="${minecraft_version_range}"
     ordering="NONE"
     side="BOTH"
+
+# Every Account belongs to an FTB Team.
+[[dependencies.${mod_id}]]
+    modId="ftbteams"
+    type="required"
+    versionRange="[${ftb_teams_version},)"
+    ordering="AFTER"
+    side="BOTH"
+
+[[dependencies.${mod_id}]]
+    modId="ftblibrary"
+    type="required"
+    versionRange="[${ftb_library_version},)"
+    ordering="AFTER"
+    side="BOTH"

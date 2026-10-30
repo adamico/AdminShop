@@ -34,7 +34,21 @@ configurations {
     gametestRuntimeClasspath.extendsFrom localRuntime
 }
 
+repositories {
+    maven {
+        name = 'FTB'
+        url = 'https://maven.ftb.dev/releases'
+        content { includeGroup 'dev.ftb.mods' }
+    }
+}
+
 dependencies {
+    // Accounts belong to FTB Teams, which needs FTB Library. Each NeoForge jar already holds its common
+    // classes (and FTB Library its json5 library, in jar), so the separate common jars stay off the
+    // classpath: on it they would put every package there twice.
+    implementation("dev.ftb.mods:ftb-teams-neoforge:${ftb_teams_version}") { transitive = false }
+    implementation("dev.ftb.mods:ftb-library-neoforge:${ftb_library_version}") { transitive = false }
+
     gametestImplementation sourceSets.main.output
 
     testImplementation platform('org.junit:junit-bom:5.10.2')
@@ -116,6 +130,8 @@ tasks.withType(ProcessResources).configureEach {
             mod_version            : mod_version,
             mod_authors            : mod_authors,
             mod_description        : mod_description,
+            ftb_teams_version      : ftb_teams_version,
+            ftb_library_version    : ftb_library_version,
     ]
     inputs.properties replaceProperties
 
