@@ -24,3 +24,6 @@ libs
 
 # Files from Forge MDK
 forge*changelog.txt
+
+# ModDevGradle and the local publishing repository
+mcmodsrepo
