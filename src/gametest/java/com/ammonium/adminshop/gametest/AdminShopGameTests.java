@@ -53,6 +53,7 @@ public final class AdminShopGameTests {
         var environment = event.registerEnvironment(id("default"), new TestEnvironmentDefinition.AllOf(List.of()));
         var tests = new Registrar(event, environment);
         LoadTests.register(tests);
+        AccountTests.register(tests);
     }
 
     private static Identifier id(String path) {

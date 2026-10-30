@@ -10,10 +10,6 @@ public class Messages {
 
     public static void register(RegisterPayloadHandlersEvent event) {
         PayloadRegistrar registrar = event.registrar("1");
-        registrar.playToClient(
-                PacketSyncMoneyToClient.TYPE,
-                PacketSyncMoneyToClient.STREAM_CODEC,
-                PacketSyncMoneyToClient::handle);
         registrar.playToServer(
                 PacketBuyRequest.TYPE,
                 PacketBuyRequest.STREAM_CODEC,

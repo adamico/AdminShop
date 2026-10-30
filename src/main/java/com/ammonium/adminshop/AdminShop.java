@@ -1,6 +1,7 @@
 package com.ammonium.adminshop;
 
 import com.ammonium.adminshop.setup.Config;
+import com.ammonium.adminshop.setup.Messages;
 import com.mojang.logging.LogUtils;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
@@ -19,5 +20,6 @@ public class AdminShop {
 
     public AdminShop(IEventBus eventBus, ModContainer modContainer) {
         Config.register(modContainer);
+        eventBus.addListener(Messages::register);
     }
 }

@@ -7,6 +7,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Collection;
 import java.util.UUID;
 
+/** The client's copy of its player's Account, as the server last sent it. */
 public class ClientCache {
 
     private static MoneyHelper.MoneyAccount account = null;
@@ -22,10 +23,13 @@ public class ClientCache {
     }
 
     public static void setAccount(UUID teamId, long balance, Collection<String> permits) {
-//        AdminShop.LOGGER.debug("Set account: {} {} {}", teamId, balance, permits);
-        Component name = FTBTeamsAPI.api().getClientManager().selfTeam().getName();
+        var api = FTBTeamsAPI.api();
+        Component name = api.isClientManagerLoaded() ? api.getClientManager().selfTeam().getName() : Component.empty();
         account = new MoneyHelper.MoneyAccount(teamId, name, balance, permits);
-//        AdminShop.LOGGER.debug("Set account: {}", account);
     }
 
+    /** Forgets the Account when the client leaves the server. */
+    public static void clear() {
+        account = null;
+    }
 }

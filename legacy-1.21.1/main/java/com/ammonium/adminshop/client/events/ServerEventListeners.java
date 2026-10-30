@@ -2,11 +2,8 @@ package com.ammonium.adminshop.client.events;
 
 import com.ammonium.adminshop.AdminShop;
 import com.ammonium.adminshop.commands.AdminShopCommand;
-import com.ammonium.adminshop.money.MoneyHelper;
-import com.ammonium.adminshop.network.PacketSyncMoneyToClient;
 import com.ammonium.adminshop.recipes.ModRecipeSerializers;
 import com.ammonium.adminshop.recipes.ModRecipeTypes;
-import com.ammonium.adminshop.setup.Messages;
 import com.mojang.brigadier.CommandDispatcher;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.network.chat.Component;
@@ -39,8 +36,6 @@ public class ServerEventListeners {
             level.getRecipeManager().getAllRecipesFor(ModRecipeTypes.SHOP_SELL_FLUID.get()).size()
         );
         ServerPlayer player = (ServerPlayer) event.getEntity();
-        MoneyHelper.MoneyAccount account = MoneyHelper.get(level).getPlayerAccount(player);
-        Messages.sendToPlayer(new PacketSyncMoneyToClient(account), player);
         if (oldShopPathExists) {
             player.sendSystemMessage(Component.translatable(
                     "message.adminshop.shop_csv_found_1"
