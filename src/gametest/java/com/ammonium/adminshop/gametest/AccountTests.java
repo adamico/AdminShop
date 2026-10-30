@@ -79,7 +79,7 @@ final class AccountTests {
 
         server.getDataStorage().saveAndJoin();
         // A second storage on the same folder has nothing cached: it reads the Accounts back from disk.
-        var reloaded = new SavedDataStorage(server.getWorldPath(LevelResource.DATA), server.getFixerUpper(), server.registryAccess())
+        var reloaded = new SavedDataStorage(null, server.getWorldPath(LevelResource.DATA), server.getFixerUpper(), server.registryAccess())
                 .get(MoneyHelper.TYPE);
 
         helper.assertTrue(reloaded != null, "no Accounts were saved");
