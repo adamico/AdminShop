@@ -1,4 +1,7 @@
 {
+  "gui.money_decimal_offset": 2,
+  "gui.money_format": "$%s",
+  "gui.balance": "Balance: %s",
   "message.adminshop.error.not_positive": "Must be a positive value!",
   "message.adminshop.give.success": "Successfully sent money",
   "message.adminshop.remove.failure": "Error removing money from account",
