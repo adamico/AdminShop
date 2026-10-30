@@ -3,15 +3,12 @@ package com.ammonium.adminshop.commands;
 import com.ammonium.adminshop.item.ModItems;
 import com.ammonium.adminshop.money.MoneyHelper;
 import com.mojang.brigadier.CommandDispatcher;
-import com.mojang.brigadier.arguments.LongArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
-import net.minecraft.commands.arguments.EntityArgument;
-import net.minecraft.commands.arguments.selector.EntitySelector;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -34,28 +31,6 @@ public class AdminShopCommand {
                 });
         getPermitCommand.then(getPermitCommandTier);
 
-        // adminshop give {player} {amount}
-        LiteralArgumentBuilder<CommandSourceStack> giveMoneyCommand = Commands.literal("give")
-                .requires(source -> source.hasPermission(3))
-                .then(Commands.argument("player", EntityArgument.players())
-                .then(Commands.argument("amount", LongArgumentType.longArg())
-                .executes(context -> {
-                    EntitySelector playerSelector = context.getArgument("player", EntitySelector.class);
-                    long amount = LongArgumentType.getLong(context, "amount");
-                    return giveMoney(context.getSource(), playerSelector, amount);
-                })));
-
-        // adminshop remove {player} {amount}
-        LiteralArgumentBuilder<CommandSourceStack> removeMoneyCommand = Commands.literal("remove")
-                .requires(source -> source.hasPermission(3))
-                .then(Commands.argument("player", EntityArgument.players())
-                .then(Commands.argument("amount", LongArgumentType.longArg())
-                .executes(context -> {
-                    EntitySelector playerSelector = context.getArgument("player", EntitySelector.class);
-                    long amount = LongArgumentType.getLong(context, "amount");
-                    return removeMoney(context.getSource(), playerSelector, amount);
-                })));
-
         // adminshop removePermit {permit}
         LiteralArgumentBuilder<CommandSourceStack> removePermitCommand = Commands.literal("removePermit")
                 .requires(source -> source.hasPermission(0))
@@ -72,8 +47,6 @@ public class AdminShopCommand {
 
 
         adminShopCommand.then(getPermitCommand)
-                        .then(giveMoneyCommand)
-                        .then(removeMoneyCommand)
                         .then(removePermitCommand)
                         .then(listOwnedPermitsCommand);
 
@@ -138,47 +111,6 @@ public class AdminShopCommand {
         MoneyHelper.MoneyAccount account = MoneyHelper.get(level).getPlayerAccount(player);
         MoneyHelper.get(level).removePermit(account.teamId(), tier);
         source.sendSuccess(() -> Component.translatable("message.adminshop.permit.remove.success", tier), true);
-        return 1;
-    }
-
-    static int giveMoney(CommandSourceStack source, EntitySelector selector, long amount) throws CommandSyntaxException {
-        // Skip non-positive values
-        if (!(amount>0)) {
-            source.sendFailure(Component.translatable("message.adminshop.error.not_positive"));
-            return 0;
-        }
-
-        // Get player and MoneyManager
-        ServerLevel level = source.getLevel();
-        ServerPlayer player = selector.findSinglePlayer(source);
-        MoneyHelper.MoneyAccount account = MoneyHelper.get(level).getPlayerAccount(player);
-
-        // Give money
-        MoneyHelper.get(level).addMoney(account.teamId(), amount);
-        source.sendSuccess(() -> Component.translatable("message.adminshop.give.success", amount), true);
-        return 1;
-    }
-
-    static int removeMoney(CommandSourceStack source, EntitySelector selector, long amount) throws CommandSyntaxException {
-        // Skip non-positive values
-        if (!(amount>0)) {
-            source.sendFailure(Component.translatable("message.adminshop.error.not_positive"));
-            return 0;
-        }
-
-        // Get player and account
-        ServerLevel level = source.getLevel();
-        ServerPlayer player = selector.findSinglePlayer(source);
-        MoneyHelper.MoneyAccount account = MoneyHelper.get(level).getPlayerAccount(player);
-
-        // Remove money
-        boolean success = MoneyHelper.get(level).removeMoney(account.teamId(), amount);
-        if (!success) {
-            source.sendFailure(Component.translatable("message.adminshop.remove.failure"));
-            return 0;
-        }
-        
-        source.sendSuccess(() -> Component.translatable("message.adminshop.remove.success", amount), true);
         return 1;
     }
 }

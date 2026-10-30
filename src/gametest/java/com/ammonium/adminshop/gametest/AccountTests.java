@@ -2,27 +2,20 @@ package com.ammonium.adminshop.gametest;
 
 import java.util.List;
 import java.util.UUID;
-import java.util.function.Consumer;
 
 import com.ammonium.adminshop.money.MoneyHelper;
 import com.ammonium.adminshop.setup.Config;
-import com.mojang.authlib.GameProfile;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import dev.ftb.mods.ftblibrary.icon.Color4I;
 import dev.ftb.mods.ftbteams.api.FTBTeamsAPI;
 import dev.ftb.mods.ftbteams.api.Team;
 import dev.ftb.mods.ftbteams.data.PartyTeam;
-import io.netty.channel.embedded.EmbeddedChannel;
 import net.minecraft.gametest.framework.GameTestHelper;
-import net.minecraft.network.Connection;
-import net.minecraft.network.protocol.PacketFlow;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.server.network.CommonListenerCookie;
 import net.minecraft.server.players.NameAndId;
 import net.minecraft.world.level.storage.LevelResource;
 import net.minecraft.world.level.storage.SavedDataStorage;
-import net.neoforged.neoforge.network.registration.NetworkRegistry;
 
 /**
  * Accounts belong to FTB Teams: every member of a team spends from and earns into the same Balance,
@@ -34,12 +27,12 @@ final class AccountTests {
     }
 
     static void register(AdminShopGameTests.Registrar tests) {
-        tests.test("party_members_share_one_account", 20, withPlayers(AccountTests::partyMembersShareOneAccount));
-        tests.test("leaving_a_party_returns_to_the_own_account", 20, withPlayers(AccountTests::leavingReturnsToOwnAccount));
-        tests.test("a_balance_survives_a_save_and_reload", 20, withPlayers(AccountTests::balanceSurvivesSaveAndReload));
+        tests.test("party_members_share_one_account", 20, TestPlayers.withPlayers(AccountTests::partyMembersShareOneAccount));
+        tests.test("leaving_a_party_returns_to_the_own_account", 20, TestPlayers.withPlayers(AccountTests::leavingReturnsToOwnAccount));
+        tests.test("a_balance_survives_a_save_and_reload", 20, TestPlayers.withPlayers(AccountTests::balanceSurvivesSaveAndReload));
     }
 
-    private static void partyMembersShareOneAccount(GameTestHelper helper, Players players) throws CommandSyntaxException {
+    private static void partyMembersShareOneAccount(GameTestHelper helper, TestPlayers players) throws CommandSyntaxException {
         ServerPlayer owner = players.join("shared_owner");
         ServerPlayer member = players.join("shared_member");
         joinParty(owner, member);
@@ -55,7 +48,7 @@ final class AccountTests {
         helper.assertValueEqual(accounts.getPlayerAccount(member).balance(), expected, "the member's Balance");
     }
 
-    private static void leavingReturnsToOwnAccount(GameTestHelper helper, Players players) throws CommandSyntaxException {
+    private static void leavingReturnsToOwnAccount(GameTestHelper helper, TestPlayers players) throws CommandSyntaxException {
         ServerPlayer owner = players.join("leaving_owner");
         ServerPlayer member = players.join("leaving_member");
         MoneyHelper accounts = MoneyHelper.get(helper.getLevel());
@@ -76,7 +69,7 @@ final class AccountTests {
                 "the Balance of the party after the member left");
     }
 
-    private static void balanceSurvivesSaveAndReload(GameTestHelper helper, Players players) {
+    private static void balanceSurvivesSaveAndReload(GameTestHelper helper, TestPlayers players) {
         ServerPlayer player = players.join("saving_player");
         MinecraftServer server = helper.getLevel().getServer();
         MoneyHelper accounts = MoneyHelper.get(server);
@@ -102,56 +95,5 @@ final class AccountTests {
         party.invite(owner, List.of(new NameAndId(member.getGameProfile())));
         party.join(member);
         return party;
-    }
-
-    private interface Body {
-        void run(GameTestHelper helper, Players players) throws Exception;
-    }
-
-    /** Runs the body, logs its players out again and succeeds unless the body failed. */
-    private static Consumer<GameTestHelper> withPlayers(Body body) {
-        return helper -> {
-            var players = new Players(helper.getLevel().getServer());
-            try {
-                body.run(helper, players);
-            } catch (RuntimeException e) {
-                throw e;
-            } catch (Exception e) {
-                throw new IllegalStateException(e);
-            } finally {
-                players.leave();
-            }
-            helper.succeed();
-        };
-    }
-
-    /**
-     * Players who log in for real, so FTB Teams gives each their own team, with names of their own,
-     * which FTB Teams looks players up by. {@link GameTestHelper#makeMockServerPlayerInLevel} names
-     * them all alike, and its connection takes no mod's payloads.
-     */
-    private static final class Players {
-        private final MinecraftServer server;
-        private final List<ServerPlayer> joined = new java.util.ArrayList<>();
-
-        Players(MinecraftServer server) {
-            this.server = server;
-        }
-
-        ServerPlayer join(String name) {
-            var cookie = CommonListenerCookie.createInitial(new GameProfile(UUID.randomUUID(), name), false);
-            var player = new ServerPlayer(server, server.overworld(), cookie.gameProfile(), cookie.clientInformation());
-            var connection = new Connection(PacketFlow.SERVERBOUND);
-            new EmbeddedChannel(connection);
-            // As a NeoForge client with every mod's payloads: FTB Library and AdminShop send theirs on login.
-            NetworkRegistry.configureMockConnection(connection);
-            server.getPlayerList().placeNewPlayer(connection, player, cookie);
-            joined.add(player);
-            return player;
-        }
-
-        void leave() {
-            joined.forEach(server.getPlayerList()::remove);
-        }
     }
 }

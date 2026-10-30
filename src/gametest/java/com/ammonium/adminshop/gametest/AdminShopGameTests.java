@@ -54,6 +54,7 @@ public final class AdminShopGameTests {
         var tests = new Registrar(event, environment);
         LoadTests.register(tests);
         AccountTests.register(tests);
+        CommandTests.register(tests);
     }
 
     private static Identifier id(String path) {
