@@ -35,6 +35,7 @@
   "message.adminshop.recipe_locked": "This machine's recipe is locked and cannot be changed!",
   "message.adminshop.no_permit": "Your account does not have permit %s",
   "item.adminshop.permit": "Trade Permit",
+  "item.adminshop.manual": "Economics 101",
   "message.adminshop.add_permit": "Adding permit %1$s to %2$s",
   "message.adminshop.permit.default": "Cannot get permit item for default permit",
   "message.adminshop.permit.give.failure": "Unable to give permit to player",

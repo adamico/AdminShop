@@ -1,0 +1,17 @@
+{
+  "neoforge:conditions": [
+    {"type": "neoforge:mod_loaded", "modid": "patchouli"}
+  ],
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    "minecraft:book",
+    "minecraft:emerald"
+  ],
+  "result": {
+    "id": "patchouli:guide_book",
+    "count": 1,
+    "components": {
+      "patchouli:book": "adminshop:econ_handbook"
+    }
+  }
+}
