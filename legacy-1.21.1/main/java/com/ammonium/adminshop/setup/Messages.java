@@ -1,3 +1,4 @@
+// 26.1 port: the Seller (#7) is ported (src/main/...); its PacketSetSellerRecipe is gone from here.
 package com.ammonium.adminshop.setup;
 
 import com.ammonium.adminshop.network.*;
@@ -18,10 +19,6 @@ public class Messages {
                 PacketSetFluidBuyerRecipe.TYPE,
                 PacketSetFluidBuyerRecipe.STREAM_CODEC,
                 PacketSetFluidBuyerRecipe::handle);
-        registrar.playToServer(
-                PacketSetSellerRecipe.TYPE,
-                PacketSetSellerRecipe.STREAM_CODEC,
-                PacketSetSellerRecipe::handle);
         registrar.playToServer(
                 PacketAccountAddPermit.TYPE,
                 PacketAccountAddPermit.STREAM_CODEC,

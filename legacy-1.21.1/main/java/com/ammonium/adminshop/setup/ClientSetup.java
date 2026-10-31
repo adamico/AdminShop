@@ -1,3 +1,4 @@
+// 26.1 port: the Seller (#7) is ported (src/main/...); its screen registration is gone from here. The Creative Seller's screen (#11) is src's SellerScreen.
 package com.ammonium.adminshop.setup;
 
 import com.ammonium.adminshop.AdminShop;
@@ -21,8 +22,6 @@ public class ClientSetup {
 
     @SubscribeEvent
     public static void registerScreens(RegisterMenuScreensEvent event) {
-        event.register(ModMenuTypes.SELLER_MENU.get(), (SellerMenu menu, Inventory playerInventory, Component title) ->
-                new SellerScreen<>(menu, playerInventory, title, menu.getBlockEntity().getBlockPos()));
         event.register(ModMenuTypes.BUYER_1_MENU.get(), (BuyerMenu1 menu, Inventory playerInventory, Component title) ->
                 new BuyerScreen1(menu, playerInventory, title, menu.getBlockEntity().getBlockPos()));
         event.register(ModMenuTypes.BUYER_2_MENU.get(), (BuyerMenu2 menu, Inventory playerInventory, Component title) ->
