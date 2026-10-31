@@ -32,6 +32,10 @@ configurations {
     runtimeClasspath.extendsFrom localRuntime
     gametestImplementation.extendsFrom implementation
     gametestRuntimeClasspath.extendsFrom localRuntime
+    // Optional mods the client and server runs load and the game test server, which runs from the
+    // gametest source set, doesn't.
+    optionalRuntime
+    runtimeClasspath.extendsFrom optionalRuntime
 }
 
 repositories {
@@ -39,6 +43,11 @@ repositories {
         name = 'FTB'
         url = 'https://maven.ftb.dev/releases'
         content { includeGroup 'dev.ftb.mods' }
+    }
+    maven {
+        name = 'Modrinth'
+        url = 'https://api.modrinth.com/maven'
+        content { includeGroup 'maven.modrinth' }
     }
 }
 
@@ -48,6 +57,10 @@ dependencies {
     // classpath: on it they would put every package there twice.
     implementation("dev.ftb.mods:ftb-teams-neoforge:${ftb_teams_version}") { transitive = false }
     implementation("dev.ftb.mods:ftb-library-neoforge:${ftb_library_version}") { transitive = false }
+
+    // Patchouli backs only the Econ Handbook's data and recipe, so it is optional (ADR-0002) and no code
+    // compiles against it. It loads in the client and server runs only: the game tests run without it.
+    optionalRuntime("maven.modrinth:patchouli:${patchouli_version}")
 
     gametestImplementation sourceSets.main.output
 
@@ -78,6 +91,8 @@ neoForge {
         gameTestServer {
             type = 'gameTestServer'
             gameDirectory = file('run/gametest')
+            // Its classpath leaves out the optional mods.
+            sourceSet = sourceSets.gametest
             programArguments.addAll '--tests', "${mod_id}:*", '--report', gameTestReport.get().asFile.absolutePath
         }
     }

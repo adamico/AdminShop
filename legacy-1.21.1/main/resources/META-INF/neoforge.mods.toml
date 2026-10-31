@@ -27,13 +27,6 @@ Can buy and sell Items and Fluids
     side="BOTH"
 
 [[dependencies.adminshop]]
-    modId="patchouli"
-    type="required"
-    versionRange="[1.21.1-92-NEOFORGE,)"
-    ordering="NONE"
-    side="BOTH"
-
-[[dependencies.adminshop]]
     modId="jei"
     type="optional"
     versionRange="[19.27.0,)"

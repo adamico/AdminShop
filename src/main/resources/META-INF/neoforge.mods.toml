@@ -40,3 +40,11 @@ Can buy and sell Items and Fluids
     versionRange="[${ftb_library_version},)"
     ordering="AFTER"
     side="BOTH"
+
+# Optional: Patchouli shows the Econ Handbook and enables its recipe.
+[[dependencies.${mod_id}]]
+    modId="patchouli"
+    type="optional"
+    versionRange="[26.1-94,)"
+    ordering="NONE"
+    side="BOTH"
