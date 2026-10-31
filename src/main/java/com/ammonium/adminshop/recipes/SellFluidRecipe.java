@@ -9,7 +9,6 @@ import com.ammonium.adminshop.recipes.interfaces.SellRecipe;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.StreamCodec;
@@ -52,7 +51,7 @@ public class SellFluidRecipe implements SellRecipe, FluidRecipe {
             AdminShop.LOGGER.debug("ShopSellFluidRecipe: machine is not FluidHandlerBlockEntity");
             return false;
         }
-        IFluidHandler handler = be.getTank();
+        IFluidHandler handler = IFluidHandler.of(be.getTank());
         if (handler.drain(fluid.copy(), IFluidHandler.FluidAction.SIMULATE).getAmount() < fluid.getAmount()) {
             return false;
         }
@@ -80,7 +79,7 @@ public class SellFluidRecipe implements SellRecipe, FluidRecipe {
     }
 
     public Component getName() {
-        return fluid.getDisplayName();
+        return fluid.getHoverName();
     }
 
     @Override
@@ -98,32 +97,22 @@ public class SellFluidRecipe implements SellRecipe, FluidRecipe {
     }
 
     @Override
-    public @NotNull ItemStack assemble(RecipeInput input, HolderLookup.Provider provider) {
+    public @NotNull ItemStack assemble(RecipeInput input) {
         return ItemStack.EMPTY;
     }
 
     @Override
-    public boolean canCraftInDimensions(int i, int i1) {
-        return false;
-    }
-
-    @Override
-    public @NotNull ItemStack getResultItem(HolderLookup.Provider provider) {
-        return ItemStack.EMPTY;
-    }
-
-    @Override
-    public RecipeSerializer<?> getSerializer() {
+    public RecipeSerializer<SellFluidRecipe> getSerializer() {
         return ModRecipeSerializers.SHOP_SELL_FLUID_SERIALIZER.get();
     }
 
     @Override
-    public RecipeType<?> getType() {
+    public RecipeType<SellFluidRecipe> getType() {
         return ModRecipeTypes.SHOP_SELL_FLUID.get();
     }
 
-    public static class Serializer implements RecipeSerializer<SellFluidRecipe> {
-        private static final MapCodec<SellFluidRecipe> CODEC = RecordCodecBuilder.mapCodec(instance ->
+    public static class Serializer {
+        static final MapCodec<SellFluidRecipe> CODEC = RecordCodecBuilder.mapCodec(instance ->
             instance.group(
                 Codec.LONG.fieldOf("price").forGetter(r -> r.price),
                 FluidStack.CODEC.fieldOf("result").forGetter(r -> r.fluid),
@@ -131,7 +120,7 @@ public class SellFluidRecipe implements SellRecipe, FluidRecipe {
             ).apply(instance, SellFluidRecipe::new)
         );
 
-        private static final StreamCodec<RegistryFriendlyByteBuf, SellFluidRecipe> STREAM_CODEC = StreamCodec.of(
+        static final StreamCodec<RegistryFriendlyByteBuf, SellFluidRecipe> STREAM_CODEC = StreamCodec.of(
             (buf, r) -> {
                 buf.writeLong(r.price);
                 FluidStack.STREAM_CODEC.encode(buf, r.fluid);
@@ -145,10 +134,8 @@ public class SellFluidRecipe implements SellRecipe, FluidRecipe {
             }
         );
 
-        @Override
         public MapCodec<SellFluidRecipe> codec() { return CODEC; }
 
-        @Override
         public StreamCodec<RegistryFriendlyByteBuf, SellFluidRecipe> streamCodec() { return STREAM_CODEC; }
     }
 }

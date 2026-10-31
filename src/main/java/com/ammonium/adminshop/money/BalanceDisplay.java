@@ -15,7 +15,7 @@ import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.client.event.RenderGuiEvent;
 
 @OnlyIn(Dist.CLIENT)
-@EventBusSubscriber(modid = AdminShop.MODID, bus = EventBusSubscriber.Bus.GAME, value = Dist.CLIENT)
+@EventBusSubscriber(modid = AdminShop.MODID, value = Dist.CLIENT)
 public class BalanceDisplay {
     private static long balance = 0;
     private static final long[] history = new long[]{0, 0};
@@ -57,7 +57,7 @@ public class BalanceDisplay {
         displayString = Component.translatable("gui.balance", str.toString()).getString();
     }
 
-    @EventBusSubscriber(modid = AdminShop.MODID, bus = EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
+    @EventBusSubscriber(modid = AdminShop.MODID, value = Dist.CLIENT)
     public static class ModEvents {
         @SubscribeEvent
         public static void onConfigLoad(ModConfigEvent event) {
@@ -104,6 +104,6 @@ public class BalanceDisplay {
         if (displayString.isEmpty()) return;
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null) return;
-        event.getGuiGraphics().drawString(mc.font, displayString, 2, 2, 0xFFFFFF);
+        event.getGuiGraphics().text(mc.font, displayString, 2, 2, 0xFFFFFFFF);
     }
 }

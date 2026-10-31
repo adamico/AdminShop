@@ -8,7 +8,6 @@ import com.ammonium.adminshop.recipes.interfaces.ItemRecipe;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.StreamCodec;
@@ -102,31 +101,21 @@ public class BuyItemRecipe implements BuyRecipe, ItemRecipe {
     }
 
     @Override
-    public @NotNull ItemStack assemble(RecipeInput input, HolderLookup.Provider provider) {
+    public @NotNull ItemStack assemble(RecipeInput input) {
         return ItemStack.EMPTY;
     }
 
     @Override
-    public boolean canCraftInDimensions(int i, int i1) {
-        return false;
-    }
-
-    @Override
-    public @NotNull ItemStack getResultItem(HolderLookup.Provider provider) {
-        return ItemStack.EMPTY;
-    }
-
-    @Override
-    public @NotNull RecipeSerializer<?> getSerializer() {
+    public @NotNull RecipeSerializer<BuyItemRecipe> getSerializer() {
         return ModRecipeSerializers.SHOP_BUY_ITEM_SERIALIZER.get();
     }
 
     @Override
-    public @NotNull RecipeType<?> getType() {
+    public @NotNull RecipeType<BuyItemRecipe> getType() {
         return ModRecipeTypes.SHOP_BUY_ITEM.get();
     }
 
-    public static class Serializer implements RecipeSerializer<BuyItemRecipe> {
+    public static class Serializer {
         public static final MapCodec<BuyItemRecipe> CODEC = RecordCodecBuilder.mapCodec(instance ->
             instance.group(
                 Codec.LONG.fieldOf("price").forGetter(r -> r.price),
@@ -153,13 +142,11 @@ public class BuyItemRecipe implements BuyRecipe, ItemRecipe {
             AdminShop.LOGGER.info("[AdminShop] BuyItemRecipe.Serializer instantiated");
         }
 
-        @Override
         public MapCodec<BuyItemRecipe> codec() {
             AdminShop.LOGGER.info("[AdminShop] BuyItemRecipe.Serializer.codec() called");
             return CODEC;
         }
 
-        @Override
         public StreamCodec<RegistryFriendlyByteBuf, BuyItemRecipe> streamCodec() { return STREAM_CODEC; }
     }
 

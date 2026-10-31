@@ -8,7 +8,6 @@ import com.ammonium.adminshop.recipes.interfaces.FluidRecipe;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.StreamCodec;
@@ -74,7 +73,7 @@ public class BuyFluidRecipe implements BuyRecipe, FluidRecipe {
     }
 
     public Component getName() {
-        return fluid.getDisplayName();
+        return fluid.getHoverName();
     }
 
     @Override
@@ -94,32 +93,22 @@ public class BuyFluidRecipe implements BuyRecipe, FluidRecipe {
     }
 
     @Override
-    public @NotNull ItemStack assemble(RecipeInput input, HolderLookup.Provider provider) {
+    public @NotNull ItemStack assemble(RecipeInput input) {
         return ItemStack.EMPTY;
     }
 
     @Override
-    public boolean canCraftInDimensions(int i, int i1) {
-        return false;
-    }
-
-    @Override
-    public @NotNull ItemStack getResultItem(HolderLookup.Provider provider) {
-        return ItemStack.EMPTY;
-    }
-
-    @Override
-    public RecipeSerializer<?> getSerializer() {
+    public RecipeSerializer<BuyFluidRecipe> getSerializer() {
         return ModRecipeSerializers.SHOP_BUY_FLUID_SERIALIZER.get();
     }
 
     @Override
-    public RecipeType<?> getType() {
+    public RecipeType<BuyFluidRecipe> getType() {
         return ModRecipeTypes.SHOP_BUY_FLUID.get();
     }
 
-    public static class Serializer implements RecipeSerializer<BuyFluidRecipe> {
-        private static final MapCodec<BuyFluidRecipe> CODEC = RecordCodecBuilder.mapCodec(instance ->
+    public static class Serializer {
+        static final MapCodec<BuyFluidRecipe> CODEC = RecordCodecBuilder.mapCodec(instance ->
             instance.group(
                 Codec.LONG.fieldOf("price").forGetter(r -> r.price),
                 FluidStack.CODEC.fieldOf("result").forGetter(r -> r.fluid),
@@ -127,7 +116,7 @@ public class BuyFluidRecipe implements BuyRecipe, FluidRecipe {
             ).apply(instance, BuyFluidRecipe::new)
         );
 
-        private static final StreamCodec<RegistryFriendlyByteBuf, BuyFluidRecipe> STREAM_CODEC = StreamCodec.of(
+        static final StreamCodec<RegistryFriendlyByteBuf, BuyFluidRecipe> STREAM_CODEC = StreamCodec.of(
             (buf, r) -> {
                 buf.writeLong(r.price);
                 FluidStack.STREAM_CODEC.encode(buf, r.fluid);
@@ -141,10 +130,8 @@ public class BuyFluidRecipe implements BuyRecipe, FluidRecipe {
             }
         );
 
-        @Override
         public MapCodec<BuyFluidRecipe> codec() { return CODEC; }
 
-        @Override
         public StreamCodec<RegistryFriendlyByteBuf, BuyFluidRecipe> streamCodec() { return STREAM_CODEC; }
     }
 }
