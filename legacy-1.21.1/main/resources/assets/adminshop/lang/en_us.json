@@ -24,6 +24,5 @@
   "message.adminshop.shop_csv_found_2": "Please delete the file at config/adminshop/shop.csv to disable this error.",
   "button.adminshop.confirm": "Confirm",
   "gui.adminshop.tank_empty": "Empty",
-  "message.adminshop.no_container": "No container found for fluid",
   "gui.adminshop.set_threshold": "Set detector threshold to %s"
 }

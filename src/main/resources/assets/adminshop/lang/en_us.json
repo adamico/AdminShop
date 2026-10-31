@@ -16,6 +16,7 @@
   "sellitem.recipe.tag": "Any of: %s",
   "message.adminshop.not_enough_space": "Not enough inventory space for item!",
   "message.adminshop.not_enough_money": "Not enough money in account!",
+  "message.adminshop.no_container": "No container found for fluid",
   "block.adminshop.seller": "Seller",
   "container.adminshop.seller": "Auto-Seller",
   "gui.adminshop.progress_bar": "Progress Bar",

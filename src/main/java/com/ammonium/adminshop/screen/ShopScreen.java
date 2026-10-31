@@ -29,11 +29,14 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
+import net.neoforged.neoforge.fluids.FluidStack;
+import net.neoforged.neoforge.transfer.fluid.FluidUtil;
 
 /**
  * The shop screen: the Offers of the client shop cache in a grid of 4 rows of 9, Buy or Sell Offers at a
  * time, with a search box. Clicking an Offer trades it (shift and control trade more); shift-clicking a
- * stack in the inventory sells it through the first Sell Offer that takes it.
+ * stack in the inventory sells it through the first Sell Offer that takes it, and shift-clicking a fluid
+ * container sells its fluid the same way.
  */
 public class ShopScreen extends AbstractContainerScreen<ShopMenu> {
     private static final Identifier GUI = Identifier.fromNamespaceAndPath(AdminShop.MODID, "textures/gui/shop_gui.png");
@@ -159,6 +162,15 @@ public class ShopScreen extends AbstractContainerScreen<ShopMenu> {
             if (slot.container instanceof Inventory && PermitItem.permit(stack).isPresent()) {
                 // Redeem the Trade Permit for the Account.
                 ClientPacketDistributor.sendToServer(new PacketAccountAddPermit(slot.getContainerSlot()));
+                return true;
+            }
+            // Sell a fluid container's fluid, in as many trades as it holds.
+            FluidStack fluid = FluidUtil.getFirstStackContained(stack);
+            Optional<OfferDisplay> fluidOffer = ShopCache.CLIENT.display().sellOfferFor(fluid);
+            if (fluidOffer.isPresent()) {
+                if (fluid.getAmount() >= fluidOffer.get().count()) {
+                    ClientPacketDistributor.sendToServer(new PacketSellRequest(fluidOffer.get().offer(), slot.getContainerSlot(), ShopTrades.ALL));
+                }
                 return true;
             }
             // Sell the whole stack, in as many trades as it holds.

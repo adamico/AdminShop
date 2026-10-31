@@ -1,5 +1,6 @@
 package com.ammonium.adminshop.shop;
 
+import com.ammonium.adminshop.recipes.SellFluidRecipe;
 import com.ammonium.adminshop.recipes.SellItemRecipe;
 import com.ammonium.adminshop.recipes.ShopRecipe;
 import java.util.Comparator;
@@ -8,6 +9,8 @@ import java.util.Locale;
 import java.util.Optional;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeHolder;
+import net.neoforged.neoforge.fluids.FluidStack;
+import net.neoforged.neoforge.transfer.fluid.FluidResource;
 
 /**
  * The shop display layer: the synced Offers turned into what the shop screen lists, Buy and Sell Offers
@@ -47,6 +50,14 @@ public record ShopDisplay(List<OfferDisplay> buyOffers, List<OfferDisplay> sellO
     public Optional<OfferDisplay> sellOfferFor(ItemStack stack) {
         return sellOffers.stream()
                 .filter(display -> display.recipe() instanceof SellItemRecipe offer && offer.isMatchingItemNoCount(stack))
+                .findFirst();
+    }
+
+    /** The first fluid Sell Offer that takes {@code fluid}, whatever its amount. */
+    public Optional<OfferDisplay> sellOfferFor(FluidStack fluid) {
+        FluidResource resource = FluidResource.of(fluid);
+        return sellOffers.stream()
+                .filter(display -> display.recipe() instanceof SellFluidRecipe offer && offer.takes(resource))
                 .findFirst();
     }
 
