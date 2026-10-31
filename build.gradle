@@ -114,6 +114,8 @@ neoForge {
             client()
             // The same player every launch, so a dev save keeps its inventory and position.
             programArguments.addAll '--username', 'Developer', '--uuid', '123456781234123412341234567890ab'
+            // -PquickPlay=<save> opens that save straight from launch.
+            programArguments.addAll providers.gradleProperty('quickPlay').map { ['--quickPlaySingleplayer', it] }.orElse([])
         }
         server {
             server()
