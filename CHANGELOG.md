@@ -8,8 +8,8 @@ AdminShop 2.3.2 ported from Minecraft 1.21.1 to Minecraft 26.1.2 (NeoForge).
 
 - The HUD Balance updates as soon as the server sends it (it was every 5 seconds).
 - The shop screen's search updates as you type, and an open shop screen refreshes after `/reload`.
-- The Seller sells once every 20 ticks, as its tooltip says (it was every 21).
-- The T1, T2 and T3 Buyers buy once every 40, 20 and 10 ticks, as their tooltips say (it was every 41, 21 and 11).
+- The Seller and the Creative Seller sell once every 20 ticks, as the Seller's tooltip says (it was every 21).
+- The T1, T2 and T3 Buyers buy once every 40, 20 and 10 ticks, as their tooltips say, and the Creative Buyer every 10 like the T3 (it was every 41, 21 and 11).
 - A Buyer's block entity data keeps the 1.21.1 `recipe` and `lockedRecipe` fields, so presets made with commands or `minecraft:block_entity_data` still work; its contents are now saved under `inventory` (was `Items`).
 - The Fluid Buyer and the Fluid Seller buy and sell once every 20 ticks, as their tooltips say (it was every 21).
 - The Fluid Buyer's block entity data keeps the 1.21.1 `recipe` and `lockedRecipe` fields, and the Fluid Seller's its `lockedRecipe` field (a fluid Sell Offer's id, which it then takes and sells only through); their tanks are now saved under `tank`.
