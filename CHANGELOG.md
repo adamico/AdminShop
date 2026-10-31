@@ -16,6 +16,9 @@ AdminShop 2.3.2 ported from Minecraft 1.21.1 to Minecraft 26.1.2 (NeoForge).
 - The Fluid Buyer and the Fluid Seller face the player who placed them, like the other machines.
 - Shift-clicking a fluid container in the shop screen sells as many trades as it holds; it sold one, so a bucket couldn't be sold to an Offer of less than 1000 mB.
 - Buying a fluid into a stack of empty buckets puts the filled bucket elsewhere in the inventory, or drops it when the inventory is full, as filling a bucket in the world does; it was refused when no slot was free.
+- The Basic and Advanced Detectors look at their Account's Balance once every 20 ticks (it was every 21), and as soon as they are placed or loaded; a Basic Detector no longer gives full power for its first second after being placed, whatever the Balance.
+- A Detector keeps its signal when saved, so an Advanced Detector's signal no longer drops to 0 for a second after its chunk loads.
+- A Detector's screen shows the Detector's threshold; it showed 0, or the last threshold set from that client.
 - A Permit with no `adminshop.permit.<permit>` translation shows as its own name in the shop screen's tooltip (it showed the raw translation key).
 
 ### Fixed
@@ -23,7 +26,10 @@ AdminShop 2.3.2 ported from Minecraft 1.21.1 to Minecraft 26.1.2 (NeoForge).
 - After joining or leaving a party, the client kept showing and using the old team's Account; the server now resends the Account.
 - For the first 5 seconds after joining, the HUD showed the whole Balance as a "+X/s" change.
 - Buying into an inventory that couldn't hold everything charged the full price and lost the rest; buying is now capped to what fits.
-- The Shop, the Seller, the Fluid Buyer and the Fluid Seller drop themselves when broken (their loot tables were in the pre-1.21 `loot_tables` folder).
+- The Shop, the Seller, the Fluid Buyer and the Fluid Seller drop themselves when broken (their loot tables were in the pre-1.21 `loot_tables` folder); so do the Basic and Advanced Detectors, which had no loot table.
+- A Detector nobody owns, as one placed by a command, crashed the server's tick; it now gives no signal until a player claims it.
+- When a Detector's signal changes, the blocks next to the blocks it powers strongly update too, as with a redstone torch.
+- A Detector's confirm button takes clicks only on its icon; it reached 38 pixels past it.
 - AdminShop's blocks mine faster with a pickaxe; they still drop when broken by hand, as before (the mineable tags were empty, and in the pre-1.21 `tags/blocks` folder).
 - Shift-clicking the item in the Seller's slot moves it to your inventory; it did nothing.
 - A Seller locked to a Sell Offer sells only through that Offer; it could sell through another Offer that takes the same item.
@@ -36,6 +42,7 @@ AdminShop 2.3.2 ported from Minecraft 1.21.1 to Minecraft 26.1.2 (NeoForge).
 - A client could make another team pay: trade requests no longer name a team, and quantities below one are refused.
 - A creative player could lock any Seller anywhere to a Sell Offer by naming its position; the server now locks only the Seller whose screen the player has open.
 - A creative player could set any Buyer or Fluid Buyer anywhere to a Buy Offer by naming its position; the server now sets only the one whose screen the player has open.
+- A player could set the threshold of any of their team's Detectors anywhere by naming its position; the server now sets only the one whose screen the player has open, and refuses a negative threshold.
 - A client could give any team any Permit, and destroy any item in its inventory, with the add-Permit request; the request now names only the inventory slot, and the server takes the Permit from the Trade Permit in it, for the player's own Account, while the shop screen is open.
 
 ### Offer datapack migration
