@@ -9,6 +9,7 @@ import io.netty.channel.embedded.EmbeddedChannel;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.network.Connection;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.PacketFlow;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
@@ -77,8 +78,20 @@ final class TestPlayers {
 
     /** Logs in the player with this name, which must be unique among the tests. */
     ServerPlayer join(String name) {
+        return join(name, message -> {
+        });
+    }
+
+    /** Logs in the player with this name, handing {@code heard} every system message the player is sent, from logging in on. */
+    ServerPlayer join(String name, Consumer<Component> heard) {
         var cookie = CommonListenerCookie.createInitial(new GameProfile(UUIDUtil.createOfflinePlayerUUID(name), name), false);
-        var player = new ServerPlayer(server, server.overworld(), cookie.gameProfile(), cookie.clientInformation());
+        var player = new ServerPlayer(server, server.overworld(), cookie.gameProfile(), cookie.clientInformation()) {
+            @Override
+            public void sendSystemMessage(Component message, boolean overlay) {
+                heard.accept(message);
+                super.sendSystemMessage(message, overlay);
+            }
+        };
         var connection = new Connection(PacketFlow.SERVERBOUND);
         new EmbeddedChannel(connection);
         // As a NeoForge client with every mod's payloads: FTB Library and AdminShop send theirs on login.

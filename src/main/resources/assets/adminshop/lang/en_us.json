@@ -49,5 +49,7 @@
   "block.adminshop.adv_detector": "Advanced Balance Detector",
   "screen.adminshop.adv_detector": "Advanced Detector",
   "button.adminshop.confirm": "Confirm",
-  "gui.adminshop.set_threshold": "Set detector threshold to %s"
+  "gui.adminshop.set_threshold": "Set detector threshold to %s",
+  "message.adminshop.shop_csv_found_1": "Shop.csv found in config folder. This is no longer used and will not be read from, use datapack recipes!",
+  "message.adminshop.shop_csv_found_2": "Please delete the file at config/adminshop/shop.csv to disable this error."
 }
