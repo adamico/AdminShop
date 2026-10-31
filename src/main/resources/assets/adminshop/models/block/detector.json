@@ -1,8 +1,7 @@
 {
 	"parent": "minecraft:block/template_torch",
-	"render_type": "cutout",
 	"textures": {
-		"torch": "adminshop:block/detector_off"
+		"torch": "adminshop:block/detector"
 	},
 	"display": {
 		"thirdperson_righthand": {

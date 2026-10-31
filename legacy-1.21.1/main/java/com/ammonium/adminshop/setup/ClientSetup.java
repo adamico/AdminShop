@@ -1,5 +1,5 @@
 // 26.1 port: the Seller (#7), the T1-T3 Buyers (#8), the Fluid Buyer and Fluid Seller (#10) and the Creative Buyer and
-// Creative Seller (#11) are ported (src/main/...);
+// Creative Seller (#11) and the Basic and Advanced Detectors (#12) are ported (src/main/...);
 // their screen registrations are gone from here.
 package com.ammonium.adminshop.setup;
 
@@ -24,9 +24,5 @@ public class ClientSetup {
 
     @SubscribeEvent
     public static void registerScreens(RegisterMenuScreensEvent event) {
-        event.register(ModMenuTypes.BASIC_DETECTOR_MENU.get(), (BasicDetectorMenu menu, Inventory playerInventory, Component title) ->
-                new BasicDetectorScreen(menu, playerInventory, title));
-        event.register(ModMenuTypes.ADVANCED_DETECTOR_MENU.get(), (AdvancedDetectorMenu menu, Inventory playerInventory, Component title) ->
-                new AdvancedDetectorScreen(menu, playerInventory, title));
     }
 }

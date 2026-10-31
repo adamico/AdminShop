@@ -6,6 +6,8 @@
     "adminshop:buyer_2",
     "adminshop:buyer_3",
     "adminshop:fluid_buyer",
-    "adminshop:fluid_seller"
+    "adminshop:fluid_seller",
+    "adminshop:detector",
+    "adminshop:adv_detector"
   ]
 }

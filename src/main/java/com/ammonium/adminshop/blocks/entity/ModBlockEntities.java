@@ -2,6 +2,7 @@ package com.ammonium.adminshop.blocks.entity;
 
 import com.ammonium.adminshop.AdminShop;
 import com.ammonium.adminshop.blocks.BuyerTier;
+import com.ammonium.adminshop.blocks.DetectorKind;
 import com.ammonium.adminshop.blocks.ModBlocks;
 import java.util.List;
 import net.minecraft.core.registries.Registries;
@@ -41,6 +42,23 @@ public class ModBlockEntities {
             BLOCK_ENTITIES.register("creative_buyer", () -> new BlockEntityType<>(CreativeBuyerEntity::new, ModBlocks.CREATIVE_BUYER.get()));
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<CreativeSellerEntity>> CREATIVE_SELLER =
             BLOCK_ENTITIES.register("creative_seller", () -> new BlockEntityType<>(CreativeSellerEntity::new, ModBlocks.CREATIVE_SELLER.get()));
+
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<DetectorEntity>> DETECTOR =
+            BLOCK_ENTITIES.register("detector", () -> new BlockEntityType<>(
+                    (pos, state) -> new DetectorEntity(ModBlockEntities.DETECTOR.get(), DetectorKind.BASIC, pos, state),
+                    ModBlocks.DETECTOR.get()));
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<DetectorEntity>> ADVANCED_DETECTOR =
+            BLOCK_ENTITIES.register("adv_detector", () -> new BlockEntityType<>(
+                    (pos, state) -> new DetectorEntity(ModBlockEntities.ADVANCED_DETECTOR.get(), DetectorKind.ADVANCED, pos, state),
+                    ModBlocks.ADVANCED_DETECTOR.get()));
+
+    /** The block entity type of a Detector of this kind. */
+    public static BlockEntityType<DetectorEntity> detector(DetectorKind kind) {
+        return switch (kind) {
+            case BASIC -> DETECTOR.get();
+            case ADVANCED -> ADVANCED_DETECTOR.get();
+        };
+    }
 
     /** The block entity type of a Buyer of this tier. */
     public static BlockEntityType<BuyerEntity> buyer(BuyerTier tier) {

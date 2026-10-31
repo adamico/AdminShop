@@ -3,6 +3,7 @@ package com.ammonium.adminshop.setup;
 import com.ammonium.adminshop.AdminShop;
 import com.ammonium.adminshop.screen.ModMenuTypes;
 import com.ammonium.adminshop.screen.BuyerScreen;
+import com.ammonium.adminshop.screen.DetectorScreen;
 import com.ammonium.adminshop.screen.FluidBuyerScreen;
 import com.ammonium.adminshop.screen.FluidSellerScreen;
 import com.ammonium.adminshop.screen.SellerScreen;
@@ -28,5 +29,7 @@ public final class ClientSetup {
         event.register(ModMenuTypes.BUYER_3_MENU.get(), BuyerScreen::new);
         event.register(ModMenuTypes.FLUID_BUYER_MENU.get(), FluidBuyerScreen::new);
         event.register(ModMenuTypes.FLUID_SELLER_MENU.get(), FluidSellerScreen::new);
+        event.register(ModMenuTypes.DETECTOR_MENU.get(), DetectorScreen::new);
+        event.register(ModMenuTypes.ADVANCED_DETECTOR_MENU.get(), DetectorScreen::new);
     }
 }

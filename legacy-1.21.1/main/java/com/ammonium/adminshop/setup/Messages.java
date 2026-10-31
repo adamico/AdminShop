@@ -1,5 +1,6 @@
 // 26.1 port: the Seller (#7), the T1-T3 Buyers (#8) and the Fluid Buyer (#10) are ported (src/main/...); PacketSetSellerRecipe,
-// PacketSetItemBuyerRecipe (now src's PacketSetBuyerRecipe), PacketSetFluidBuyerRecipe and PacketAccountAddPermit (#9) are gone from here.
+// PacketSetItemBuyerRecipe (now src's PacketSetBuyerRecipe), PacketSetFluidBuyerRecipe and PacketAccountAddPermit (#9) are gone from here;
+// so are PacketSetDetectorThreshold (#12) and PacketUpdateRequest, which only machine screens used.
 package com.ammonium.adminshop.setup;
 
 import com.ammonium.adminshop.network.*;
@@ -12,14 +13,6 @@ public class Messages {
 
     public static void register(RegisterPayloadHandlersEvent event) {
         PayloadRegistrar registrar = event.registrar("1");
-        registrar.playToServer(
-                PacketUpdateRequest.TYPE,
-                PacketUpdateRequest.STREAM_CODEC,
-                PacketUpdateRequest::handle);
-        registrar.playToServer(
-                PacketSetDetectorThreshold.TYPE,
-                PacketSetDetectorThreshold.STREAM_CODEC,
-                PacketSetDetectorThreshold::handle);
     }
 
     public static <MSG extends net.minecraft.network.protocol.common.custom.CustomPacketPayload> void sendToServer(MSG message) {

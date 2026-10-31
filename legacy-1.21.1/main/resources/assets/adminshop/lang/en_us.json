@@ -3,10 +3,6 @@
   "gui.item_tag": "Any item: ",
   "gui.fluid_tag": "Any fluid: ",
   "gui.adminshop.tank_gauge": "Tank Gauge",
-  "block.adminshop.detector": "Balance Detector",
-  "screen.adminshop.detector": "Detector",
-  "block.adminshop.adv_detector": "Advanced Balance Detector",
-  "screen.adminshop.adv_detector": "Advanced Detector",
   "itemGroup.adminshop": "Admin Shop",
   "screen.adminshop.buyer": "Buyer",
   "item.adminshop.manual": "Economics 101",
@@ -18,7 +14,5 @@
   "sellitem.recipe.tag": "Any of: %s",
   "message.adminshop.shop_csv_found_1": "Shop.csv found in config folder. This is no longer used and will not be read from, use datapack recipes!",
   "message.adminshop.shop_csv_found_2": "Please delete the file at config/adminshop/shop.csv to disable this error.",
-  "button.adminshop.confirm": "Confirm",
-  "gui.adminshop.tank_empty": "Empty",
-  "gui.adminshop.set_threshold": "Set detector threshold to %s"
+  "gui.adminshop.tank_empty": "Empty"
 }

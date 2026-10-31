@@ -43,5 +43,11 @@
   "message.adminshop.permits.empty": "Your account has not unlocked any permits yet.",
   "shopbutton.permit": "Permit: %s",
   "gui.adminshop.no_permit": "You don't have the necessary permit!",
-  "adminshop.permit.gems": "Gems"
+  "adminshop.permit.gems": "Gems",
+  "block.adminshop.detector": "Balance Detector",
+  "screen.adminshop.detector": "Detector",
+  "block.adminshop.adv_detector": "Advanced Balance Detector",
+  "screen.adminshop.adv_detector": "Advanced Detector",
+  "button.adminshop.confirm": "Confirm",
+  "gui.adminshop.set_threshold": "Set detector threshold to %s"
 }

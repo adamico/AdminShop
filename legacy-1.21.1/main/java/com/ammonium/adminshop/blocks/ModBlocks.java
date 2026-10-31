@@ -1,5 +1,5 @@
 // 26.1 port: the Seller (#7), the T1-T3 Buyers (#8), the Fluid Buyer and Fluid Seller (#10) and the Creative Buyer and
-// Creative Seller (#11) are ported (src/main/...);
+// Creative Seller (#11) and the Basic and Advanced Detectors (#12) are ported (src/main/...);
 // their registration is gone from here.
 package com.ammonium.adminshop.blocks;
 
@@ -20,12 +20,6 @@ public class ModBlocks {
 //    public static final Material machineBlock = new Material(MaterialColor.METAL, false, true, true, true, false, false, PushReaction.BLOCK);
     public static final DeferredRegister<Block> BLOCKS =
             DeferredRegister.create(BuiltInRegistries.BLOCK, AdminShop.MODID);
-
-    public static final DeferredHolder<Block, BasicDetector> DETECTOR = registerLoreBlock("detector",
-            BasicDetector::new, "Outputs full redstone signal if greater than threshold");
-
-    public static final DeferredHolder<Block, AdvancedDetector> ADVANCED_DETECTOR = registerLoreBlock("adv_detector",
-            AdvancedDetector::new, "Outputs analog redstone signal proportional on balance between 0 and threshold");
 
     private static <T extends Block> DeferredHolder<Block, T> registerBlock(String name, Supplier<T> block) {
         DeferredHolder<Block, T> toReturn = BLOCKS.register(name, block);

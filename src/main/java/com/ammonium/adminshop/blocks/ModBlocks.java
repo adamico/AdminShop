@@ -31,6 +31,11 @@ public class ModBlocks {
             "Set its recipe in creative mode, then claim it in survival to buy with that recipe, bypassing permits");
     public static final DeferredBlock<CreativeSellerBlock> CREATIVE_SELLER = registerLoreBlock("creative_seller", CreativeSellerBlock::new,
             "Set its recipe in creative mode, then claim it in survival to sell with that recipe, bypassing permits");
+    public static final DeferredBlock<DetectorBlock> DETECTOR = registerLoreBlock("detector",
+            properties -> new DetectorBlock(DetectorKind.BASIC, properties), "Outputs full redstone signal if greater than threshold");
+    public static final DeferredBlock<DetectorBlock> ADVANCED_DETECTOR = registerLoreBlock("adv_detector",
+            properties -> new DetectorBlock(DetectorKind.ADVANCED, properties),
+            "Outputs analog redstone signal proportional on balance between 0 and threshold");
 
     private static <T extends Block> DeferredBlock<T> registerLoreBlock(String name, Function<BlockBehaviour.Properties, T> block,
                                                                        String lore) {

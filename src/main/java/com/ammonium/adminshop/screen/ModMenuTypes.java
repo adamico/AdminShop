@@ -2,6 +2,7 @@ package com.ammonium.adminshop.screen;
 
 import com.ammonium.adminshop.AdminShop;
 import com.ammonium.adminshop.blocks.BuyerTier;
+import com.ammonium.adminshop.blocks.DetectorKind;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.inventory.MenuType;
@@ -24,6 +25,23 @@ public class ModMenuTypes {
     public static final DeferredHolder<MenuType<?>, MenuType<BuyerMenu>> BUYER_1_MENU = registerBuyer("buyer_menu", BuyerTier.ONE);
     public static final DeferredHolder<MenuType<?>, MenuType<BuyerMenu>> BUYER_2_MENU = registerBuyer("buyer_2_menu", BuyerTier.TWO);
     public static final DeferredHolder<MenuType<?>, MenuType<BuyerMenu>> BUYER_3_MENU = registerBuyer("buyer_3_menu", BuyerTier.THREE);
+
+    public static final DeferredHolder<MenuType<?>, MenuType<DetectorMenu>> DETECTOR_MENU = registerDetector("detector_menu", DetectorKind.BASIC);
+    public static final DeferredHolder<MenuType<?>, MenuType<DetectorMenu>> ADVANCED_DETECTOR_MENU =
+            registerDetector("advanced_detector_menu", DetectorKind.ADVANCED);
+
+    private static DeferredHolder<MenuType<?>, MenuType<DetectorMenu>> registerDetector(String name, DetectorKind kind) {
+        return MENUS.register(name, () -> IMenuTypeExtension.create((containerId, inventory, buffer) ->
+                DetectorMenu.client(kind, containerId, inventory)));
+    }
+
+    /** The menu type of a Detector of this kind. */
+    public static MenuType<DetectorMenu> detector(DetectorKind kind) {
+        return switch (kind) {
+            case BASIC -> DETECTOR_MENU.get();
+            case ADVANCED -> ADVANCED_DETECTOR_MENU.get();
+        };
+    }
 
     private static DeferredHolder<MenuType<?>, MenuType<BuyerMenu>> registerBuyer(String name, BuyerTier tier) {
         return MENUS.register(name, () -> IMenuTypeExtension.create((containerId, inventory, buffer) ->

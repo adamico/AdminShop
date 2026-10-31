@@ -1,5 +1,5 @@
 // 26.1 port: the Seller (#7), the T1-T3 Buyers (#8), the Fluid Buyer and Fluid Seller (#10) and the Creative Buyer and
-// Creative Seller (#11) are ported (src/main/...);
+// Creative Seller (#11) and the Basic and Advanced Detectors (#12) are ported (src/main/...);
 // their block entities and capabilities are gone from here.
 package com.ammonium.adminshop.blocks.entity;
 
@@ -20,14 +20,6 @@ public class ModBlockEntities {
     public static final DeferredRegister<BlockEntityType<?>> BLOCK_ENTITIES =
             DeferredRegister.create(BuiltInRegistries.BLOCK_ENTITY_TYPE, AdminShop.MODID);
 
-
-    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<BasicDetectorEntity>> BASIC_DETECTOR =
-            BLOCK_ENTITIES.register("detector", () -> BlockEntityType.Builder.of(BasicDetectorEntity::new,
-                    ModBlocks.DETECTOR.get()).build(null));
-
-    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<AdvancedDetectorEntity>> ADVANCED_DETECTOR =
-            BLOCK_ENTITIES.register("adv_detector", () -> BlockEntityType.Builder.of(AdvancedDetectorEntity::new,
-                    ModBlocks.ADVANCED_DETECTOR.get()).build(null));
 
     public static void register(IEventBus eventBus) {
         BLOCK_ENTITIES.register(eventBus);

@@ -4,6 +4,7 @@ import com.ammonium.adminshop.network.PacketAccountAddPermit;
 import com.ammonium.adminshop.network.PacketBuyRequest;
 import com.ammonium.adminshop.network.PacketSellRequest;
 import com.ammonium.adminshop.network.PacketSetBuyerRecipe;
+import com.ammonium.adminshop.network.PacketSetDetectorThreshold;
 import com.ammonium.adminshop.network.PacketSetFluidBuyerRecipe;
 import com.ammonium.adminshop.network.PacketSetSellerRecipe;
 import com.ammonium.adminshop.network.PacketSyncMoneyToClient;
@@ -41,6 +42,10 @@ public class Messages {
                 PacketSetFluidBuyerRecipe.TYPE,
                 PacketSetFluidBuyerRecipe.STREAM_CODEC,
                 PacketSetFluidBuyerRecipe::handle);
+        registrar.playToServer(
+                PacketSetDetectorThreshold.TYPE,
+                PacketSetDetectorThreshold.STREAM_CODEC,
+                PacketSetDetectorThreshold::handle);
         registrar.playToServer(
                 PacketAccountAddPermit.TYPE,
                 PacketAccountAddPermit.STREAM_CODEC,
