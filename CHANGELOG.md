@@ -6,6 +6,8 @@ AdminShop 2.3.2 ported from Minecraft 1.21.1 to Minecraft 26.1.2 (NeoForge).
 
 ### Changed
 
+- Patchouli is now optional. Without it, the Econ Handbook and its recipe are absent; with it, the handbook is crafted from a book and an emerald as before.
+- The Econ Handbook's Permits page names the shop screen's "Permit: ..." line (it said "Requires: ...") and no longer speaks of permit tiers.
 - The HUD Balance updates as soon as the server sends it (it was every 5 seconds).
 - The shop screen's search updates as you type, and an open shop screen refreshes after `/reload`.
 - The Seller and the Creative Seller sell once every 20 ticks, as the Seller's tooltip says (it was every 21).
@@ -25,6 +27,7 @@ AdminShop 2.3.2 ported from Minecraft 1.21.1 to Minecraft 26.1.2 (NeoForge).
 
 ### Fixed
 
+- A crafted Econ Handbook opened no book: the recipe put the book's id in `minecraft:custom_data`, where Patchouli doesn't read it; it now sets Patchouli's `patchouli:book` component.
 - After joining or leaving a party, the client kept showing and using the old team's Account; the server now resends the Account.
 - For the first 5 seconds after joining, the HUD showed the whole Balance as a "+X/s" change.
 - Buying into an inventory that couldn't hold everything charged the full price and lost the rest; buying is now capped to what fits.
