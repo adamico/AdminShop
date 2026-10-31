@@ -2,7 +2,7 @@
 Admin Shop Minecraft Mod
 Adminshop is a powerful mod that allows both server administrator and modpack developers to add their own "shop" into Minecraft, where players can buy and sell items at fixed prices. It uses a custom "bank account" system, in which you can create shared accounts with other players, allowing Co-Op play in servers or modpacks that rely on this mod. The mod was originally for 1.12 by Vnator, but it has been forked to newer versions and overhauled by Ammonium.
 
-This branch (`26.1.2/2.x`) is a port of AdminShop Overhauled 2.3.2 from Minecraft 1.21.1 to **Minecraft 26.1.2 on NeoForge**, made on the [adamico/AdminShop](https://github.com/adamico/AdminShop) fork of [AmmoniumX/AdminShop](https://github.com/AmmoniumX/AdminShop). Releases are published as GitHub Releases on the fork. What changed since 1.21.1, including the notes for updating Offer datapacks, is in [CHANGELOG.md](CHANGELOG.md); where each 1.21.1 file went is in [PORTING.md](PORTING.md). Worlds saved with 1.21.1 are not migrated.
+This branch (`26.1.2/2.x`) is a port of AdminShop Overhauled 2.3.2 from Minecraft 1.21.1 to **Minecraft 26.1.2 on NeoForge**, made on the [adamico/AdminShop](https://github.com/adamico/AdminShop) fork of [AmmoniumX/AdminShop](https://github.com/AmmoniumX/AdminShop). Releases are published as GitHub Releases on the fork. What changed since 1.21.1, including the notes for updating Offer datapacks, is in [CHANGELOG.md](CHANGELOG.md). Worlds saved with 1.21.1 are not migrated.
 
 ## Requirements
 
