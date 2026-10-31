@@ -1,3 +1,4 @@
+// 26.1 port: the Seller (#7) is ported (src/main/...); its registration is gone from here.
 package com.ammonium.adminshop.blocks;
 
 import com.ammonium.adminshop.AdminShop;
@@ -25,9 +26,6 @@ public class ModBlocks {
             BuyerBlock2::new, "Automatically buys once every 20 ticks");
     public static final DeferredHolder<Block, BuyerBlock3> BUYER_3 = registerLoreBlock("buyer_3",
             BuyerBlock3::new, "Automatically buys once every 10 ticks");
-
-    public static final DeferredHolder<Block, SellerBlock> SELLER = registerLoreBlock("seller",
-            SellerBlock::new, "Automatically sells once every 20 ticks");
 
     public static final DeferredHolder<Block, CreativeBuyerBlock> CREATIVE_BUYER = registerLoreBlock("creative_buyer",
             CreativeBuyerBlock::new, "Set its recipe in creative mode, then claim it in survival to buy with that recipe, bypassing permits");

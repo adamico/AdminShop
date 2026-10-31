@@ -2,12 +2,12 @@ package com.ammonium.adminshop.gametest;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 import java.util.function.Consumer;
 
 import com.mojang.authlib.GameProfile;
 import io.netty.channel.embedded.EmbeddedChannel;
 import net.minecraft.gametest.framework.GameTestHelper;
+import net.minecraft.core.UUIDUtil;
 import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.PacketFlow;
 import net.minecraft.server.MinecraftServer;
@@ -51,9 +51,33 @@ final class TestPlayers {
         };
     }
 
-    /** Logs in a player with this name, which must be unique among the tests. */
+    /** What a test does with players logged in, and what it keeps from it. */
+    interface Session<T> {
+        T run(TestPlayers players) throws Exception;
+    }
+
+    /**
+     * Runs {@code session} and logs its players out again before returning, for a test that goes on for ticks,
+     * as a machine's does: a mock player can't stay logged in over a tick (NeoForge then expects the config
+     * sync of a real login). Their teams and Accounts stay, and a player who joins again under the same name
+     * is the same player.
+     */
+    static <T> T session(GameTestHelper helper, Session<T> session) {
+        var players = new TestPlayers(helper.getLevel().getServer());
+        try {
+            return session.run(players);
+        } catch (RuntimeException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new IllegalStateException(e);
+        } finally {
+            players.leave();
+        }
+    }
+
+    /** Logs in the player with this name, which must be unique among the tests. */
     ServerPlayer join(String name) {
-        var cookie = CommonListenerCookie.createInitial(new GameProfile(UUID.randomUUID(), name), false);
+        var cookie = CommonListenerCookie.createInitial(new GameProfile(UUIDUtil.createOfflinePlayerUUID(name), name), false);
         var player = new ServerPlayer(server, server.overworld(), cookie.gameProfile(), cookie.clientInformation());
         var connection = new Connection(PacketFlow.SERVERBOUND);
         new EmbeddedChannel(connection);

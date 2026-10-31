@@ -1,28 +1,36 @@
 package com.ammonium.adminshop.shop;
 
 import com.ammonium.adminshop.AdminShop;
+import com.ammonium.adminshop.blocks.interfaces.ShopMachine;
 import com.ammonium.adminshop.money.MoneyHelper;
 import com.ammonium.adminshop.recipes.BuyItemRecipe;
+import com.ammonium.adminshop.recipes.ModRecipeTypes;
 import com.ammonium.adminshop.recipes.SellItemRecipe;
+import java.util.Collection;
 import java.util.Optional;
 import java.util.UUID;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.RecipeHolder;
 import net.neoforged.neoforge.transfer.RangedResourceHandler;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.ResourceHandlerUtil;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 import net.neoforged.neoforge.transfer.item.PlayerInventoryWrapper;
 import net.neoforged.neoforge.transfer.transaction.Transaction;
+import org.jspecify.annotations.Nullable;
 
 /**
  * The Shop's server-side trade handling: a player buying from a Buy Offer or selling to a Sell Offer
- * by hand, from the Shop block or the Shop Tablet. The player's Account pays or is paid, and the goods
- * go to or come from the player's main inventory (never the armour or offhand slots).
+ * by hand, from the Shop block or the Shop Tablet, and the machines trading for their Account. A player's
+ * Account pays or is paid, and the goods go to or come from the player's main inventory (never the armour
+ * or offhand slots).
  */
 public final class ShopTrades {
 
@@ -39,7 +47,9 @@ public final class ShopTrades {
         REFUSED,
         NOT_ENOUGH_MONEY,
         NOT_ENOUGH_SPACE,
-        NOT_ENOUGH_GOODS
+        NOT_ENOUGH_GOODS,
+        /** The machine has no Account to trade for: nobody has claimed it, or its team is gone. */
+        NO_ACCOUNT
     }
 
     private ShopTrades() {
@@ -136,22 +146,77 @@ public final class ShopTrades {
         if ((long) trades * perTrade > stack.getCount()) {
             return Result.NOT_ENOUGH_GOODS;
         }
+        return takeAndPay(player.level(), team(player), offer, mainInventory(player), slot, trades);
+    }
 
+    /** Every Sell Offer for items the server loaded. */
+    public static Collection<RecipeHolder<SellItemRecipe>> sellOffers(MinecraftServer server) {
+        return server.getRecipeManager().recipeMap().byType(ModRecipeTypes.SHOP_SELL_ITEM.get());
+    }
+
+    /**
+     * Whether a Sell Offer for items among {@code offers} takes {@code stack}, whatever its count; with {@code only}
+     * set, whether that one does. The Seller asks this of what is put into it: on the server of {@link #sellOffers},
+     * on the client of the client shop cache.
+     */
+    public static boolean anySellOfferTakes(Iterable<? extends RecipeHolder<?>> offers, @Nullable ResourceKey<Recipe<?>> only,
+                                            ItemStack stack) {
+        for (RecipeHolder<?> holder : offers) {
+            if ((only == null || holder.id().equals(only)) && holder.value() instanceof SellItemRecipe offer
+                    && offer.isMatchingItemNoCount(stack)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Sells one trade for a machine, from the first of {@code goods}' slots that holds enough for a Sell Offer,
+     * crediting the machine's Account; with {@code only} set, only through that Offer. A machine nobody owns, or
+     * whose team is gone, sells nothing. This is the Seller's sale, once a cycle.
+     */
+    public static Result sellFrom(ServerLevel level, ShopMachine machine, ResourceHandler<ItemResource> goods,
+                                  @Nullable ResourceKey<Recipe<?>> only) {
+        @Nullable UUID team = machine.getTeamId();
+        if (team == null || MoneyHelper.get(level).getAccountById(team) == null) {
+            return Result.NO_ACCOUNT;
+        }
+        for (RecipeHolder<SellItemRecipe> holder : sellOffers(level.getServer())) {
+            if (only != null && !holder.id().equals(only)) {
+                continue;
+            }
+            SellItemRecipe offer = holder.value();
+            for (int index = 0; index < goods.size(); index++) {
+                ItemStack stack = goods.getResource(index).toStack(goods.getAmountAsInt(index));
+                if (offer.isMatchingItemStack(stack) && takeAndPay(level, team, offer, goods, index, 1) == Result.DONE) {
+                    return Result.DONE;
+                }
+            }
+        }
+        return Result.NOT_ENOUGH_GOODS;
+    }
+
+    /**
+     * Takes {@code trades} trades of {@code offer}'s goods from {@code goods}' slot {@code index} and credits
+     * {@code team} their price, or does neither. Selling by hand and the Seller both sell through here.
+     */
+    private static Result takeAndPay(ServerLevel level, UUID team, SellItemRecipe offer, ResourceHandler<ItemResource> goods,
+                                     int index, int trades) {
         long price;
         try {
             price = Math.multiplyExact(offer.price(), trades);
         } catch (ArithmeticException e) {
             return Result.REFUSED;
         }
-        ResourceHandler<ItemResource> slotHandler = RangedResourceHandler.ofSingleIndex(mainInventory(player), slot);
+        int amount = trades * offer.getCount();
         try (var transaction = Transaction.openRoot()) {
-            int extracted = slotHandler.extract(0, ItemResource.of(stack), trades * perTrade, transaction);
-            if (extracted != trades * perTrade) {
+            int extracted = goods.extract(index, goods.getResource(index), amount, transaction);
+            if (extracted != amount) {
                 return Result.NOT_ENOUGH_GOODS;
             }
             transaction.commit();
         }
-        MoneyHelper.get(player.level()).addMoney(team(player), price);
+        MoneyHelper.get(level).addMoney(team, price);
         return Result.DONE;
     }
 

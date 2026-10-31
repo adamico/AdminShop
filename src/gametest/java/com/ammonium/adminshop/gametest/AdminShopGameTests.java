@@ -59,6 +59,7 @@ public final class AdminShopGameTests {
         ShopTradeTests.register(tests);
         ShopBlockTests.register(tests);
         BlockTests.register(tests);
+        SellerTests.register(tests);
     }
 
     private static Identifier id(String path) {

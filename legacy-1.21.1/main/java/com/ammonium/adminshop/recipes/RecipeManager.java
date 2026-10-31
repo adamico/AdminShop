@@ -1,3 +1,5 @@
+// 26.1 port: the Seller's lookups (#7) are in src's ShopTrades (sellOffers, anySellOfferTakes, sellFrom);
+// the server-side replacement for an Offer lookup is server.getRecipeManager().byKey(key).
 package com.ammonium.adminshop.recipes;
 
 import com.ammonium.adminshop.blocks.interfaces.*;
@@ -84,26 +86,10 @@ public class RecipeManager {
         return recipe != null && recipe.matches(getAccount(level, machine), machine);
     }
 
-    public static boolean canPlaceItemInSeller(Level level, ItemStack item, @Nullable ResourceLocation lockedRecipeId) {
-        return level.getRecipeManager().getAllRecipesFor(ModRecipeTypes.SHOP_SELL_ITEM.get())
-                .stream()
-                .filter(recipe -> lockedRecipeId == null || recipe.id().equals(lockedRecipeId))
-                .anyMatch(recipe -> recipe.value().isMatchingItemNoCount(item));
-    }
-
     public static Optional<RecipeHolder<SellItemRecipe>> isSellItemRecipe(Level level, ItemStack item) {
         return level.getRecipeManager().getAllRecipesFor(ModRecipeTypes.SHOP_SELL_ITEM.get())
                 .stream()
                 .filter(recipe -> recipe.value().isMatchingItemStack(item))
-                .findFirst();
-    }
-
-    public static Optional<RecipeHolder<SellItemRecipe>> checkForSellItemRecipe(ServerLevel level, ItemSellerMachine machine) {
-        MoneyHelper.MoneyAccount account = getAccount(level, machine);
-        if (account == null) { return Optional.empty(); }
-        return level.getRecipeManager().getAllRecipesFor(ModRecipeTypes.SHOP_SELL_ITEM.get())
-                .stream()
-                .filter(recipe -> recipe.value().matches(account, machine))
                 .findFirst();
     }
 

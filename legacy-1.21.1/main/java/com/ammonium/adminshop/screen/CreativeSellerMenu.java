@@ -1,3 +1,6 @@
+// 26.1 port: the Seller (#7) is ported. On 26.1 this builds on src's SellerBlock / SellerEntity / SellerMenu /
+// SellerScreen: override MachineBlock.claimOnPlacement (was assignInitialTeamId) to leave it unclaimed, SellerEntity's
+// protected constructor and ShopMachine.bypassesPermits, SellerMenu's protected constructor with SellerMenu.data(seller).
 package com.ammonium.adminshop.screen;
 
 import com.ammonium.adminshop.blocks.ModBlocks;

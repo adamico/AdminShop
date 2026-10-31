@@ -1,3 +1,4 @@
+// 26.1 port: the Seller (#7) is ported (src/main/...); its menu type is gone from here.
 package com.ammonium.adminshop.screen;
 
 import com.ammonium.adminshop.AdminShop;
@@ -11,9 +12,6 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 public class ModMenuTypes {
     public static final DeferredRegister<MenuType<?>> MENUS =
             DeferredRegister.create(BuiltInRegistries.MENU, AdminShop.MODID);
-
-    public static final DeferredHolder<MenuType<?>, MenuType<SellerMenu>> SELLER_MENU = MENUS.register("seller_menu",
-            () -> IMenuTypeExtension.create((SellerMenu::new)));
 
     public static final DeferredHolder<MenuType<?>, MenuType<BuyerMenu1>> BUYER_1_MENU = MENUS.register("buyer_menu",
             () -> IMenuTypeExtension.create((BuyerMenu1::new)));

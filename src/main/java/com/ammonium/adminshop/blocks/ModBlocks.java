@@ -15,6 +15,8 @@ public class ModBlocks {
     public static final DeferredRegister.Blocks BLOCKS = DeferredRegister.createBlocks(AdminShop.MODID);
 
     public static final DeferredBlock<ShopBlock> SHOP = registerLoreBlock("shop", ShopBlock::new, "Buy and Sell Items!");
+    public static final DeferredBlock<SellerBlock> SELLER = registerLoreBlock("seller", SellerBlock::new,
+            "Automatically sells once every 20 ticks");
 
     private static <T extends Block> DeferredBlock<T> registerLoreBlock(String name, Function<BlockBehaviour.Properties, T> block,
                                                                        String lore) {

@@ -15,5 +15,11 @@
   "shopbutton.description": "%1$s %2$s %3$s",
   "sellitem.recipe.tag": "Any of: %s",
   "message.adminshop.not_enough_space": "Not enough inventory space for item!",
-  "message.adminshop.not_enough_money": "Not enough money in account!"
+  "message.adminshop.not_enough_money": "Not enough money in account!",
+  "block.adminshop.seller": "Seller",
+  "container.adminshop.seller": "Auto-Seller",
+  "gui.adminshop.progress_bar": "Progress Bar",
+  "gui.adminshop.no_account": "No account",
+  "message.adminshop.no_access": "You don't have access to this machine's account!",
+  "message.adminshop.claimed_machine": "You have claimed this machine as yours!"
 }

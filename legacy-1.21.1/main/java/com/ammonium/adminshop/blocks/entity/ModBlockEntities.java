@@ -1,3 +1,4 @@
+// 26.1 port: the Seller (#7) is ported (src/main/...); its block entity and item capability is gone from here.
 package com.ammonium.adminshop.blocks.entity;
 
 import com.ammonium.adminshop.AdminShop;
@@ -16,10 +17,6 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 public class ModBlockEntities {
     public static final DeferredRegister<BlockEntityType<?>> BLOCK_ENTITIES =
             DeferredRegister.create(BuiltInRegistries.BLOCK_ENTITY_TYPE, AdminShop.MODID);
-
-    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<SellerEntity>> SELLER =
-            BLOCK_ENTITIES.register("seller", () -> BlockEntityType.Builder.of(SellerEntity::new,
-                    ModBlocks.SELLER.get()).build(null));
 
 
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<BuyerEntity1>> BUYER_1 =
@@ -63,13 +60,6 @@ public class ModBlockEntities {
 
     @SubscribeEvent
     public static void registerCapabilities(RegisterCapabilitiesEvent event) {
-
-        // Seller
-        event.registerBlockEntity(
-                Capabilities.ItemHandler.BLOCK,
-                ModBlockEntities.SELLER.get(),
-                (be, side) -> be.getInventory() // Assuming you add a getter
-        );
 
         // Creative Seller
         event.registerBlockEntity(

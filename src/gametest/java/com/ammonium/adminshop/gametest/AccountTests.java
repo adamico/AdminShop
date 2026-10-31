@@ -89,7 +89,7 @@ final class AccountTests {
     }
 
     /** Puts {@code member} in a new party that {@code owner} owns. */
-    private static PartyTeam joinParty(ServerPlayer owner, ServerPlayer member) throws CommandSyntaxException {
+    static PartyTeam joinParty(ServerPlayer owner, ServerPlayer member) throws CommandSyntaxException {
         Team team = FTBTeamsAPI.api().getManager().createPartyTeam(owner, owner.getPlainTextName() + "'s party", "", Color4I.WHITE);
         PartyTeam party = (PartyTeam) team;
         party.invite(owner, List.of(new NameAndId(member.getGameProfile())));
