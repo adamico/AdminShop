@@ -3,6 +3,8 @@ package com.ammonium.adminshop.setup;
 import com.ammonium.adminshop.AdminShop;
 import com.ammonium.adminshop.screen.ModMenuTypes;
 import com.ammonium.adminshop.screen.BuyerScreen;
+import com.ammonium.adminshop.screen.FluidBuyerScreen;
+import com.ammonium.adminshop.screen.FluidSellerScreen;
 import com.ammonium.adminshop.screen.SellerScreen;
 import com.ammonium.adminshop.screen.ShopScreen;
 import net.neoforged.api.distmarker.Dist;
@@ -24,5 +26,7 @@ public final class ClientSetup {
         event.register(ModMenuTypes.BUYER_1_MENU.get(), BuyerScreen::new);
         event.register(ModMenuTypes.BUYER_2_MENU.get(), BuyerScreen::new);
         event.register(ModMenuTypes.BUYER_3_MENU.get(), BuyerScreen::new);
+        event.register(ModMenuTypes.FLUID_BUYER_MENU.get(), FluidBuyerScreen::new);
+        event.register(ModMenuTypes.FLUID_SELLER_MENU.get(), FluidSellerScreen::new);
     }
 }

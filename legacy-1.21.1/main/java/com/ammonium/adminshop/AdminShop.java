@@ -79,16 +79,6 @@ public class AdminShop {
                     ModBlockEntities.SELLER.get(),
                     (be, side) -> be.inventory
             );
-            event.registerBlockEntity(
-                    Capabilities.FluidHandler.BLOCK,
-                    ModBlockEntities.FLUID_BUYER.get(),
-                    (be, side) -> be.getTank()
-            );
-            event.registerBlockEntity(
-                    Capabilities.FluidHandler.BLOCK,
-                    ModBlockEntities.FLUID_SELLER.get(),
-                    (be, side) -> be.getTank()
-            );
         }
     }
 }

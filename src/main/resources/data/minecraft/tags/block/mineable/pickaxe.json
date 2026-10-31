@@ -4,6 +4,8 @@
     "adminshop:seller",
     "adminshop:buyer_1",
     "adminshop:buyer_2",
-    "adminshop:buyer_3"
+    "adminshop:buyer_3",
+    "adminshop:fluid_buyer",
+    "adminshop:fluid_seller"
   ]
 }

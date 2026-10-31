@@ -23,6 +23,10 @@ public class ModBlocks {
             properties -> new BuyerBlock(BuyerTier.TWO, properties), "Automatically buys once every 20 ticks");
     public static final DeferredBlock<BuyerBlock> BUYER_3 = registerLoreBlock("buyer_3",
             properties -> new BuyerBlock(BuyerTier.THREE, properties), "Automatically buys once every 10 ticks");
+    public static final DeferredBlock<FluidBuyerBlock> FLUID_BUYER = registerLoreBlock("fluid_buyer", FluidBuyerBlock::new,
+            "Automatically buys once every 20 ticks");
+    public static final DeferredBlock<FluidSellerBlock> FLUID_SELLER = registerLoreBlock("fluid_seller", FluidSellerBlock::new,
+            "Automatically sells once every 20 ticks");
 
     private static <T extends Block> DeferredBlock<T> registerLoreBlock(String name, Function<BlockBehaviour.Properties, T> block,
                                                                        String lore) {

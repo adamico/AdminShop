@@ -2,6 +2,8 @@
 // the server-side replacement for an Offer lookup is server.getRecipeManager().byKey(key).
 // The Buyers' lookups (#8) are gone too: ShopTrades.buyInto buys, BuyerEntity.target() finds the goods, and
 // BuyerScreen matches a clicked item to a Buy Offer of the client shop cache with ItemStack.isSameItemSameComponents.
+// The fluid lookups (#10) are gone as well: ShopTrades.buyFluidInto, sellFluidFrom and anySellOfferTakes(.., FluidResource)
+// replace them. What is left lists every Offer for JEI (#15); src's ShopDisplay (shop display layer) lists them now.
 package com.ammonium.adminshop.recipes;
 
 import com.ammonium.adminshop.blocks.interfaces.*;
@@ -56,60 +58,4 @@ public class RecipeManager {
                 level.getRecipeManager().getAllRecipesFor(ModRecipeTypes.SHOP_SELL_FLUID.get()).stream().map(hol -> new RecipeHolder<SellRecipe>(hol.id(), hol.value()))
         );
     }
-
-    public static Optional<RecipeHolder<SellItemRecipe>> isSellItemRecipe(Level level, ItemStack item) {
-        return level.getRecipeManager().getAllRecipesFor(ModRecipeTypes.SHOP_SELL_ITEM.get())
-                .stream()
-                .filter(recipe -> recipe.value().isMatchingItemStack(item))
-                .findFirst();
-    }
-
-    public static boolean matches(FluidStack fluid, FluidStack recipeFluid) {
-        if (fluid.isEmpty() || recipeFluid.isEmpty()) return false;
-
-        // 1.21.1: Compares both the Fluid type and all data Components
-        return FluidStack.isSameFluidSameComponents(fluid, recipeFluid);
-    }
-
-    public static Optional<RecipeHolder<BuyFluidRecipe>> isBuyFluidRecipe(Level level, FluidStack fluid) {
-        return level.getRecipeManager().getAllRecipesFor(ModRecipeTypes.SHOP_BUY_FLUID.get())
-                .stream()
-                .filter(recipe -> matches(fluid, recipe.value().getFluid()))
-                .findFirst();
-    }
-
-    public static Optional<RecipeHolder<BuyFluidRecipe>> getShopBuyFluidRecipe(Level level, ResourceLocation id) {
-        return level.getRecipeManager().getAllRecipesFor(ModRecipeTypes.SHOP_BUY_FLUID.get())
-                .stream()
-                .filter(recipe -> recipe.id().equals(id))
-                .findFirst();
-    }
-
-    public static boolean checkForBuyFluidRecipe(ServerLevel level, FluidBuyerMachine machine, BuyFluidRecipe recipe) {
-        return recipe != null && recipe.matches(getAccount(level, machine), machine);
-    }
-
-    public static boolean canPlaceFluidInSeller(Level level, FluidStack fluid, @Nullable ResourceLocation lockedRecipeId) {
-        return level.getRecipeManager().getAllRecipesFor(ModRecipeTypes.SHOP_SELL_FLUID.get())
-                .stream()
-                .filter(recipe -> lockedRecipeId == null || recipe.id().equals(lockedRecipeId))
-                .anyMatch(recipe -> matches(fluid, recipe.value().getFluid()));
-    }
-
-    public static Optional<RecipeHolder<SellFluidRecipe>> isSellFluidRecipe(Level level, FluidStack fluid) {
-        return level.getRecipeManager().getAllRecipesFor(ModRecipeTypes.SHOP_SELL_FLUID.get())
-                .stream()
-                .filter(recipe -> matches(fluid, recipe.value().getFluid()))
-                .findFirst();
-    }
-
-    public static Optional<RecipeHolder<SellFluidRecipe>> checkForSellFluidRecipe(ServerLevel level, FluidSellerMachine machine) {
-        MoneyHelper.MoneyAccount account = getAccount(level, machine);
-        if (account == null) { return Optional.empty(); }
-        return level.getRecipeManager().getAllRecipesFor(ModRecipeTypes.SHOP_SELL_FLUID.get())
-                .stream()
-                .filter(recipe -> recipe.value().matches(account, machine))
-                .findFirst();
-    }
-
 }

@@ -32,6 +32,11 @@ public class ModBlockEntities {
             BLOCK_ENTITIES.register("buyer_3", () -> new BlockEntityType<>(
                     (pos, state) -> new BuyerEntity(ModBlockEntities.BUYER_3.get(), BuyerTier.THREE, pos, state), ModBlocks.BUYER_3.get()));
 
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<FluidBuyerEntity>> FLUID_BUYER =
+            BLOCK_ENTITIES.register("fluid_buyer", () -> new BlockEntityType<>(FluidBuyerEntity::new, ModBlocks.FLUID_BUYER.get()));
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<FluidSellerEntity>> FLUID_SELLER =
+            BLOCK_ENTITIES.register("fluid_seller", () -> new BlockEntityType<>(FluidSellerEntity::new, ModBlocks.FLUID_SELLER.get()));
+
     /** The block entity type of a Buyer of this tier. */
     public static BlockEntityType<BuyerEntity> buyer(BuyerTier tier) {
         return switch (tier) {
@@ -46,11 +51,16 @@ public class ModBlockEntities {
         eventBus.addListener(ModBlockEntities::registerCapabilities);
     }
 
-    /** Pipes reach a machine's slots through NeoForge's item capability, from every side; a Buyer's they can only take from. */
+    /**
+     * Pipes reach a machine's slots through NeoForge's item capability, and a fluid machine's tank through its fluid
+     * capability, from every side; a Buyer's and a Fluid Buyer's they can only take from.
+     */
     private static void registerCapabilities(RegisterCapabilitiesEvent event) {
         event.registerBlockEntity(Capabilities.Item.BLOCK, SELLER.get(), (seller, side) -> seller.inventory());
         for (var buyer : List.of(BUYER_1, BUYER_2, BUYER_3)) {
             event.registerBlockEntity(Capabilities.Item.BLOCK, buyer.get(), (entity, side) -> entity.output());
         }
+        event.registerBlockEntity(Capabilities.Fluid.BLOCK, FLUID_BUYER.get(), (buyer, side) -> buyer.output());
+        event.registerBlockEntity(Capabilities.Fluid.BLOCK, FLUID_SELLER.get(), (seller, side) -> seller.tank());
     }
 }

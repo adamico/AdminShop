@@ -17,6 +17,10 @@ public class ModMenuTypes {
             () -> new MenuType<>(ShopMenu::new, FeatureFlags.DEFAULT_FLAGS));
     public static final DeferredHolder<MenuType<?>, MenuType<SellerMenu>> SELLER_MENU = MENUS.register("seller_menu",
             () -> IMenuTypeExtension.create(SellerMenu::new));
+    public static final DeferredHolder<MenuType<?>, MenuType<FluidBuyerMenu>> FLUID_BUYER_MENU = MENUS.register("fluid_buyer_menu",
+            () -> IMenuTypeExtension.create(FluidBuyerMenu::new));
+    public static final DeferredHolder<MenuType<?>, MenuType<FluidSellerMenu>> FLUID_SELLER_MENU = MENUS.register("fluid_seller_menu",
+            () -> IMenuTypeExtension.create(FluidSellerMenu::new));
     public static final DeferredHolder<MenuType<?>, MenuType<BuyerMenu>> BUYER_1_MENU = registerBuyer("buyer_menu", BuyerTier.ONE);
     public static final DeferredHolder<MenuType<?>, MenuType<BuyerMenu>> BUYER_2_MENU = registerBuyer("buyer_2_menu", BuyerTier.TWO);
     public static final DeferredHolder<MenuType<?>, MenuType<BuyerMenu>> BUYER_3_MENU = registerBuyer("buyer_3_menu", BuyerTier.THREE);

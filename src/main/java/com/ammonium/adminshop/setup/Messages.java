@@ -4,6 +4,7 @@ import com.ammonium.adminshop.network.PacketAccountAddPermit;
 import com.ammonium.adminshop.network.PacketBuyRequest;
 import com.ammonium.adminshop.network.PacketSellRequest;
 import com.ammonium.adminshop.network.PacketSetBuyerRecipe;
+import com.ammonium.adminshop.network.PacketSetFluidBuyerRecipe;
 import com.ammonium.adminshop.network.PacketSetSellerRecipe;
 import com.ammonium.adminshop.network.PacketSyncMoneyToClient;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
@@ -36,6 +37,10 @@ public class Messages {
                 PacketSetBuyerRecipe.TYPE,
                 PacketSetBuyerRecipe.STREAM_CODEC,
                 PacketSetBuyerRecipe::handle);
+        registrar.playToServer(
+                PacketSetFluidBuyerRecipe.TYPE,
+                PacketSetFluidBuyerRecipe.STREAM_CODEC,
+                PacketSetFluidBuyerRecipe::handle);
         registrar.playToServer(
                 PacketAccountAddPermit.TYPE,
                 PacketAccountAddPermit.STREAM_CODEC,

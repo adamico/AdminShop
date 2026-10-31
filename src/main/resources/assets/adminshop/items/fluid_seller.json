@@ -1,0 +1,6 @@
+{
+  "model": {
+    "type": "minecraft:model",
+    "model": "adminshop:block/fluid_seller"
+  }
+}

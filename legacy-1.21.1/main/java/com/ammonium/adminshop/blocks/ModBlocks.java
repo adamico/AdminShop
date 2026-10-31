@@ -1,4 +1,5 @@
-// 26.1 port: the Seller (#7) and the T1-T3 Buyers (#8) are ported (src/main/...); their registration is gone from here.
+// 26.1 port: the Seller (#7), the T1-T3 Buyers (#8) and the Fluid Buyer and Fluid Seller (#10) are ported (src/main/...);
+// their registration is gone from here.
 package com.ammonium.adminshop.blocks;
 
 import com.ammonium.adminshop.AdminShop;
@@ -24,12 +25,6 @@ public class ModBlocks {
 
     public static final DeferredHolder<Block, CreativeSellerBlock> CREATIVE_SELLER = registerLoreBlock("creative_seller",
             CreativeSellerBlock::new, "Set its recipe in creative mode, then claim it in survival to sell with that recipe, bypassing permits");
-
-    public static final DeferredHolder<Block, FluidBuyerBlock> FLUID_BUYER = registerLoreBlock("fluid_buyer",
-            FluidBuyerBlock::new, "Automatically buys once every 20 ticks");
-
-    public static final DeferredHolder<Block, FluidSellerBlock> FLUID_SELLER = registerLoreBlock("fluid_seller",
-            FluidSellerBlock::new, "Automatically sells once every 20 ticks");
 
     public static final DeferredHolder<Block, BasicDetector> DETECTOR = registerLoreBlock("detector",
             BasicDetector::new, "Outputs full redstone signal if greater than threshold");

@@ -1,0 +1,20 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "adminshop:block/fluid_seller",
+      "y": 0
+    },
+    "facing=east": {
+      "model": "adminshop:block/fluid_seller",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "adminshop:block/fluid_seller",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "adminshop:block/fluid_seller",
+      "y": 270
+    }
+  }
+}

@@ -1,4 +1,5 @@
-// 26.1 port: the Seller (#7) and the T1-T3 Buyers (#8) are ported (src/main/...); their block entities and item capabilities are gone from here.
+// 26.1 port: the Seller (#7), the T1-T3 Buyers (#8) and the Fluid Buyer and Fluid Seller (#10) are ported (src/main/...);
+// their block entities and capabilities are gone from here.
 package com.ammonium.adminshop.blocks.entity;
 
 import com.ammonium.adminshop.AdminShop;
@@ -18,14 +19,6 @@ public class ModBlockEntities {
     public static final DeferredRegister<BlockEntityType<?>> BLOCK_ENTITIES =
             DeferredRegister.create(BuiltInRegistries.BLOCK_ENTITY_TYPE, AdminShop.MODID);
 
-
-    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<FluidBuyerEntity>> FLUID_BUYER =
-            BLOCK_ENTITIES.register("fluid_buyer", () -> BlockEntityType.Builder.of(FluidBuyerEntity::new,
-                    ModBlocks.FLUID_BUYER.get()).build(null));
-
-    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<FluidSellerEntity>> FLUID_SELLER =
-            BLOCK_ENTITIES.register("fluid_seller", () -> BlockEntityType.Builder.of(FluidSellerEntity::new,
-                    ModBlocks.FLUID_SELLER.get()).build(null));
 
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<CreativeBuyerEntity>> CREATIVE_BUYER =
             BLOCK_ENTITIES.register("creative_buyer", () -> BlockEntityType.Builder.of(CreativeBuyerEntity::new,
@@ -55,20 +48,6 @@ public class ModBlockEntities {
                 Capabilities.ItemHandler.BLOCK,
                 ModBlockEntities.CREATIVE_SELLER.get(),
                 (be, side) -> be.getInventory()
-        );
-
-        // Fluid Buyer
-        event.registerBlockEntity(
-                Capabilities.FluidHandler.BLOCK,
-                ModBlockEntities.FLUID_BUYER.get(),
-                (be, side) -> be.getTank() // Assuming you add a getter
-        );
-
-        // Fluid Seller
-        event.registerBlockEntity(
-                Capabilities.FluidHandler.BLOCK,
-                ModBlockEntities.FLUID_SELLER.get(),
-                (be, side) -> be.getTank()
         );
     }
 }
