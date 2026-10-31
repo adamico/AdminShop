@@ -25,14 +25,15 @@ import net.minecraft.world.item.enchantment.ItemEnchantments;
 /**
  * Trading by hand through the Shop's server-side trade handling, which the shop screen's trade requests
  * reach. The Offers come from the game tests' datapack: {@code gametest/buy_diamonds} sells 2 diamonds
- * for 50, {@code gametest/sell_wheat} buys 10 wheat for 7, {@code gametest/buy_enchanted_book} sells a
- * named, enchanted book for 40 and
+ * for 50, {@code gametest/sell_wheat} buys 10 wheat for 7, {@code gametest/sell_wool} buys 4 of any wool
+ * for 3, {@code gametest/buy_enchanted_book} sells a named, enchanted book for 40 and
  * {@code gametest/sell_named_paper} buys 2 paper named "Ledger" for 9.
  */
 final class ShopTradeTests {
 
     private static final ResourceKey<Recipe<?>> BUY_DIAMONDS = offer("gametest/buy_diamonds");
     private static final ResourceKey<Recipe<?>> SELL_WHEAT = offer("gametest/sell_wheat");
+    private static final ResourceKey<Recipe<?>> SELL_WOOL = offer("gametest/sell_wool");
     private static final ResourceKey<Recipe<?>> BUY_BOOK = offer("gametest/buy_enchanted_book");
     private static final ResourceKey<Recipe<?>> SELL_NAMED_PAPER = offer("gametest/sell_named_paper");
 
@@ -49,6 +50,8 @@ final class ShopTradeTests {
         tests.test("selling_without_the_goods_is_refused", 20, TestPlayers.withPlayers(ShopTradeTests::sellingWithoutGoods));
         tests.test("a_buy_offer_cannot_be_sold_to", 20, TestPlayers.withPlayers(ShopTradeTests::wrongSide));
         tests.test("trades_need_a_quantity_of_at_least_one", 20, TestPlayers.withPlayers(ShopTradeTests::nonPositiveQuantity));
+        tests.test("selling_a_tagged_item", 20, TestPlayers.withPlayers(ShopTradeTests::sellingATaggedItem));
+        tests.test("selling_an_item_outside_the_tag_is_refused", 20, TestPlayers.withPlayers(ShopTradeTests::sellingOutsideTheTag));
         tests.test("buying_an_item_with_components", 20, TestPlayers.withPlayers(ShopTradeTests::buyingWithComponents));
         tests.test("selling_needs_the_offers_components", 20, TestPlayers.withPlayers(ShopTradeTests::sellingWithComponents));
     }
@@ -163,6 +166,37 @@ final class ShopTradeTests {
         helper.assertValueEqual(ShopTrades.sell(player, SELL_WHEAT, ShopTrades.ANY_SLOT, -3), ShopTrades.Result.REFUSED, "selling -3");
         assertBalance(helper, player, 1000);
         helper.assertValueEqual(count(player, Items.WHEAT), 64, "wheat held");
+    }
+
+    private static void sellingATaggedItem(GameTestHelper helper, TestPlayers players) {
+        ServerPlayer player = players.join("sell_tag");
+        setBalance(helper, player, 0);
+        player.getInventory().setItem(2, new ItemStack(Items.RED_WOOL, 6));
+        player.getInventory().setItem(5, new ItemStack(Items.BLUE_WOOL, 8));
+
+        // Two trades take 8 wool from one stack: the red one holds too few, the blue one enough.
+        var fromAnySlot = ShopTrades.sell(player, SELL_WOOL, ShopTrades.ANY_SLOT, 2);
+        // As a shift-click on the red stack sends it.
+        var fromASlot = ShopTrades.sell(player, SELL_WOOL, 2, ShopTrades.ALL);
+
+        helper.assertValueEqual(fromAnySlot, ShopTrades.Result.DONE, "selling blue wool");
+        helper.assertValueEqual(fromASlot, ShopTrades.Result.DONE, "selling red wool");
+        assertBalance(helper, player, 3 * 3);
+        helper.assertValueEqual(count(player, Items.BLUE_WOOL), 0, "blue wool left");
+        helper.assertValueEqual(count(player, Items.RED_WOOL), 2, "red wool left");
+    }
+
+    private static void sellingOutsideTheTag(GameTestHelper helper, TestPlayers players) {
+        ServerPlayer player = players.join("sell_not_tag");
+        setBalance(helper, player, 0);
+        player.getInventory().setItem(0, new ItemStack(Items.COBBLESTONE, 64));
+
+        helper.assertValueEqual(ShopTrades.sell(player, SELL_WOOL, ShopTrades.ANY_SLOT, 1), ShopTrades.Result.NOT_ENOUGH_GOODS,
+                "selling cobblestone as wool");
+        helper.assertValueEqual(ShopTrades.sell(player, SELL_WOOL, 0, ShopTrades.ALL), ShopTrades.Result.NOT_ENOUGH_GOODS,
+                "selling a slot of cobblestone as wool");
+        assertBalance(helper, player, 0);
+        helper.assertValueEqual(count(player, Items.COBBLESTONE), 64, "cobblestone held");
     }
 
     private static void buyingWithComponents(GameTestHelper helper, TestPlayers players) {

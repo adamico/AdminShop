@@ -2,7 +2,12 @@ package com.ammonium.adminshop.gametest;
 
 import com.ammonium.adminshop.recipes.BuyItemRecipe;
 import com.ammonium.adminshop.recipes.SellItemRecipe;
+import com.ammonium.adminshop.shop.ShopGoods;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.gametest.framework.GameTestHelper;
+import net.minecraft.network.chat.Component;
+import net.minecraft.tags.ItemTags;
+import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.crafting.RecipeManager;
 
 /**
@@ -19,6 +24,7 @@ final class OfferLoadingTests {
         tests.test("a_malformed_offer_is_skipped", 1, OfferLoadingTests::malformedSkipped);
         tests.test("offers_never_reach_the_recipe_book", 1, OfferLoadingTests::notInRecipeBook);
         tests.test("every_shipped_example_offer_loads", 1, OfferLoadingTests::examplesLoad);
+        tests.test("a_tag_sell_offer_shows_every_item_of_its_tag", 1, OfferLoadingTests::tagGoods);
     }
 
     private static RecipeManager recipes(GameTestHelper helper) {
@@ -37,7 +43,8 @@ final class OfferLoadingTests {
 
     private static void malformedSkipped(GameTestHelper helper) {
         // The server got this far, and logged why each Offer is malformed.
-        for (String offer : new String[] {"gametest/malformed_negative_price", "gametest/malformed_no_goods"}) {
+        for (String offer : new String[] {"gametest/malformed_negative_price", "gametest/malformed_item_and_tag",
+                "gametest/malformed_no_goods"}) {
             helper.assertTrue(recipes(helper).byKey(ShopTradeTests.offer(offer)).isEmpty(), "the malformed Offer " + offer + " loaded");
         }
         helper.succeed();
@@ -48,7 +55,7 @@ final class OfferLoadingTests {
             var loaded = recipes(helper).byKey(ShopTradeTests.offer(offer));
             helper.assertTrue(loaded.isPresent() && loaded.get().value() instanceof BuyItemRecipe, "the example Buy Offer " + offer + " did not load");
         }
-        for (String offer : new String[] {"example_sell_item", "example_sell_nbt"}) {
+        for (String offer : new String[] {"example_sell_item", "example_sell_nbt", "example_sell_item_tag"}) {
             var loaded = recipes(helper).byKey(ShopTradeTests.offer(offer));
             helper.assertTrue(loaded.isPresent() && loaded.get().value() instanceof SellItemRecipe, "the example Sell Offer " + offer + " did not load");
         }
@@ -57,8 +64,29 @@ final class OfferLoadingTests {
         helper.succeed();
     }
 
+    private static void tagGoods(GameTestHelper helper) {
+        var offer = (SellItemRecipe) recipes(helper).byKey(ShopTradeTests.offer("example_sell_item_tag")).orElseThrow().value();
+        var wool = BuiltInRegistries.ITEM.getTagOrEmpty(ItemTags.WOOL);
+        int members = 0;
+        for (var ignored : wool) {
+            members++;
+        }
+
+        var stacks = ((ShopGoods.Items) offer.goods()).stacks();
+        helper.assertValueEqual(stacks.size(), members, "items shown for minecraft:wool");
+        helper.assertTrue(members > 1, "minecraft:wool has a single item");
+        for (ItemStackTemplate stack : stacks) {
+            helper.assertTrue(stack.item().is(ItemTags.WOOL), stack.item().getRegisteredName() + " shown for minecraft:wool");
+            helper.assertValueEqual(stack.count(), 16, "count shown for " + stack.item().getRegisteredName());
+        }
+        helper.assertValueEqual(offer.getCount(), 16, "the Offer's count");
+        helper.assertValueEqual(offer.name(), Component.translatable("sellitem.recipe.tag", "minecraft:wool"), "the Offer's name");
+        helper.assertValueEqual(offer.searchTerm(), "minecraft:wool", "the Offer's search term");
+        helper.succeed();
+    }
+
     private static void notInRecipeBook(GameTestHelper helper) {
-        for (String offer : new String[] {"gametest/buy_diamonds", "gametest/sell_wheat"}) {
+        for (String offer : new String[] {"gametest/buy_diamonds", "gametest/sell_wheat", "gametest/sell_wool"}) {
             int[] displays = {0};
             recipes(helper).listDisplaysForRecipe(ShopTradeTests.offer(offer), display -> displays[0]++);
             helper.assertValueEqual(displays[0], 0, "recipe book displays of " + offer);

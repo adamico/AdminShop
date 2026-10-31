@@ -1,0 +1,6 @@
+{
+  "type": "adminshop:item_selling",
+  "price": 1,
+  "item": "minecraft:white_wool",
+  "tag": "minecraft:wool"
+}

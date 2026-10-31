@@ -1,6 +1,7 @@
 package com.ammonium.adminshop.client.gui;
 
 import com.ammonium.adminshop.money.MoneyFormat;
+import com.ammonium.adminshop.recipes.SellItemRecipe;
 import com.ammonium.adminshop.shop.OfferDisplay;
 import com.ammonium.adminshop.shop.ShopGoods;
 import java.util.ArrayList;
@@ -15,6 +16,7 @@ import net.minecraft.client.input.InputWithModifiers;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemStackTemplate;
+import net.minecraft.world.item.Items;
 
 /** One Offer in the shop screen's grid: its goods, with the count a click trades. Clicking trades it. */
 public class ShopButton extends AbstractButton {
@@ -22,6 +24,7 @@ public class ShopButton extends AbstractButton {
     public static final int TAG_DISPLAY_ROTATION_TICKS = 30;
     private static final int TEXT_COLOR = 0xFFFFFFFF;
     private static final int COMPONENTS_COLOR = 0xFFFF55FF;
+    private static final int TAG_COLOR = 0xFFFFC921;
     private static final int HOVER_COLOR = 0xFFFFFFDF;
 
     private final OfferDisplay offer;
@@ -54,32 +57,32 @@ public class ShopButton extends AbstractButton {
         int x = getX();
         int y = getY();
         ItemStack shown = shownStack();
-        if (!shown.isEmpty()) {
-            graphics.item(shown, x, y);
-        }
+        graphics.item(shown, x, y);
 
         isMouseOn = isHovered();
         if (isMouseOn) {
             graphics.fill(x, y, x + width, y + height, HOVER_COLOR);
         }
 
-        // The count a click trades, and a mark on goods that carry components, at half size.
+        // The count a click trades, and a mark on tag Offers and on goods that carry components, at half size.
         Font font = Minecraft.getInstance().font;
         graphics.pose().pushMatrix();
         graphics.pose().scale(0.5f, 0.5f);
         String count = String.valueOf(getNumItems());
         graphics.text(font, count, 2 * (x + 16) - font.width(count), 2 * y + 24, TEXT_COLOR);
-        if (offer.goods() instanceof ShopGoods.Items items && items.stacks().size() == 1
+        if (offer.recipe() instanceof SellItemRecipe sell && sell.sold() instanceof SellItemRecipe.AnyOfTag) {
+            graphics.text(font, "#", 2 * x + width * 2 - font.width("#") - 1, 2 * y + 1, TAG_COLOR);
+        } else if (offer.goods() instanceof ShopGoods.Items items && items.stacks().size() == 1
                 && !items.stacks().getFirst().components().isEmpty()) {
             graphics.text(font, "+NBT", 2 * x + width * 2 - font.width("+NBT") - 1, 2 * y + 1, COMPONENTS_COLOR);
         }
         graphics.pose().popMatrix();
     }
 
-    /** The stack shown now: the only one, or for a tag Offer each in turn. */
+    /** The stack shown now: the only one, or for a tag Offer each in turn; a barrier for an empty tag. */
     private ItemStack shownStack() {
         if (stacks.isEmpty()) {
-            return ItemStack.EMPTY;
+            return new ItemStack(Items.BARRIER);
         }
         var level = Minecraft.getInstance().level;
         long turn = level == null ? 0 : level.getGameTime() / TAG_DISPLAY_ROTATION_TICKS;

@@ -13,6 +13,7 @@
   "item_group.adminshop.creativetab": "AdminShop",
   "item.adminshop.tablet": "Shopping Tablet",
   "shopbutton.description": "%1$s %2$s %3$s",
+  "sellitem.recipe.tag": "Any of: %s",
   "message.adminshop.not_enough_space": "Not enough inventory space for item!",
   "message.adminshop.not_enough_money": "Not enough money in account!"
 }

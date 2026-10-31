@@ -14,6 +14,7 @@ import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
+import net.minecraft.tags.ItemTags;
 import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Recipe;
@@ -137,6 +138,11 @@ class OfferJsonTest {
     }
 
     @Test
+    void theExampleTagSellOfferDecodes() {
+        assertEquals(new SellItemRecipe(100, ItemTags.WOOL, 16, ""), decode(shipped("example_sell_item_tag")));
+    }
+
+    @Test
     void theExampleComponentOffersDecode() {
         assertEquals(new BuyItemRecipe(100, new ItemStackTemplate(Items.PAPER, SPECIAL_PAPER), ""),
                 decode(shipped("example_buy_nbt")));
@@ -159,6 +165,12 @@ class OfferJsonTest {
     }
 
     @Test
+    void the1211ExampleTagSellOfferDecodesUnchanged() {
+        assertEquals(new SellItemRecipe(100, ItemTags.WOOL, 16, ""), decode("""
+                {"type": "adminshop:item_selling", "price": 100, "tag": "minecraft:wool", "count": 16}"""));
+    }
+
+    @Test
     void the1211ExamplePermitOfferDecodesUnchanged() {
         assertEquals(new BuyItemRecipe(100, new ItemStackTemplate(Items.DIAMOND, 16), "gems"), decode("""
                 {"type": "adminshop:item_buying", "price": 100, "permit": "gems", "result": {"id": "minecraft:diamond", "count": 16}}"""));
@@ -175,4 +187,55 @@ class OfferJsonTest {
                 offer.result().components().get(DataComponentMap.EMPTY, DataComponents.CUSTOM_NAME));
     }
 
+    @Test
+    void aTagSellOfferEncodesBackToItsJson() {
+        String full = """
+                {"type": "adminshop:item_selling", "price": 3, "tag": "minecraft:logs", "count": 8, "permit": "forestry"}""";
+        assertEquals(json(full), encode(decode(full)));
+    }
+
+    @Test
+    void aTagSellOfferTakesOneItemWithoutACount() {
+        assertEquals(new SellItemRecipe(2, ItemTags.PLANKS, 1, ""), decode("""
+                {"type": "adminshop:item_selling", "price": 2, "tag": "minecraft:planks"}"""));
+        assertEquals(json("""
+                {"type": "adminshop:item_selling", "price": 2, "tag": "minecraft:planks"}"""),
+                encode(new SellItemRecipe(2, ItemTags.PLANKS, 1, "")));
+    }
+
+    @Test
+    void aSellOfferWithBothAnItemAndATagIsRejected() {
+        assertTrue(rejects("""
+                {"type": "adminshop:item_selling", "price": 1, "item": "minecraft:white_wool", "tag": "minecraft:wool"}"""));
+    }
+
+    @Test
+    void aTagSellOfferWithoutAPositiveCountIsRejected() {
+        assertTrue(rejects("""
+                {"type": "adminshop:item_selling", "price": 1, "tag": "minecraft:wool", "count": 0}"""));
+        assertTrue(rejects("""
+                {"type": "adminshop:item_selling", "price": 1, "tag": "minecraft:wool", "count": -4}"""));
+    }
+
+    @Test
+    void aTagSellOfferWithoutAPriceIsRejected() {
+        assertTrue(rejects("""
+                {"type": "adminshop:item_selling", "tag": "minecraft:wool", "count": 4}"""));
+        assertTrue(rejects("""
+                {"type": "adminshop:item_selling", "price": -1, "tag": "minecraft:wool", "count": 4}"""));
+    }
+
+    @Test
+    void aTagSellOfferWithAMalformedTagIsRejected() {
+        assertTrue(rejects("""
+                {"type": "adminshop:item_selling", "price": 1, "tag": "Not A Tag!"}"""));
+        assertTrue(rejects("""
+                {"type": "adminshop:item_selling", "price": 1, "tag": "#minecraft:wool"}"""));
+    }
+
+    @Test
+    void aSellOfferOfAMalformedItemIsRejectedEvenWithATag() {
+        assertTrue(rejects("""
+                {"type": "adminshop:item_selling", "price": 1, "item": {"id": "adminshop:no_such_item"}, "tag": "minecraft:wool"}"""));
+    }
 }
