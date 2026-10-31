@@ -48,3 +48,11 @@ Can buy and sell Items and Fluids
     versionRange="[26.1-94,)"
     ordering="NONE"
     side="BOTH"
+
+# Optional: JEI shows the Shop's Offers. From the JEI AdminShop is built against.
+[[dependencies.${mod_id}]]
+    modId="jei"
+    type="optional"
+    versionRange="[${jei_version},)"
+    ordering="NONE"
+    side="BOTH"

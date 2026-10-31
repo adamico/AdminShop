@@ -49,6 +49,14 @@ repositories {
         url = 'https://api.modrinth.com/maven'
         content { includeGroup 'maven.modrinth' }
     }
+    maven {
+        name = 'BlameJared'
+        url = 'https://maven.blamejared.com'
+        content {
+            includeGroup 'mezz.jei'
+            includeGroup 'net.mezzdev.config'
+        }
+    }
 }
 
 dependencies {
@@ -61,6 +69,12 @@ dependencies {
     // Patchouli backs only the Econ Handbook's data and recipe, so it is optional (ADR-0002) and no code
     // compiles against it. It loads in the client and server runs only: the game tests run without it.
     optionalRuntime("maven.modrinth:patchouli:${patchouli_version}")
+
+    // JEI is optional too: only compat/jei names its API, and JEI loads that plugin only when it is installed.
+    // The client and server runs load JEI; the game tests and the unit tests run without it.
+    compileOnly("mezz.jei:jei-${minecraft_version}-common-api:${jei_version}")
+    compileOnly("mezz.jei:jei-${minecraft_version}-neoforge-api:${jei_version}")
+    optionalRuntime("mezz.jei:jei-${minecraft_version}-neoforge:${jei_version}")
 
     gametestImplementation sourceSets.main.output
 
@@ -155,6 +169,7 @@ tasks.withType(ProcessResources).configureEach {
             mod_description        : mod_description,
             ftb_teams_version      : ftb_teams_version,
             ftb_library_version    : ftb_library_version,
+            jei_version            : jei_version,
     ]
     inputs.properties replaceProperties
 
