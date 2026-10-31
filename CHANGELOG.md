@@ -9,6 +9,8 @@ AdminShop 2.3.2 ported from Minecraft 1.21.1 to Minecraft 26.1.2 (NeoForge).
 - The HUD Balance updates as soon as the server sends it (it was every 5 seconds).
 - The shop screen's search updates as you type, and an open shop screen refreshes after `/reload`.
 - The Seller sells once every 20 ticks, as its tooltip says (it was every 21).
+- The T1, T2 and T3 Buyers buy once every 40, 20 and 10 ticks, as their tooltips say (it was every 41, 21 and 11).
+- A Buyer's block entity data keeps the 1.21.1 `recipe` and `lockedRecipe` fields, so presets made with commands or `minecraft:block_entity_data` still work; its contents are now saved under `inventory` (was `Items`).
 
 ### Fixed
 
@@ -19,12 +21,14 @@ AdminShop 2.3.2 ported from Minecraft 1.21.1 to Minecraft 26.1.2 (NeoForge).
 - AdminShop's blocks mine faster with a pickaxe; they still drop when broken by hand, as before (the mineable tags were empty, and in the pre-1.21 `tags/blocks` folder).
 - Shift-clicking the item in the Seller's slot moves it to your inventory; it did nothing.
 - A Seller locked to a Sell Offer sells only through that Offer; it could sell through another Offer that takes the same item.
+- Hoppers could put any item into a Buyer's output slots; pipes and hoppers can now only take from them.
 - A tag Sell Offer with a `count` of 0 or less took no items for its price; such an Offer is now rejected at load.
 
 ### Security
 
 - A client could make another team pay: trade requests no longer name a team, and quantities below one are refused.
 - A creative player could lock any Seller anywhere to a Sell Offer by naming its position; the server now locks only the Seller whose screen the player has open.
+- A creative player could set any Buyer anywhere to a Buy Offer by naming its position; the server now sets only the Buyer whose screen the player has open.
 
 ### Offer datapack migration
 
