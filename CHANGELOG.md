@@ -20,6 +20,8 @@ AdminShop 2.3.2 ported from Minecraft 1.21.1 to Minecraft 26.1.2 (NeoForge).
 - A Detector keeps its signal when saved, so an Advanced Detector's signal no longer drops to 0 for a second after its chunk loads.
 - A Detector's screen shows the Detector's threshold; it showed 0, or the last threshold set from that client.
 - A Permit with no `adminshop.permit.<permit>` translation shows as its own name in the shop screen's tooltip (it showed the raw translation key).
+- The warning about an obsolete `config/adminshop/shop.csv` stops once the file is deleted and the server runs `/reload`; it lasted until the server restarted.
+- The server no longer logs how many Offers of each kind it has at every login, nor AdminShop's recipe serializers at start.
 
 ### Fixed
 
