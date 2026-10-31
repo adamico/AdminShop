@@ -1,5 +1,5 @@
 # Builds AdminShop, runs the JUnit tests and runs the game tests on a headless server, on every push
-# and pull request. It never publishes: releases are cut by hand as GitHub Releases on the fork.
+# and pull request. It never publishes.
 name: CI
 
 on:
