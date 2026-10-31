@@ -79,13 +79,20 @@ dependencies {
     // The client and server runs load JEI; the game tests and the unit tests run without it.
     compileOnly("mezz.jei:jei-${minecraft_version}-common-api:${jei_version}")
     compileOnly("mezz.jei:jei-${minecraft_version}-neoforge-api:${jei_version}")
-    // EMI too: only compat/emi names its API, and EMI loads that plugin only when it is installed. Until JEI and
-    // EMI share the dev runs, these load one of them: JEI, or EMI with -PwithEMI.
+    // EMI too: only compat/emi names its API, and EMI loads that plugin only when it is installed.
     compileOnly("curse.maven:emi-unofficial-port-1544558:${emi_version}")
-    if (providers.gradleProperty('withEMI').isPresent()) {
-        optionalRuntime("curse.maven:emi-unofficial-port-1544558:${emi_version}")
-    } else {
+    // The viewers the client and server runs load: JEI by default, or the comma-separated list -Pviewers gives
+    // (jei, emi; -Pviewers=jei,emi loads both, -Pviewers=none neither).
+    var viewers = providers.gradleProperty('viewers').getOrElse('jei').split(',')*.trim().findAll { it && it != 'none' }
+    var unknownViewers = viewers - ['jei', 'emi']
+    if (unknownViewers) {
+        throw new GradleException("Unknown viewers ${unknownViewers}: -Pviewers takes jei, emi, both comma-separated, or none")
+    }
+    if ('jei' in viewers) {
         optionalRuntime("mezz.jei:jei-${minecraft_version}-neoforge:${jei_version}")
+    }
+    if ('emi' in viewers) {
+        optionalRuntime("curse.maven:emi-unofficial-port-1544558:${emi_version}")
     }
 
     gametestImplementation sourceSets.main.output
@@ -166,6 +173,8 @@ tasks.named('test', Test) {
     systemProperty 'adminshop.gradleProperties', file('gradle.properties').absolutePath
     // OptionalViewersTest reads the mod's compiled classes.
     systemProperty 'adminshop.mainClasses', sourceSets.main.output.classesDirs.asPath
+    // OptionalViewersTest reads the expanded mods.toml.
+    systemProperty 'adminshop.modsToml', file("${sourceSets.main.output.resourcesDir}/META-INF/neoforge.mods.toml").absolutePath
 }
 
 // This block of code expands all declared replace properties in the specified resource targets.
