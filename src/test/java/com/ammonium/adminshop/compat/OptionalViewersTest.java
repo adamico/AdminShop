@@ -15,13 +15,20 @@ import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
 
 /**
- * JEI is optional: only the classes in {@code compat/jei} name a JEI type, and no other class names them, so no
- * JEI class loads unless JEI loads AdminShop's plugin. It reads the compiled classes, whose constant pools hold
- * every class they name.
+ * JEI and EMI are optional: only the classes in {@code compat/jei} name a JEI type and only those in
+ * {@code compat/emi} an EMI type, and no other class names them, so no viewer class loads unless that viewer
+ * loads AdminShop's plugin. It reads the compiled classes, whose constant pools hold every class they name.
  */
 class OptionalViewersTest {
 
-    private static final String JEI_PACKAGE = "com/ammonium/adminshop/compat/jei/";
+    /** A viewer: the package that alone may name it, its API's package, and the annotation it finds plugins by. */
+    private record Viewer(String compatPackage, String api, String pluginAnnotation, String plugin) {
+    }
+
+    private static final Viewer JEI = new Viewer("com/ammonium/adminshop/compat/jei/", "mezz/jei/",
+            "mezz/jei/api/JeiPlugin", "AdminShopJeiPlugin.class");
+    private static final Viewer EMI = new Viewer("com/ammonium/adminshop/compat/emi/", "dev/emi/",
+            "dev/emi/emi/api/EmiEntrypoint", "AdminShopEmiPlugin.class");
 
     private static List<Path> mainClasses() throws IOException {
         List<Path> classes = new ArrayList<>();
@@ -52,28 +59,42 @@ class OptionalViewersTest {
         return new String(Files.readAllBytes(file), StandardCharsets.ISO_8859_1).contains(internalName);
     }
 
-    @Test
-    void onlyTheJeiPackageNamesJei() throws IOException {
-        List<String> jeiPlugin = new ArrayList<>();
+    /** The classes outside the viewer's package that name it or its package, and the plugins it would find. */
+    private static void assertOnlyItsPackageNames(Viewer viewer) throws IOException {
+        List<String> plugins = new ArrayList<>();
         List<String> leaks = new ArrayList<>();
         for (Path file : mainClasses()) {
             String name = name(file);
-            if (name.startsWith(JEI_PACKAGE)) {
-                if (names(file, "mezz/jei/api/JeiPlugin")) {
-                    jeiPlugin.add(name);
+            if (name.startsWith(viewer.compatPackage())) {
+                if (names(file, viewer.pluginAnnotation())) {
+                    plugins.add(name);
                 }
-            } else if (names(file, "mezz/jei/") || names(file, JEI_PACKAGE)) {
+            } else if (names(file, viewer.api()) || names(file, viewer.compatPackage())) {
                 leaks.add(name);
             }
         }
-        assertEquals(List.of(), leaks, "classes outside compat/jei that name JEI or compat/jei");
-        assertEquals(List.of(JEI_PACKAGE + "AdminShopJeiPlugin.class"), jeiPlugin);
+        assertEquals(List.of(), leaks, "classes outside " + viewer.compatPackage() + " that name " + viewer.api()
+                + " or " + viewer.compatPackage());
+        assertEquals(List.of(viewer.compatPackage() + viewer.plugin()), plugins);
+    }
+
+    @Test
+    void onlyTheJeiPackageNamesJei() throws IOException {
+        assertOnlyItsPackageNames(JEI);
+    }
+
+    @Test
+    void onlyTheEmiPackageNamesEmi() throws IOException {
+        assertOnlyItsPackageNames(EMI);
     }
 
     @Test
     void theClassesAreThere() throws IOException {
-        // A wrong directory would make the check above pass on nothing.
+        // A wrong directory would make the checks above pass on nothing.
         assertFalse(mainClasses().isEmpty());
-        assertTrue(mainClasses().stream().map(OptionalViewersTest::name).anyMatch(name -> name.startsWith(JEI_PACKAGE)));
+        for (Viewer viewer : List.of(JEI, EMI)) {
+            assertTrue(mainClasses().stream().map(OptionalViewersTest::name).anyMatch(name -> name.startsWith(viewer.compatPackage())),
+                    viewer.compatPackage());
+        }
     }
 }

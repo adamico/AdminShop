@@ -6,8 +6,8 @@ import net.neoforged.fml.ModList;
 
 /**
  * AdminShop loads on a dedicated server at the version its build gave it. It is the harness's own
- * check too: a run that reports this test ran AdminShop's tests, not vanilla's. JEI is optional: the game
- * test server runs without it, and still has the Shop's Offers.
+ * check too: a run that reports this test ran AdminShop's tests, not vanilla's. JEI and EMI are optional: the
+ * game test server runs without either, and still has the Shop's Offers.
  */
 final class LoadTests {
 
@@ -17,6 +17,7 @@ final class LoadTests {
     static void register(AdminShopGameTests.Registrar tests) {
         tests.test("loads_on_a_server", 1, LoadTests::loads);
         tests.test("loads_without_jei", 1, LoadTests::loadsWithoutJei);
+        tests.test("loads_without_emi", 1, LoadTests::loadsWithoutEmi);
     }
 
     private static void loads(GameTestHelper helper) {
@@ -40,6 +41,14 @@ final class LoadTests {
         helper.assertFalse(ModList.get().isLoaded("jei"), "the game test server loaded JEI");
         helper.assertTrue(helper.getLevel().getServer().getRecipeManager().byKey(ShopTradeTests.offer("gametest/buy_diamonds")).isPresent(),
                 "the Shop has no Offers without JEI");
+        helper.succeed();
+    }
+
+    private static void loadsWithoutEmi(GameTestHelper helper) {
+        // The test means something only while the game test server runs without EMI.
+        helper.assertFalse(ModList.get().isLoaded("emi"), "the game test server loaded EMI");
+        helper.assertTrue(helper.getLevel().getServer().getRecipeManager().byKey(ShopTradeTests.offer("gametest/buy_diamonds")).isPresent(),
+                "the Shop has no Offers without EMI");
         helper.succeed();
     }
 }
