@@ -57,6 +57,11 @@ repositories {
             includeGroup 'net.mezzdev.config'
         }
     }
+    maven {
+        name = 'CurseMaven'
+        url = 'https://cursemaven.com'
+        content { includeGroup 'curse.maven' }
+    }
 }
 
 dependencies {
@@ -74,7 +79,14 @@ dependencies {
     // The client and server runs load JEI; the game tests and the unit tests run without it.
     compileOnly("mezz.jei:jei-${minecraft_version}-common-api:${jei_version}")
     compileOnly("mezz.jei:jei-${minecraft_version}-neoforge-api:${jei_version}")
-    optionalRuntime("mezz.jei:jei-${minecraft_version}-neoforge:${jei_version}")
+    // EMI too: only compat/emi names its API, and EMI loads that plugin only when it is installed. Until JEI and
+    // EMI share the dev runs, these load one of them: JEI, or EMI with -PwithEMI.
+    compileOnly("curse.maven:emi-unofficial-port-1544558:${emi_version}")
+    if (providers.gradleProperty('withEMI').isPresent()) {
+        optionalRuntime("curse.maven:emi-unofficial-port-1544558:${emi_version}")
+    } else {
+        optionalRuntime("mezz.jei:jei-${minecraft_version}-neoforge:${jei_version}")
+    }
 
     gametestImplementation sourceSets.main.output
 
@@ -91,6 +103,8 @@ neoForge {
     runs {
         configureEach {
             systemProperty 'forge.logging.markers', 'REGISTRIES'
+            // EMI's port still marks classes @OnlyIn, for which NeoForge stops each load at a warning screen.
+            systemProperty 'neoforge.warnings.onlyin.hide', 'true'
         }
         client {
             client()
@@ -172,6 +186,7 @@ tasks.withType(ProcessResources).configureEach {
             ftb_teams_version      : ftb_teams_version,
             ftb_library_version    : ftb_library_version,
             jei_version            : jei_version,
+            emi_mod_version        : emi_mod_version,
     ]
     inputs.properties replaceProperties
 

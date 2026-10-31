@@ -56,3 +56,11 @@ Can buy and sell Items and Fluids
     versionRange="[${jei_version},)"
     ordering="NONE"
     side="BOTH"
+
+# Optional: EMI shows the Shop's Offers. From the EMI AdminShop is built against.
+[[dependencies.${mod_id}]]
+    modId="emi"
+    type="optional"
+    versionRange="[${emi_mod_version},)"
+    ordering="NONE"
+    side="BOTH"
