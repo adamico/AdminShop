@@ -20,10 +20,6 @@ public class ModRecipeTypes {
         };
     }
 
-    public static final DeferredHolder<RecipeType<?>, RecipeType<BuyItemRecipe>> SHOP_BUY_ITEM = RECIPE_TYPES.register("item_buying", () -> registerRecipeType("item_buying"));
-
-    public static final DeferredHolder<RecipeType<?>, RecipeType<SellItemRecipe>> SHOP_SELL_ITEM = RECIPE_TYPES.register("item_selling", () -> registerRecipeType("item_selling"));
-
     public static final DeferredHolder<RecipeType<?>, RecipeType<BuyFluidRecipe>> SHOP_BUY_FLUID = RECIPE_TYPES.register("fluid_buying", () -> registerRecipeType("fluid_buying"));
 
     public static final DeferredHolder<RecipeType<?>, RecipeType<SellFluidRecipe>> SHOP_SELL_FLUID = RECIPE_TYPES.register("fluid_selling", () -> registerRecipeType("fluid_selling"));

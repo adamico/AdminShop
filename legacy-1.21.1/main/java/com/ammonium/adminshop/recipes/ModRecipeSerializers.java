@@ -22,10 +22,6 @@ public class ModRecipeSerializers {
         };
     }
 
-    public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<BuyItemRecipe>> SHOP_BUY_ITEM_SERIALIZER = RECIPE_SERIALIZERS.register("item_buying", BuyItemRecipe.Serializer::new);
-
-    public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<SellItemRecipe>> SHOP_SELL_ITEM_SERIALIZER = RECIPE_SERIALIZERS.register("item_selling", SellItemRecipe.Serializer::new);
-
     public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<BuyFluidRecipe>> SHOP_BUY_FLUID_SERIALIZER = RECIPE_SERIALIZERS.register("fluid_buying", BuyFluidRecipe.Serializer::new);
 
     public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<SellFluidRecipe>> SHOP_SELL_FLUID_SERIALIZER = RECIPE_SERIALIZERS.register("fluid_selling", SellFluidRecipe.Serializer::new);

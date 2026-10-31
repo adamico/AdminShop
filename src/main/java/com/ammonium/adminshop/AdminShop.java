@@ -1,5 +1,7 @@
 package com.ammonium.adminshop;
 
+import com.ammonium.adminshop.recipes.ModRecipeSerializers;
+import com.ammonium.adminshop.recipes.ModRecipeTypes;
 import com.ammonium.adminshop.setup.Config;
 import com.ammonium.adminshop.setup.Messages;
 import com.mojang.logging.LogUtils;
@@ -21,5 +23,7 @@ public class AdminShop {
     public AdminShop(IEventBus eventBus, ModContainer modContainer) {
         Config.register(modContainer);
         eventBus.addListener(Messages::register);
+        ModRecipeTypes.register(eventBus);
+        ModRecipeSerializers.register(eventBus);
     }
 }

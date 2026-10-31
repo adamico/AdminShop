@@ -1,3 +1,5 @@
+// 26.1 port: the item Sell Offer is ported (#5, src/main/.../recipes/SellItemRecipe.java). What is
+// left here for #6 is the tag Sell Offer: the "tag" and "count" fields, tag matching and display.
 package com.ammonium.adminshop.recipes;
 
 import com.ammonium.adminshop.AdminShop;
