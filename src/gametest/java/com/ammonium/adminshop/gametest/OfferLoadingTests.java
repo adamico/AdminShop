@@ -18,6 +18,7 @@ final class OfferLoadingTests {
         tests.test("offers_load_from_datapacks", 1, OfferLoadingTests::offersLoad);
         tests.test("a_malformed_offer_is_skipped", 1, OfferLoadingTests::malformedSkipped);
         tests.test("offers_never_reach_the_recipe_book", 1, OfferLoadingTests::notInRecipeBook);
+        tests.test("every_shipped_example_offer_loads", 1, OfferLoadingTests::examplesLoad);
     }
 
     private static RecipeManager recipes(GameTestHelper helper) {
@@ -35,9 +36,24 @@ final class OfferLoadingTests {
     }
 
     private static void malformedSkipped(GameTestHelper helper) {
-        // The server got this far, and logged the Offer's negative price.
-        helper.assertTrue(recipes(helper).byKey(ShopTradeTests.offer("gametest/malformed_negative_price")).isEmpty(),
-                "the malformed Offer loaded");
+        // The server got this far, and logged why each Offer is malformed.
+        for (String offer : new String[] {"gametest/malformed_negative_price", "gametest/malformed_no_goods"}) {
+            helper.assertTrue(recipes(helper).byKey(ShopTradeTests.offer(offer)).isEmpty(), "the malformed Offer " + offer + " loaded");
+        }
+        helper.succeed();
+    }
+
+    private static void examplesLoad(GameTestHelper helper) {
+        for (String offer : new String[] {"example_buy_item", "example_buy_nbt"}) {
+            var loaded = recipes(helper).byKey(ShopTradeTests.offer(offer));
+            helper.assertTrue(loaded.isPresent() && loaded.get().value() instanceof BuyItemRecipe, "the example Buy Offer " + offer + " did not load");
+        }
+        for (String offer : new String[] {"example_sell_item", "example_sell_nbt"}) {
+            var loaded = recipes(helper).byKey(ShopTradeTests.offer(offer));
+            helper.assertTrue(loaded.isPresent() && loaded.get().value() instanceof SellItemRecipe, "the example Sell Offer " + offer + " did not load");
+        }
+        var named = (BuyItemRecipe) recipes(helper).byKey(ShopTradeTests.offer("example_buy_nbt")).orElseThrow().value();
+        helper.assertValueEqual(named.getItem().getHoverName().getString(), "Special Paper!", "the example's paper name");
         helper.succeed();
     }
 

@@ -5,9 +5,12 @@ import java.util.List;
 
 import com.ammonium.adminshop.AdminShop;
 import com.ammonium.adminshop.money.MoneyHelper;
+import com.ammonium.adminshop.recipes.BuyItemRecipe;
 import com.ammonium.adminshop.shop.ShopTrades;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.gametest.framework.GameTestHelper;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerPlayer;
@@ -16,16 +19,22 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.enchantment.Enchantments;
+import net.minecraft.world.item.enchantment.ItemEnchantments;
 
 /**
  * Trading by hand through the Shop's server-side trade handling, which the shop screen's trade requests
  * reach. The Offers come from the game tests' datapack: {@code gametest/buy_diamonds} sells 2 diamonds
- * for 50, {@code gametest/sell_wheat} buys 10 wheat for 7.
+ * for 50, {@code gametest/sell_wheat} buys 10 wheat for 7, {@code gametest/buy_enchanted_book} sells a
+ * named, enchanted book for 40 and
+ * {@code gametest/sell_named_paper} buys 2 paper named "Ledger" for 9.
  */
 final class ShopTradeTests {
 
     private static final ResourceKey<Recipe<?>> BUY_DIAMONDS = offer("gametest/buy_diamonds");
     private static final ResourceKey<Recipe<?>> SELL_WHEAT = offer("gametest/sell_wheat");
+    private static final ResourceKey<Recipe<?>> BUY_BOOK = offer("gametest/buy_enchanted_book");
+    private static final ResourceKey<Recipe<?>> SELL_NAMED_PAPER = offer("gametest/sell_named_paper");
 
     private ShopTradeTests() {
     }
@@ -40,6 +49,8 @@ final class ShopTradeTests {
         tests.test("selling_without_the_goods_is_refused", 20, TestPlayers.withPlayers(ShopTradeTests::sellingWithoutGoods));
         tests.test("a_buy_offer_cannot_be_sold_to", 20, TestPlayers.withPlayers(ShopTradeTests::wrongSide));
         tests.test("trades_need_a_quantity_of_at_least_one", 20, TestPlayers.withPlayers(ShopTradeTests::nonPositiveQuantity));
+        tests.test("buying_an_item_with_components", 20, TestPlayers.withPlayers(ShopTradeTests::buyingWithComponents));
+        tests.test("selling_needs_the_offers_components", 20, TestPlayers.withPlayers(ShopTradeTests::sellingWithComponents));
     }
 
     private static void buying(GameTestHelper helper, TestPlayers players) {
@@ -152,6 +163,46 @@ final class ShopTradeTests {
         helper.assertValueEqual(ShopTrades.sell(player, SELL_WHEAT, ShopTrades.ANY_SLOT, -3), ShopTrades.Result.REFUSED, "selling -3");
         assertBalance(helper, player, 1000);
         helper.assertValueEqual(count(player, Items.WHEAT), 64, "wheat held");
+    }
+
+    private static void buyingWithComponents(GameTestHelper helper, TestPlayers players) {
+        ServerPlayer player = players.join("buy_components");
+        setBalance(helper, player, 1000);
+        var offer = (BuyItemRecipe) helper.getLevel().getServer().getRecipeManager().byKey(BUY_BOOK).orElseThrow().value();
+
+        var result = ShopTrades.buy(player, BUY_BOOK, 2);
+
+        helper.assertValueEqual(result, ShopTrades.Result.DONE, "the trade's result");
+        assertBalance(helper, player, 1000 - 2 * 40);
+        helper.assertValueEqual(count(player, Items.ENCHANTED_BOOK), 2, "books bought");
+        for (ItemStack stack : player.getInventory().getNonEquipmentItems()) {
+            if (stack.is(Items.ENCHANTED_BOOK)) {
+                helper.assertValueEqual(stack.getComponentsPatch(), offer.result().components(), "a bought book's components");
+            }
+        }
+        var efficiency = helper.getLevel().registryAccess().getOrThrow(Enchantments.EFFICIENCY);
+        ItemStack book = player.getInventory().getItem(0);
+        helper.assertValueEqual(book.getOrDefault(DataComponents.STORED_ENCHANTMENTS, ItemEnchantments.EMPTY).getLevel(efficiency), 3,
+                "the bought book's Efficiency level");
+        helper.assertValueEqual(book.getHoverName().getString(), "Miner's Manual", "the bought book's name");
+    }
+
+    private static void sellingWithComponents(GameTestHelper helper, TestPlayers players) {
+        ServerPlayer player = players.join("sell_components");
+        setBalance(helper, player, 0);
+        player.getInventory().setItem(0, new ItemStack(Items.PAPER, 10));
+        ItemStack ledgers = new ItemStack(Items.PAPER, 5);
+        ledgers.set(DataComponents.CUSTOM_NAME, Component.literal("Ledger"));
+        player.getInventory().setItem(1, ledgers);
+
+        var plain = ShopTrades.sell(player, SELL_NAMED_PAPER, 0, ShopTrades.ALL);
+        var named = ShopTrades.sell(player, SELL_NAMED_PAPER, ShopTrades.ANY_SLOT, 2);
+
+        helper.assertValueEqual(plain, ShopTrades.Result.NOT_ENOUGH_GOODS, "selling plain paper");
+        helper.assertValueEqual(named, ShopTrades.Result.DONE, "selling paper named Ledger");
+        assertBalance(helper, player, 2 * 9);
+        helper.assertValueEqual(player.getInventory().getItem(0).getCount(), 10, "plain paper left");
+        helper.assertValueEqual(player.getInventory().getItem(1).getCount(), 1, "named paper left");
     }
 
     static ResourceKey<Recipe<?>> offer(String path) {

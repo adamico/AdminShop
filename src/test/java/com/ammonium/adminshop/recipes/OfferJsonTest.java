@@ -10,6 +10,10 @@ import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 import com.google.gson.JsonParser;
 import com.mojang.serialization.JsonOps;
+import net.minecraft.core.component.DataComponentMap;
+import net.minecraft.core.component.DataComponentPatch;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Recipe;
@@ -52,6 +56,11 @@ class OfferJsonTest {
 
     private static final String EXAMPLE_BUY = shipped("example_buy_item");
     private static final String EXAMPLE_SELL = shipped("example_sell_item");
+
+    /** The goods of the components examples: paper named "Special Paper!", not in italics. */
+    private static final DataComponentPatch SPECIAL_PAPER = DataComponentPatch.builder()
+            .set(DataComponents.CUSTOM_NAME, Component.literal("Special Paper!").withStyle(style -> style.withItalic(false)))
+            .build();
 
     @Test
     void theExampleBuyOfferDecodes() {
@@ -126,4 +135,44 @@ class OfferJsonTest {
         assertTrue(rejects("""
                 {"type": "adminshop:item_buying", "price": 1, "result": {"id": "minecraft:air"}}"""));
     }
+
+    @Test
+    void theExampleComponentOffersDecode() {
+        assertEquals(new BuyItemRecipe(100, new ItemStackTemplate(Items.PAPER, SPECIAL_PAPER), ""),
+                decode(shipped("example_buy_nbt")));
+        assertEquals(new SellItemRecipe(100, new ItemStackTemplate(Items.PAPER, 4, SPECIAL_PAPER), ""),
+                decode(shipped("example_sell_nbt")));
+    }
+
+    // The 1.21.1 example Offers that use only AdminShop's own fields, verbatim: they load unchanged.
+
+    @Test
+    void the1211ExampleBuyOfferDecodesUnchanged() {
+        assertEquals(new BuyItemRecipe(100, new ItemStackTemplate(Items.IRON_INGOT), ""), decode("""
+                {"type": "adminshop:item_buying", "price": 100, "result": {"id": "minecraft:iron_ingot", "count": 1}}"""));
+    }
+
+    @Test
+    void the1211ExampleSellOfferDecodesUnchanged() {
+        assertEquals(new SellItemRecipe(100, new ItemStackTemplate(Items.COBBLESTONE, 32), ""), decode("""
+                {"type": "adminshop:item_selling", "price": 100, "item": {"id": "minecraft:cobblestone", "count": 32}}"""));
+    }
+
+    @Test
+    void the1211ExamplePermitOfferDecodesUnchanged() {
+        assertEquals(new BuyItemRecipe(100, new ItemStackTemplate(Items.DIAMOND, 16), "gems"), decode("""
+                {"type": "adminshop:item_buying", "price": 100, "permit": "gems", "result": {"id": "minecraft:diamond", "count": 16}}"""));
+    }
+
+    @Test
+    void a1211NameWrittenAsAJsonStringIsReadAsPlainText() {
+        // 1.21.5 dropped text components written as JSON strings: the 1.21.1 example still loads, but
+        // the name it gives is the JSON itself. The changelog's migration section says so.
+        var offer = (BuyItemRecipe) decode("""
+                {"type": "adminshop:item_buying", "price": 100, "result": {"id": "minecraft:paper", "count": 1,
+                 "components": {"minecraft:custom_name": "{\\"text\\":\\"Special Paper!\\",\\"italic\\":false}"}}}""");
+        assertEquals(Component.literal("{\"text\":\"Special Paper!\",\"italic\":false}"),
+                offer.result().components().get(DataComponentMap.EMPTY, DataComponents.CUSTOM_NAME));
+    }
+
 }
