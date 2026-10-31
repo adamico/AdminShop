@@ -55,6 +55,8 @@ public final class AdminShopGameTests {
         LoadTests.register(tests);
         AccountTests.register(tests);
         CommandTests.register(tests);
+        OfferLoadingTests.register(tests);
+        ShopTradeTests.register(tests);
     }
 
     private static Identifier id(String path) {

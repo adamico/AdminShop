@@ -1,0 +1,8 @@
+{
+  "type": "adminshop:item_selling",
+  "price": 7,
+  "item": {
+    "id": "minecraft:wheat",
+    "count": 10
+  }
+}
