@@ -15,6 +15,12 @@ public interface ShopRecipe extends Recipe<RecipeInput> {
     Component getName();
     String getSearchTerm();
 
+    // Shop recipes have no ingredients, so the recipe manager must not try to place them
+    @Override
+    default boolean isSpecial() {
+        return true;
+    }
+
     @Override
     default boolean showNotification() {
         return false;

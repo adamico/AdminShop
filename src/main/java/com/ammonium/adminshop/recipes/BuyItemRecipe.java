@@ -13,6 +13,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.crafting.RecipeInput;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
@@ -25,11 +26,13 @@ import java.util.Optional;
 public class BuyItemRecipe implements BuyRecipe, ItemRecipe {
     private final long price;
     private final String permit;
-    private final ItemStack result;
+    // Item stacks can't be created while recipes load, so the recipe keeps a template and creates the stack when first used
+    private final ItemStackTemplate template;
+    private ItemStack result;
 
-    public BuyItemRecipe(long price, ItemStack result, String permit) {
+    public BuyItemRecipe(long price, ItemStackTemplate result, String permit) {
         this.price = price;
-        this.result = result;
+        this.template = result;
         this.permit = permit != null ? permit : "";
     }
 
@@ -51,21 +54,28 @@ public class BuyItemRecipe implements BuyRecipe, ItemRecipe {
         return true;
     }
 
+    private ItemStack result() {
+        if (result == null) {
+            result = template.create();
+        }
+        return result;
+    }
+
     public Optional<ItemStack> getItem() {
-        return Optional.of(result.copy());
+        return Optional.of(result().copy());
     }
 
     public ItemStack getDisplayItem() {
-        return result.copy();
+        return result().copy();
     }
 
     @Override
     public List<ItemStack> getValidItems() {
-        return List.of(result.copy());
+        return List.of(result().copy());
     }
 
     public int getCount() {
-        return result.getCount();
+        return result().getCount();
     }
 
     public long getPrice() {
@@ -81,7 +91,7 @@ public class BuyItemRecipe implements BuyRecipe, ItemRecipe {
     }
 
     public Component getName() {
-        return result.getDisplayName();
+        return result().getDisplayName();
     }
 
     @Override
@@ -92,7 +102,7 @@ public class BuyItemRecipe implements BuyRecipe, ItemRecipe {
     public ItemStack buy(ServerLevel level, ItemBuyerMachine machine) {
         MoneyHelper.MoneyAccount account = MoneyHelper.get(level).getAccountById(machine.getTeamId());
         MoneyHelper.get(level).removeMoney(account.teamId(), price);
-        return result.copy();
+        return result().copy();
     }
 
     @Override
@@ -119,7 +129,7 @@ public class BuyItemRecipe implements BuyRecipe, ItemRecipe {
         public static final MapCodec<BuyItemRecipe> CODEC = RecordCodecBuilder.mapCodec(instance ->
             instance.group(
                 Codec.LONG.fieldOf("price").forGetter(r -> r.price),
-                ItemStack.CODEC.fieldOf("result").forGetter(r -> r.result),
+                ItemStackTemplate.CODEC.fieldOf("result").forGetter(r -> r.template),
                 Codec.STRING.optionalFieldOf("permit", "").forGetter(r -> r.permit)
             ).apply(instance, BuyItemRecipe::new)
         );
@@ -127,12 +137,12 @@ public class BuyItemRecipe implements BuyRecipe, ItemRecipe {
         public static final StreamCodec<RegistryFriendlyByteBuf, BuyItemRecipe> STREAM_CODEC = StreamCodec.of(
             (buf, r) -> {
                 buf.writeLong(r.price);
-                ItemStack.STREAM_CODEC.encode(buf, r.result);
+                ItemStackTemplate.STREAM_CODEC.encode(buf, r.template);
                 buf.writeUtf(r.permit);
             },
             buf -> {
                 long price = buf.readLong();
-                ItemStack result = ItemStack.STREAM_CODEC.decode(buf);
+                ItemStackTemplate result = ItemStackTemplate.STREAM_CODEC.decode(buf);
                 String permit = buf.readUtf();
                 return new BuyItemRecipe(price, result, permit);
             }
