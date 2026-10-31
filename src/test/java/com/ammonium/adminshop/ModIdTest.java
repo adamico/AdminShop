@@ -20,8 +20,8 @@ class ModIdTest {
     @Test
     void theCodeNamesTheBuildsModId() throws IOException {
         var properties = new Properties();
-        // Gradle runs the tests from the project directory.
-        try (Reader reader = Files.newBufferedReader(Path.of("gradle.properties"))) {
+        // FML runs the tests from a directory of its own, so the build passes the file's path.
+        try (Reader reader = Files.newBufferedReader(Path.of(System.getProperty("adminshop.gradleProperties")))) {
             properties.load(reader);
         }
         assertEquals(properties.getProperty("mod_id"), AdminShop.MODID);

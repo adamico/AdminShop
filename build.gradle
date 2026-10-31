@@ -90,6 +90,12 @@ neoForge {
     }
 
     addModdingDependenciesTo sourceSets.gametest
+
+    // JUnit under FML, so Offers can be decoded with the game's registries and AdminShop's recipe types.
+    unitTest {
+        enable()
+        testedMod = mods."${mod_id}"
+    }
 }
 
 // The report, not the exit code, decides, and names each test: a run that ran none fails.
@@ -110,9 +116,11 @@ tasks.named('runGameTestServer') {
     }
 }
 
-// The JUnit tests run on a plain JVM: they test what reads no game state, and the game tests the rest.
+// The JUnit tests run under FML with the registries bootstrapped but no world: they test what reads no
+// world state, and the game tests the rest.
 tasks.named('test', Test) {
     useJUnitPlatform()
+    systemProperty 'adminshop.gradleProperties', file('gradle.properties').absolutePath
 }
 
 // This block of code expands all declared replace properties in the specified resource targets.
