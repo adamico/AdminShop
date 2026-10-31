@@ -2,6 +2,7 @@ package com.ammonium.adminshop.shop;
 
 import com.ammonium.adminshop.AdminShop;
 import net.neoforged.api.distmarker.Dist;
+import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
@@ -14,7 +15,11 @@ public final class ClientShopSync {
     private ClientShopSync() {
     }
 
-    @SubscribeEvent
+    /**
+     * Ahead of the recipe viewers' own listeners, which rebuild their categories from the cache: EMI's listens at
+     * the default priority and JEI's at the lowest.
+     */
+    @SubscribeEvent(priority = EventPriority.HIGH)
     static void receiveOffers(RecipesReceivedEvent event) {
         ShopCache.CLIENT.replace(event.getRecipeMap());
     }
