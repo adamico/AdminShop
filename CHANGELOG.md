@@ -32,6 +32,7 @@ AdminShop 2.3.2 ported from Minecraft 1.21.1 to Minecraft 26.1.2 (NeoForge).
 
 ### Fixed
 
+- The mod metadata now declares the LGPL 2.1 license from `LICENSE.md` (it said MIT).
 - A crafted Econ Handbook opened no book: the recipe put the book's id in `minecraft:custom_data`, where Patchouli doesn't read it; it now sets Patchouli's `patchouli:book` component.
 - After joining or leaving a party, the client kept showing and using the old team's Account; the server now resends the Account.
 - For the first 5 seconds after joining, the HUD showed the whole Balance as a "+X/s" change.
