@@ -1,8 +1,0 @@
-{
-    "pack": {
-        "description": "Adminshop: Player-accessible shop configurable by modpack devs and server owners.",
-        "pack_format": 9,
-        "forge:resource_pack_format": 8,
-        "forge:data_pack_format": 9
-    }
-}

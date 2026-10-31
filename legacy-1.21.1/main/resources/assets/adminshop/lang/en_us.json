@@ -1,15 +1,8 @@
 {
-  "gui.item_tag": "Any item: ",
-  "gui.fluid_tag": "Any fluid: ",
-  "gui.adminshop.tank_gauge": "Tank Gauge",
-  "itemGroup.adminshop": "Admin Shop",
-  "screen.adminshop.buyer": "Buyer",
   "item.adminshop.manual": "Economics 101",
   "jei.category.buy.title": "Shop Buy Offers",
   "jei.category.buy.price": "Price: %s",
   "jei.category.sell.title": "Shop Sell Offers",
   "jei.category.sell.price": "Price: %s",
-  "jei.requires_permit": "Permit: %s",
-  "sellitem.recipe.tag": "Any of: %s",
-  "gui.adminshop.tank_empty": "Empty"
+  "jei.requires_permit": "Permit: %s"
 }
