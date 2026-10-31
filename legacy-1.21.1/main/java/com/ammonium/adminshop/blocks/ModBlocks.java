@@ -18,8 +18,6 @@ public class ModBlocks {
     public static final DeferredRegister<Block> BLOCKS =
             DeferredRegister.create(BuiltInRegistries.BLOCK, AdminShop.MODID);
 
-    public static final DeferredHolder<Block, Block> SHOP = registerLoreBlock("shop",
-            ShopBlock::new, "Buy and Sell Items!");
     public static final DeferredHolder<Block, BuyerBlock1> BUYER_1 = registerLoreBlock("buyer_1",
             BuyerBlock1::new, "Automatically buys once every 40 ticks");
 

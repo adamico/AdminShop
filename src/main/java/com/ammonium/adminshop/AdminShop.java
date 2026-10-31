@@ -1,8 +1,13 @@
 package com.ammonium.adminshop;
 
+import com.ammonium.adminshop.blocks.ModBlocks;
+import com.ammonium.adminshop.blocks.entity.ModBlockEntities;
+import com.ammonium.adminshop.item.ModItems;
 import com.ammonium.adminshop.recipes.ModRecipeSerializers;
 import com.ammonium.adminshop.recipes.ModRecipeTypes;
+import com.ammonium.adminshop.screen.ModMenuTypes;
 import com.ammonium.adminshop.setup.Config;
+import com.ammonium.adminshop.setup.CreativeTab;
 import com.ammonium.adminshop.setup.Messages;
 import com.mojang.logging.LogUtils;
 import net.neoforged.bus.api.IEventBus;
@@ -23,6 +28,11 @@ public class AdminShop {
     public AdminShop(IEventBus eventBus, ModContainer modContainer) {
         Config.register(modContainer);
         eventBus.addListener(Messages::register);
+        ModItems.register(eventBus);
+        ModBlocks.register(eventBus);
+        ModBlockEntities.register(eventBus);
+        ModMenuTypes.register(eventBus);
+        CreativeTab.register(eventBus);
         ModRecipeTypes.register(eventBus);
         ModRecipeSerializers.register(eventBus);
     }

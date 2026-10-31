@@ -12,9 +12,6 @@ public class ModMenuTypes {
     public static final DeferredRegister<MenuType<?>> MENUS =
             DeferredRegister.create(BuiltInRegistries.MENU, AdminShop.MODID);
 
-    public static final DeferredHolder<MenuType<?>, MenuType<ShopMenu>> SHOP_MENU = MENUS.register("shop_menu",
-            () -> IMenuTypeExtension.create(((windowId, inv, data) -> new ShopMenu(windowId, inv, inv.player))));
-
     public static final DeferredHolder<MenuType<?>, MenuType<SellerMenu>> SELLER_MENU = MENUS.register("seller_menu",
             () -> IMenuTypeExtension.create((SellerMenu::new)));
 

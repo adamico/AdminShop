@@ -5,5 +5,14 @@
   "message.adminshop.error.not_positive": "Must be a positive value!",
   "message.adminshop.give.success": "Successfully sent money",
   "message.adminshop.remove.failure": "Error removing money from account",
-  "message.adminshop.remove.success": "Successfully removed money from account"
+  "message.adminshop.remove.success": "Successfully removed money from account",
+  "screen.adminshop.shop": "Shop",
+  "gui.buy": "Buy",
+  "gui.sell": "Sell",
+  "block.adminshop.shop": "Shop",
+  "item_group.adminshop.creativetab": "AdminShop",
+  "item.adminshop.tablet": "Shopping Tablet",
+  "shopbutton.description": "%1$s %2$s %3$s",
+  "message.adminshop.not_enough_space": "Not enough inventory space for item!",
+  "message.adminshop.not_enough_money": "Not enough money in account!"
 }

@@ -21,9 +21,6 @@ public class ModBlockEntities {
             BLOCK_ENTITIES.register("seller", () -> BlockEntityType.Builder.of(SellerEntity::new,
                     ModBlocks.SELLER.get()).build(null));
 
-    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<ShopEntity>> SHOP =
-            BLOCK_ENTITIES.register("shop", () -> BlockEntityType.Builder.of(ShopEntity::new,
-                    ModBlocks.SHOP.get()).build(null));
 
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<BuyerEntity1>> BUYER_1 =
             BLOCK_ENTITIES.register("buyer_1", () -> BlockEntityType.Builder.of(BuyerEntity1::new,

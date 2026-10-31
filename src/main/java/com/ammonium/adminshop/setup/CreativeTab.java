@@ -10,24 +10,20 @@ import net.minecraft.world.item.ItemStack;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
+/** AdminShop's creative tab, which lists every AdminShop item. */
 public class CreativeTab {
     public static final DeferredRegister<CreativeModeTab> CREATIVE_MODE_TABS =
             DeferredRegister.create(Registries.CREATIVE_MODE_TAB, AdminShop.MODID);
 
-    public static void register(IEventBus bus) {
-        CREATIVE_MODE_TABS.register(bus);
+    static {
         CREATIVE_MODE_TABS.register("creativetab", () -> CreativeModeTab.builder()
-                // Set name of tab to display
                 .title(Component.translatable("item_group." + AdminShop.MODID + ".creativetab"))
-                // Set icon of creative tab
                 .icon(() -> new ItemStack(ModBlocks.SHOP.get()))
-                // Add default items to tab
-                .displayItems((params, output) -> {
-//                    Registration.ITEMS.getEntries().forEach(e -> output.accept(e.get()));
-                    ModItems.ITEMS.getEntries().forEach(e -> output.accept(new ItemStack(e.get())));
-                    ModBlocks.BLOCKS.getEntries().forEach(e -> output.accept(new ItemStack(e.get())));
-                })
+                .displayItems((params, output) -> ModItems.ITEMS.getEntries().forEach(item -> output.accept(item.get())))
                 .build());
     }
 
+    public static void register(IEventBus bus) {
+        CREATIVE_MODE_TABS.register(bus);
+    }
 }

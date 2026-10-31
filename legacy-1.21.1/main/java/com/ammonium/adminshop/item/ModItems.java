@@ -14,7 +14,6 @@ public class ModItems {
     public static final DeferredHolder<Item, LoreItem> PERMIT = ITEMS.register("permit",
             () -> new LoreItem(new Item.Properties(), "Shift-click inside a shop to unlock new trades"));
 
-    public static final DeferredHolder<Item, LoreItem> TABLET = ITEMS.register("tablet", ShopTablet::new);
     public static void register(IEventBus eventBus) {
         ITEMS.register(eventBus);
     }
