@@ -13,10 +13,7 @@ import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
 
-/**
- * A Buy Offer for items: the team pays {@code price} and receives {@code result}, a stack in 26.1's
- * item stack format, components included.
- */
+/** A Buy Offer for items. The team pays {@code price} and receives {@code result}, an item stack with components. */
 public record BuyItemRecipe(long price, ItemStackTemplate result, String permit) implements ShopRecipe {
 
     public static final MapCodec<BuyItemRecipe> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
@@ -33,7 +30,7 @@ public record BuyItemRecipe(long price, ItemStackTemplate result, String permit)
 
     public static final RecipeSerializer<BuyItemRecipe> SERIALIZER = new RecipeSerializer<>(CODEC, STREAM_CODEC);
 
-    /** A fresh copy of the goods one trade hands over. */
+    /** A new copy of the items one trade hands over. */
     public ItemStack getItem() {
         return result.create();
     }

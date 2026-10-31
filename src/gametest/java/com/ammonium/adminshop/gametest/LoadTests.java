@@ -5,9 +5,9 @@ import net.minecraft.gametest.framework.GameTestHelper;
 import net.neoforged.fml.ModList;
 
 /**
- * AdminShop loads on a dedicated server at the version its build gave it. It is the harness's own
- * check too: a run that reports this test ran AdminShop's tests, not vanilla's. JEI and EMI are optional: the
- * game test server runs without either, and still has the Shop's Offers.
+ * Tests that AdminShop loads on a dedicated server with the version its build set. This also checks the harness,
+ * because a run that reports this test ran AdminShop's tests and not vanilla's. JEI and EMI are optional. The game
+ * test server runs without either and still has the Shop's Offers.
  */
 final class LoadTests {
 
@@ -20,14 +20,16 @@ final class LoadTests {
         tests.test("loads_without_emi", 1, LoadTests::loadsWithoutEmi);
     }
 
+    /**
+     * processResources expands the version from gradle.properties into neoforge.mods.toml. If it did not, the version
+     * would still read {@code ${mod_version}}.
+     */
     private static void loads(GameTestHelper helper) {
         var container = ModList.get().getModContainerById(AdminShop.MODID);
         if (container.isEmpty()) {
             helper.fail("the server has not loaded " + AdminShop.MODID);
             return;
         }
-        // processResources writes gradle.properties into neoforge.mods.toml; unexpanded, the
-        // version would still read ${mod_version}.
         String version = container.get().getModInfo().getVersion().toString();
         if (version.contains("$")) {
             helper.fail("neoforge.mods.toml's version was not expanded: " + version);
@@ -36,16 +38,16 @@ final class LoadTests {
         helper.succeed();
     }
 
+    /** Only meaningful while the game test server runs without JEI. */
     private static void loadsWithoutJei(GameTestHelper helper) {
-        // The test means something only while the game test server runs without JEI.
         helper.assertFalse(ModList.get().isLoaded("jei"), "the game test server loaded JEI");
         helper.assertTrue(helper.getLevel().getServer().getRecipeManager().byKey(ShopTradeTests.offer("gametest/buy_diamonds")).isPresent(),
                 "the Shop has no Offers without JEI");
         helper.succeed();
     }
 
+    /** Only meaningful while the game test server runs without EMI. */
     private static void loadsWithoutEmi(GameTestHelper helper) {
-        // The test means something only while the game test server runs without EMI.
         helper.assertFalse(ModList.get().isLoaded("emi"), "the game test server loaded EMI");
         helper.assertTrue(helper.getLevel().getServer().getRecipeManager().byKey(ShopTradeTests.offer("gametest/buy_diamonds")).isPresent(),
                 "the Shop has no Offers without EMI");

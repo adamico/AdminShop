@@ -19,8 +19,8 @@ import net.neoforged.neoforge.fluids.FluidStack;
 import org.jspecify.annotations.Nullable;
 
 /**
- * The Fluid Buyer's menu: the player's inventory only. Its progress to the next purchase, whether it has an owner,
- * whether its Offer is locked, what its tank holds and the fluid it buys ride in data slots.
+ * The Fluid Buyer's menu. It holds only the player's inventory. Data slots carry the progress to the next purchase,
+ * whether the Fluid Buyer has an owner, whether its Offer is locked, what its tank holds and the fluid it buys.
  */
 public class FluidBuyerMenu extends AbstractContainerMenu {
     private static final int DATA_PROGRESS = 0;
@@ -33,7 +33,7 @@ public class FluidBuyerMenu extends AbstractContainerMenu {
     private final @Nullable FluidBuyerEntity buyer;
     private final ContainerData data;
 
-    /** Client side: the data slots the menu's sync fills. */
+    /** Creates the client-side menu, whose data slots menu sync fills. */
     public FluidBuyerMenu(int containerId, Inventory playerInventory, RegistryFriendlyByteBuf buffer) {
         this(containerId, playerInventory, null, new SimpleContainerData(DATA_COUNT));
     }
@@ -53,7 +53,7 @@ public class FluidBuyerMenu extends AbstractContainerMenu {
         addDataSlots(data);
     }
 
-    /** Server side, over the Fluid Buyer itself. */
+    /** Creates the server-side menu over the Fluid Buyer. */
     public static FluidBuyerMenu open(int containerId, Inventory playerInventory, FluidBuyerEntity buyer) {
         return new FluidBuyerMenu(containerId, playerInventory, buyer, data(buyer));
     }
@@ -87,7 +87,10 @@ public class FluidBuyerMenu extends AbstractContainerMenu {
         };
     }
 
-    /** How far the Fluid Buyer is to its next purchase, in {@link FluidBuyerEntity#PROGRESS_STEPS} steps, as the server last sent it. */
+    /**
+     * The Fluid Buyer's progress to its next purchase, out of {@link FluidBuyerEntity#PROGRESS_STEPS}, as last sent
+     * by the server.
+     */
     public int progress() {
         return data.get(DATA_PROGRESS);
     }
@@ -113,9 +116,9 @@ public class FluidBuyerMenu extends AbstractContainerMenu {
     }
 
     /**
-     * Sets the Fluid Buyer whose menu {@code player} has open to buy the fluid Buy Offer {@code offer}, as a player
-     * does by clicking a fluid container in its screen. Returns whether it did: a locked Fluid Buyer only a creative
-     * player can set, and only a member of its team can set it otherwise.
+     * Sets the Fluid Buyer that {@code player} has open to the fluid Buy Offer {@code offer}. A player does this by
+     * clicking a fluid container in its screen. Returns whether the Offer changed. Only a creative player can change a
+     * locked Fluid Buyer. Otherwise only a member of its team can change it.
      */
     public static boolean select(ServerPlayer player, ResourceKey<Recipe<?>> offer) {
         if (!(player.containerMenu instanceof FluidBuyerMenu menu) || menu.buyer == null) {
@@ -135,9 +138,9 @@ public class FluidBuyerMenu extends AbstractContainerMenu {
         return menu.buyer.setOffer(offer, creative);
     }
 
+    /** Moves nothing, since the menu has no slots of its own. */
     @Override
     public ItemStack quickMoveStack(Player player, int index) {
-        // The menu has no slots of its own to move to.
         return ItemStack.EMPTY;
     }
 

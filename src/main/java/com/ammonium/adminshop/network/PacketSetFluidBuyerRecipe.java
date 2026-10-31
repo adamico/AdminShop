@@ -13,7 +13,7 @@ import net.minecraft.world.item.crafting.Recipe;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 /**
- * Asks the server to set the Fluid Buyer whose screen the player has open to one fluid Buy Offer; see
+ * Asks the server to set the Fluid Buyer whose screen the player has open to one fluid Buy Offer. See
  * {@link FluidBuyerMenu#select}.
  */
 public record PacketSetFluidBuyerRecipe(ResourceKey<Recipe<?>> offer) implements CustomPacketPayload {

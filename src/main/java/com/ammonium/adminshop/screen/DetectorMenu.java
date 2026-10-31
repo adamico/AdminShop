@@ -15,8 +15,9 @@ import net.minecraft.world.item.ItemStack;
 import org.jspecify.annotations.Nullable;
 
 /**
- * A Detector's menu: only the player's inventory. The threshold and whether the Detector has an owner ride in data
- * slots; a data slot travels as a signed 16-bit number, so the threshold goes in {@link #THRESHOLD_SLOTS} of 16 bits.
+ * A Detector's menu. It holds only the player's inventory. Data slots carry the threshold and whether the Detector
+ * has an owner. A data slot travels as a signed 16-bit number, so the threshold is split across
+ * {@link #THRESHOLD_SLOTS} slots of 16 bits each.
  */
 public class DetectorMenu extends AbstractContainerMenu {
     private static final int THRESHOLD_SLOTS = 4;
@@ -27,12 +28,12 @@ public class DetectorMenu extends AbstractContainerMenu {
     private final @Nullable DetectorEntity detector;
     private final ContainerData data;
 
-    /** Client side: the threshold and owner arrive in the data slots. */
+    /** Creates the client-side menu. The threshold and owner arrive in the data slots. */
     public static DetectorMenu client(DetectorKind kind, int containerId, Inventory playerInventory) {
         return new DetectorMenu(kind, containerId, playerInventory, null, new SimpleContainerData(DATA_COUNT));
     }
 
-    /** Server side, over the Detector itself. */
+    /** Creates the server-side menu over the Detector. */
     public static DetectorMenu open(int containerId, Inventory playerInventory, DetectorEntity detector) {
         return new DetectorMenu(detector.kind(), containerId, playerInventory, detector, new ContainerData() {
             @Override
@@ -68,7 +69,7 @@ public class DetectorMenu extends AbstractContainerMenu {
         addDataSlots(data);
     }
 
-    /** The data slots the server sends for a Detector with {@code threshold} that has an owner or not. */
+    /** Builds the data slots the server sends for a Detector with {@code threshold} and owner state {@code owned}. */
     public static ContainerData serverData(long threshold, boolean owned) {
         var data = new SimpleContainerData(DATA_COUNT);
         for (int i = 0; i < DATA_COUNT; i++) {
@@ -84,7 +85,7 @@ public class DetectorMenu extends AbstractContainerMenu {
         return index == DATA_OWNED && owned ? 1 : 0;
     }
 
-    /** The threshold in {@code data}, as {@link #serverData} wrote it, or the client received it. */
+    /** Reads the threshold from {@code data}, as written by {@link #serverData} or received by the client. */
     public static long threshold(ContainerData data) {
         long threshold = 0;
         for (int i = 0; i < THRESHOLD_SLOTS; i++) {
@@ -97,7 +98,7 @@ public class DetectorMenu extends AbstractContainerMenu {
         return kind;
     }
 
-    /** The Detector's threshold, as the server last sent it. */
+    /** The Detector's threshold, as last sent by the server. */
     public long threshold() {
         return threshold(data);
     }
@@ -108,9 +109,9 @@ public class DetectorMenu extends AbstractContainerMenu {
     }
 
     /**
-     * Sets the threshold of the Detector whose menu {@code player} has open, as its screen's confirm button does.
-     * Returns whether it did: not without a Detector's menu open, nor to a negative threshold. Only the owning team's
-     * members can open the menu.
+     * Sets the threshold of the Detector that {@code player} has open, as the confirm button on its screen does.
+     * Returns false if the player has no Detector menu open or the threshold is negative. Only members of the owning
+     * team can open the menu.
      */
     public static boolean setThreshold(ServerPlayer player, long threshold) {
         if (!(player.containerMenu instanceof DetectorMenu menu) || menu.detector == null || threshold < 0) {
@@ -120,9 +121,9 @@ public class DetectorMenu extends AbstractContainerMenu {
         return true;
     }
 
+    /** Moves nothing, since the menu has no slots of its own. */
     @Override
     public ItemStack quickMoveStack(Player player, int index) {
-        // Nowhere to move to.
         return ItemStack.EMPTY;
     }
 

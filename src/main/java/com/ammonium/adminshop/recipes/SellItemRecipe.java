@@ -24,9 +24,9 @@ import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
 
 /**
- * A Sell Offer for items: the team gives up what {@code sold} names and receives {@code price}. That is
- * either one item ({@code item} in JSON, its count is how many one trade takes) or any item of an item
- * tag ({@code tag}, with {@code count} items per trade, 1 if left out), never both.
+ * A Sell Offer for items. The team gives up what {@code sold} names and receives {@code price}. In JSON, {@code item}
+ * names one item, and its count is how many one trade takes. {@code tag} names an item tag instead, with
+ * {@code count} items per trade (1 by default). An Offer sets one of the two, never both.
  */
 public record SellItemRecipe(long price, Sold sold, String permit) implements ShopRecipe {
 
@@ -40,7 +40,7 @@ public record SellItemRecipe(long price, Sold sold, String permit) implements Sh
         this(price, new AnyOfTag(tag, count), permit);
     }
 
-    /** What a Sell Offer takes: one item, or any item of a tag. */
+    /** What a Sell Offer takes, either one item or any item of a tag. */
     public sealed interface Sold {
 
         /** How many items one trade takes. */
@@ -51,8 +51,8 @@ public record SellItemRecipe(long price, Sold sold, String permit) implements Sh
     }
 
     /**
-     * One item. An item carrying components only matches when the Offer names the same ones; an Offer
-     * naming none matches the item whatever components it carries, as on 1.21.1.
+     * One item. If the Offer names components, a stack matches only with exactly those components. If it names
+     * none, a stack matches whatever components it carries.
      */
     public record OneItem(ItemStackTemplate item) implements Sold {
 
@@ -85,7 +85,7 @@ public record SellItemRecipe(long price, Sold sold, String permit) implements Sh
             ExtraCodecs.intRange(1, 99).optionalFieldOf("count", 1).forGetter(SoldFields::count)
     ).apply(instance, SoldFields::new)).flatXmap(SoldFields::sold, SoldFields::of);
 
-    /** The JSON fields that say what a Sell Offer takes, before checking they name one thing. */
+    /** The raw JSON fields that say what a Sell Offer takes, before the check that exactly one is set. */
     private record SoldFields(Optional<ItemStackTemplate> item, Optional<TagKey<Item>> tag, int count) {
 
         DataResult<Sold> sold() {
@@ -155,8 +155,8 @@ public record SellItemRecipe(long price, Sold sold, String permit) implements Sh
     }
 
     /**
-     * For a tag Offer, every item of the tag that stacks to the Offer's count, as the tags loaded on this
-     * side stand: on the client, the ones the server sent.
+     * For a tag Offer, every item in the tag whose max stack size reaches the Offer's count. It reads the tags loaded
+     * on the current side, so on the client these are the tags the server sent.
      */
     @Override
     public ShopGoods goods() {
@@ -177,7 +177,7 @@ public record SellItemRecipe(long price, Sold sold, String permit) implements Sh
         };
     }
 
-    /** For a tag Offer, the tag's id, as on 1.21.1. */
+    /** For a tag Offer, the tag's id. */
     @Override
     public String searchTerm() {
         return switch (sold) {

@@ -19,8 +19,8 @@ import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 
 /**
- * A Detector's block entity: its threshold, and every {@link #TICK_COOLDOWN} ticks the signal its {@link DetectorKind}
- * gives for its Account's Balance against that threshold. With no owner, or no Account, it gives none.
+ * A Detector's block entity. It stores the threshold and, every {@link #TICK_COOLDOWN} ticks, recomputes the signal
+ * its {@link DetectorKind} gives for the Account's Balance. With no owner or no Account, the signal is 0.
  */
 public class DetectorEntity extends MachineEntity {
     public static final int TICK_COOLDOWN = 20;
@@ -31,7 +31,7 @@ public class DetectorEntity extends MachineEntity {
     private final DetectorKind kind;
     private long threshold;
     private int signal;
-    /** Ticks since the Detector last looked at its Balance; not saved, and it starts by looking. */
+    /** Ticks since the last Balance check. Not saved. It starts one short of the cooldown, so the first tick checks. */
     private int ticks = TICK_COOLDOWN - 1;
 
     public DetectorEntity(BlockEntityType<? extends DetectorEntity> type, DetectorKind kind, BlockPos pos, BlockState state) {
@@ -47,7 +47,7 @@ public class DetectorEntity extends MachineEntity {
         return threshold;
     }
 
-    /** Sets the threshold, 0 or more; the signal follows when the Detector next looks at its Balance. */
+    /** Sets the threshold, which must not be negative. The signal updates at the next Balance check. */
     public void setThreshold(long threshold) {
         if (threshold < 0) {
             throw new IllegalArgumentException("A Detector's threshold can't be negative: " + threshold);
@@ -56,7 +56,7 @@ public class DetectorEntity extends MachineEntity {
         setChanged();
     }
 
-    /** The redstone signal the Detector gives, 0 to 15. */
+    /** The current redstone signal, 0 to 15. */
     public int signal() {
         return signal;
     }
@@ -71,6 +71,10 @@ public class DetectorEntity extends MachineEntity {
         detector.setSignal(level, pos, state, account == null ? 0 : detector.kind.signal(account.balance(), detector.threshold));
     }
 
+    /**
+     * Stores the new signal, updates the lit state and notifies neighbours. Like a redstone torch, it updates the
+     * blocks around it and the blocks around each neighbour, because it can power them strongly.
+     */
     private void setSignal(Level level, BlockPos pos, BlockState state, int newSignal) {
         if (signal == newSignal) {
             return;
@@ -81,7 +85,6 @@ public class DetectorEntity extends MachineEntity {
         if (state.getValue(DetectorBlock.LIT) != lit) {
             level.setBlock(pos, state.setValue(DetectorBlock.LIT, lit), Block.UPDATE_CLIENTS);
         }
-        // As a redstone torch does: the blocks around it, and those around the blocks it powers strongly.
         Block block = state.getBlock();
         level.updateNeighborsAt(pos, block);
         for (Direction direction : Direction.values()) {

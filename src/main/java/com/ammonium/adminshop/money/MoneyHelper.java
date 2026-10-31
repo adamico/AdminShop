@@ -25,13 +25,13 @@ import org.jetbrains.annotations.Nullable;
 import java.util.*;
 
 /**
- * Every Account on the server, keyed by the id of the FTB Team that owns it, with its Balance and
- * Permits. Saved once per server, in {@code data/adminshop/accounts.dat}. A change to an Account is
- * sent to the team's online members at once.
+ * Stores every Account on the server with its Balance and Permits, keyed by the id of the FTB Team that
+ * owns it. It is saved once per server in {@code data/adminshop/accounts.dat}. Each change to an Account
+ * is sent to the team's online members immediately.
  */
 public class MoneyHelper extends SavedData {
 
-    /** One Account as saved: the Account's name is the team's, so it is not stored. */
+    /** One saved Account. The name is not stored because it is the team's name. */
     private record Ledger(UUID team, long balance, List<String> permits) {
         static final Codec<Ledger> CODEC = RecordCodecBuilder.create(instance -> instance.group(
                 UUIDUtil.CODEC.fieldOf("team").forGetter(Ledger::team),
@@ -59,7 +59,7 @@ public class MoneyHelper extends SavedData {
         return List.copyOf(ledger.values());
     }
 
-    //"Singleton" getter
+    /** Returns the server's Accounts. Throws if called on the client. */
     public static MoneyHelper get(Level checkLevel) {
         if (!(checkLevel instanceof ServerLevel level)) {
             throw new RuntimeException("Don't access this client-side!");
@@ -90,7 +90,6 @@ public class MoneyHelper extends SavedData {
         ledger.put(account.teamId, new Ledger(account.teamId, account.balance, List.copyOf(account.permits)));
         this.setDirty();
 
-        // Sync the data to all players
         Optional<Team> oTeam = getFTBTeam(account.teamId, manager);
         if (oTeam.isEmpty()) {
             AdminShop.LOGGER.warn("Team not found for UUID: {}", account.teamId);
@@ -101,7 +100,7 @@ public class MoneyHelper extends SavedData {
         }
     }
 
-    /** Sends the player the Account of the team they are in now, opening it if need be. */
+    /** Sends the player their current team's Account, opening it if it does not exist yet. */
     public void syncToPlayer(ServerPlayer player) {
         sendToPlayer(getPlayerAccount(player), player);
     }

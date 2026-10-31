@@ -15,7 +15,7 @@ import net.neoforged.neoforge.network.handling.IPayloadContext;
 import java.util.LinkedHashSet;
 import java.util.UUID;
 
-/** Tells a client the Account of the team its player is in: its team, Balance and Permits. */
+/** Sends a client the team id, Balance and Permits of its player's Account. */
 public record PacketSyncMoneyToClient(UUID teamId, long balance, ImmutableSet<String> permits) implements CustomPacketPayload {
 
     public static final Type<PacketSyncMoneyToClient> TYPE = new Type<>(

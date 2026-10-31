@@ -13,9 +13,9 @@ import net.neoforged.neoforge.fluids.FluidStackTemplate;
 import net.neoforged.neoforge.transfer.fluid.FluidResource;
 
 /**
- * A Buy Offer for a fluid: the team pays {@code price} and receives {@code result}, a fluid stack in NeoForge's
- * format ({@code id}, {@code amount} in millibuckets, optional {@code components}), into a fluid container by hand
- * or into a Fluid Buyer's tank.
+ * A Buy Offer for a fluid. The team pays {@code price} and receives {@code result}, a NeoForge fluid stack with
+ * {@code id}, {@code amount} in millibuckets and optional {@code components}. The fluid goes into a fluid container
+ * by hand, or into a Fluid Buyer's tank.
  */
 public record BuyFluidRecipe(long price, FluidStackTemplate result, String permit) implements ShopRecipe {
 

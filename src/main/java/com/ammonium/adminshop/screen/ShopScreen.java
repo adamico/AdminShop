@@ -33,9 +33,9 @@ import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.transfer.fluid.FluidUtil;
 
 /**
- * The shop screen: the Offers of the client shop cache in a grid of 4 rows of 9, Buy or Sell Offers at a
- * time, with a search box. Clicking an Offer trades it (shift and control trade more); shift-clicking a
- * stack in the inventory sells it through the first Sell Offer that takes it, and shift-clicking a fluid
+ * The shop screen. It shows the Offers in the client shop cache in a grid of 4 rows of 9, either the Buy Offers or
+ * the Sell Offers, with a search box. Clicking an Offer trades it, and holding shift or control trades more.
+ * Shift-clicking a stack in the inventory sells it through the first Sell Offer that takes it. Shift-clicking a fluid
  * container sells its fluid the same way.
  */
 public class ShopScreen extends AbstractContainerScreen<ShopMenu> {
@@ -50,7 +50,7 @@ public class ShopScreen extends AbstractContainerScreen<ShopMenu> {
 
     private final List<ShopButton> shopButtons = new ArrayList<>();
     private List<OfferDisplay> searchResults = List.of();
-    /** The display the buttons were made from; a new sync, after {@code /reload}, replaces it. */
+    /** The display the buttons were built from. A new sync after {@code /reload} replaces it. */
     private ShopDisplay shownDisplay;
     private int rowsPassed = 0;
     private boolean isBuy = true;
@@ -80,7 +80,7 @@ public class ShopScreen extends AbstractContainerScreen<ShopMenu> {
         refreshShopButtons();
     }
 
-    /** Lists the Offers that match the search, from the first row not scrolled past. */
+    /** Lists the Offers that match the search, starting at the first row not scrolled past. */
     private void refreshShopButtons() {
         shownDisplay = ShopCache.CLIENT.display();
         searchResults = shownDisplay.search(isBuy, searchBar.getValue());
@@ -119,10 +119,10 @@ public class ShopScreen extends AbstractContainerScreen<ShopMenu> {
         graphics.blit(RenderPipelines.GUI_TEXTURED, GUI, leftPos, topPos, 0, 0, imageWidth, imageHeight, 256, 256);
     }
 
+    /** Draws the scroll indicators over the grid and the tooltip of the hovered Offer. */
     @Override
     public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
         super.extractRenderState(graphics, mouseX, mouseY, a);
-        // Scroll indicators, over the grid.
         if (rowsPassed > 0) {
             graphics.blit(RenderPipelines.GUI_TEXTURED, GUI, leftPos + 15, topPos + 32, 15, 223, 162, 8, 256, 256);
         }
@@ -151,6 +151,10 @@ public class ShopScreen extends AbstractContainerScreen<ShopMenu> {
         graphics.text(font, name, 16, 112, TEXT_COLOR);
     }
 
+    /**
+     * Shift-clicking a Permit item in the inventory adds its Permit to the Account. Shift-clicking a fluid container
+     * or a stack sells all of it, in as many trades as it holds.
+     */
     @Override
     public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
         if (searchBar.isFocused() && !searchBar.isMouseOver(event.x(), event.y())) {
@@ -160,11 +164,9 @@ public class ShopScreen extends AbstractContainerScreen<ShopMenu> {
         if (slot != null && event.hasShiftDown() && slot.hasItem()) {
             ItemStack stack = slot.getItem();
             if (slot.container instanceof Inventory && PermitItem.permit(stack).isPresent()) {
-                // Redeem the Trade Permit for the Account.
                 ClientPacketDistributor.sendToServer(new PacketAccountAddPermit(slot.getContainerSlot()));
                 return true;
             }
-            // Sell a fluid container's fluid, in as many trades as it holds.
             FluidStack fluid = FluidUtil.getFirstStackContained(stack);
             Optional<OfferDisplay> fluidOffer = ShopCache.CLIENT.display().sellOfferFor(fluid);
             if (fluidOffer.isPresent()) {
@@ -173,7 +175,6 @@ public class ShopScreen extends AbstractContainerScreen<ShopMenu> {
                 }
                 return true;
             }
-            // Sell the whole stack, in as many trades as it holds.
             Optional<OfferDisplay> offer = ShopCache.CLIENT.display().sellOfferFor(stack);
             if (offer.isPresent()) {
                 if (stack.getCount() >= offer.get().count()) {
@@ -185,15 +186,17 @@ public class ShopScreen extends AbstractContainerScreen<ShopMenu> {
         return super.mouseClicked(event, doubleClick);
     }
 
+    /**
+     * While the search box has focus, Escape unfocuses it and a second Escape closes the screen. Other keys go to the
+     * box and never close the screen or trigger a keybind.
+     */
     @Override
     public boolean keyPressed(KeyEvent event) {
         if (searchBar.isFocused()) {
             if (event.isEscape()) {
-                // Escape leaves the search box first; a second Escape closes the screen.
                 searchBar.setFocused(false);
                 return true;
             }
-            // Typing in the search box never closes the screen or reaches a keybind.
             return searchBar.keyPressed(event) || searchBar.canConsumeInput();
         }
         return super.keyPressed(event);

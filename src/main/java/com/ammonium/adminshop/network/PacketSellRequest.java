@@ -15,8 +15,9 @@ import net.minecraft.world.item.crafting.Recipe;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 /**
- * Asks the server to sell {@code quantity} trades of a Sell Offer for the player, from the shop screen:
- * from the stack in main inventory {@code slot}, or {@link ShopTrades#ANY_SLOT}. See {@link ShopTrades#sell}.
+ * Asks the server to sell {@code quantity} trades of a Sell Offer for the player, from the shop screen. The
+ * goods come from main inventory {@code slot}, or from any slot if it is {@link ShopTrades#ANY_SLOT}. See
+ * {@link ShopTrades#sell}.
  */
 public record PacketSellRequest(ResourceKey<Recipe<?>> offer, int slot, int quantity) implements CustomPacketPayload {
 

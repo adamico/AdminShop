@@ -28,11 +28,10 @@ import net.neoforged.neoforge.fluids.FluidStackTemplate;
 import org.junit.jupiter.api.Test;
 
 /**
- * The client shop cache keeps the Offers the server synced and the shop display layer turns them into
- * what the shop screen (and later JEI and EMI) list: Buy Offers and Sell Offers apart, each with its
- * goods, price and Permit. A new sync, as after {@code /reload}, replaces what an earlier one left.
- * The goods' names and the search read item components, which only a loaded world has: the shop screen
- * shows those.
+ * Tests that the client shop cache keeps the Offers the server synced, and that the shop display layer lists
+ * them for the shop screen, JEI and EMI. Buy Offers and Sell Offers are listed separately, each with its goods,
+ * price and Permit. A new sync, such as after {@code /reload}, replaces the previous one. The goods' names and
+ * the search are not tested here because they read item components, which only a loaded world has.
  */
 class ShopDisplayTest {
 
@@ -48,7 +47,7 @@ class ShopDisplayTest {
         return new RecipeHolder<>(key(path), new SellItemRecipe(price, goods, ""));
     }
 
-    /** What the client receives: a recipe map of every synced type, as {@code RecipesReceivedEvent} hands it over. */
+    /** Builds the recipe map of every synced type that {@code RecipesReceivedEvent} gives the client. */
     private static RecipeMap synced(RecipeHolder<?>... recipes) {
         return RecipeMap.create(List.of(recipes));
     }
@@ -90,24 +89,24 @@ class ShopDisplayTest {
         assertEquals(3, display.count());
     }
 
+    /** The name is translated from {@code adminshop.permit.<permit>}. An untranslated Permit shows as itself. */
     @Test
     void aDisplayNamesThePermitTheOfferNeeds() {
         var cache = new ShopCache();
         cache.replace(synced(buy("diamonds", 250, new ItemStackTemplate(Items.DIAMOND, 3), "gems")));
 
         Component name = cache.display().buyOffers().getFirst().permitName().orElseThrow();
-        // Translated from adminshop.permit.<permit>; an untranslated Permit shows as itself.
         var contents = assertInstanceOf(TranslatableContents.class, name.getContents());
         assertEquals("adminshop.permit.gems", contents.getKey());
         assertEquals("gems", contents.getFallback());
     }
 
+    /** Permit "0" means none and is not shown. */
     @Test
     void aDisplayNamesNoPermitForAnOfferThatNeedsNone() {
         var cache = new ShopCache();
         cache.replace(synced(
                 buy("free", 10, new ItemStackTemplate(Items.APPLE), ""),
-                // 1.21.1's shop screen showed no Permit "0" either.
                 buy("zero", 10, new ItemStackTemplate(Items.BREAD), "0")));
 
         for (OfferDisplay display : cache.display().buyOffers()) {
@@ -137,6 +136,7 @@ class ShopDisplayTest {
         assertTrue(cache.offer(key("not_an_offer")).isEmpty());
     }
 
+    /** After {@code /reload} the iron Offer costs more, the cobblestone Offer is gone and a gold Offer is new. */
     @Test
     void aNewSyncReplacesTheOffersOfTheLastOne() {
         var cache = new ShopCache();
@@ -144,7 +144,6 @@ class ShopDisplayTest {
                 buy("iron", 100, new ItemStackTemplate(Items.IRON_INGOT), ""),
                 sell("cobble", 100, new ItemStackTemplate(Items.COBBLESTONE, 32))));
 
-        // After /reload the iron Offer costs more, the cobblestone Offer is gone and a gold Offer is new.
         cache.replace(synced(
                 buy("iron", 150, new ItemStackTemplate(Items.IRON_INGOT), ""),
                 buy("gold", 300, new ItemStackTemplate(Items.GOLD_INGOT), "")));
@@ -192,6 +191,7 @@ class ShopDisplayTest {
         assertEquals(List.of(key("cobble"), key("lava")), offers(cache.display().sellOffers()));
     }
 
+    /** The count of a fluid Offer is in millibuckets. */
     @Test
     void aFluidDisplayCarriesTheFluidItsAmountPriceAndPermit() {
         var cache = new ShopCache();
@@ -203,7 +203,6 @@ class ShopDisplayTest {
         assertEquals("nether", display.permit());
         ShopGoods.Fluid goods = assertInstanceOf(ShopGoods.Fluid.class, display.goods());
         assertEquals(new FluidStackTemplate(Fluids.LAVA, 500), goods.fluid());
-        // In millibuckets.
         assertEquals(500, display.count());
     }
 }

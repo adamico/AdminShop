@@ -12,8 +12,8 @@ import net.minecraft.world.item.crafting.RecipeInput;
 import net.minecraft.world.level.Level;
 
 /**
- * An Offer: one priced entry in the Shop. Offers are recipe types so datapacks can define them, but no
- * crafting station uses them: the Shop and the machines trade them, and the recipe book never shows them.
+ * An Offer, one priced entry in the Shop. Offers are recipes so that datapacks can define them. No crafting station
+ * uses them. Only the Shop and the machines trade them, and the recipe book never shows them.
  */
 public interface ShopRecipe extends Recipe<RecipeInput> {
 
@@ -26,10 +26,10 @@ public interface ShopRecipe extends Recipe<RecipeInput> {
     /** Whether this is a Buy Offer (the team pays and receives the goods) rather than a Sell Offer. */
     boolean isBuy();
 
-    /** What one trade of this Offer hands over, as the shop screen shows it. */
+    /** What one trade of this Offer hands over, as shown on the shop screen. */
     ShopGoods goods();
 
-    /** The goods' name, as the shop screen's tooltip shows it. */
+    /** The goods' name, as shown in the shop screen's tooltip. */
     Component name();
 
     /** What the shop screen's search matches. */
@@ -47,7 +47,7 @@ public interface ShopRecipe extends Recipe<RecipeInput> {
         return ItemStack.EMPTY;
     }
 
-    /** Special, so loading never warns that it has no ingredients to place. */
+    /** Returns true so that recipe loading does not warn about missing ingredients. */
     @Override
     default boolean isSpecial() {
         return true;
@@ -68,7 +68,7 @@ public interface ShopRecipe extends Recipe<RecipeInput> {
         return PlacementInfo.NOT_PLACEABLE;
     }
 
-    // display() stays empty, so no Offer ever reaches the recipe book: the category below is never read.
+    /** Never read. {@code display()} is empty, so no Offer reaches the recipe book. */
     @Override
     default RecipeBookCategory recipeBookCategory() {
         return RecipeBookCategories.CRAFTING_MISC;

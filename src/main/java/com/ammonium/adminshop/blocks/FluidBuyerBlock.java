@@ -10,7 +10,7 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jspecify.annotations.Nullable;
 
-/** The Fluid Buyer: buys its fluid Buy Offer on its own into its tank, charging its Account. */
+/** The Fluid Buyer block. It buys its fluid Buy Offer into its tank on its own and charges its Account. */
 public class FluidBuyerBlock extends MachineBlock {
     public static final MapCodec<FluidBuyerBlock> CODEC = simpleCodec(FluidBuyerBlock::new);
 

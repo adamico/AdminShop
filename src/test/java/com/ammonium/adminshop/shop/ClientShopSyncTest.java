@@ -8,8 +8,8 @@ import net.neoforged.neoforge.client.event.RecipesReceivedEvent;
 import org.junit.jupiter.api.Test;
 
 /**
- * The cache fills from a recipe sync before the recipe viewers rebuild their categories from it: EMI listens at
- * the default priority and JEI at the lowest, so the cache's listener runs higher than both.
+ * Tests that the cache fills from a recipe sync before the recipe viewers rebuild their categories from it. EMI
+ * listens at the default priority and JEI at the lowest, so the cache's listener must run higher than both.
  */
 class ClientShopSyncTest {
 

@@ -4,7 +4,7 @@ import com.ammonium.adminshop.blocks.BuyerTier;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.state.BlockState;
 
-/** The Creative Buyer's block entity: a T3 Buyer, locked from the start, that buys without Permits. */
+/** The Creative Buyer's block entity. It is a tier 3 Buyer that starts locked and buys without Permits. */
 public class CreativeBuyerEntity extends BuyerEntity {
 
     public CreativeBuyerEntity(BlockPos pos, BlockState state) {

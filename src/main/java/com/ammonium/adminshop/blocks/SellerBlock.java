@@ -10,7 +10,7 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jspecify.annotations.Nullable;
 
-/** The Seller: sells what is put into it through Sell Offers, crediting its Account. */
+/** The Seller block. It sells what is put into it through Sell Offers and credits its Account. */
 public class SellerBlock extends MachineBlock {
     public static final MapCodec<SellerBlock> CODEC = simpleCodec(SellerBlock::new);
 
@@ -32,9 +32,9 @@ public class SellerBlock extends MachineBlock {
         return new SellerEntity(pos, state);
     }
 
+    /** The ticker accepts any {@link SellerEntity}, so the Creative Seller ticks too. */
     @Override
     public <T extends BlockEntity> @Nullable BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
-        // Not tied to one block entity type, so the Creative Seller's sells too.
         if (level.isClientSide()) {
             return null;
         }

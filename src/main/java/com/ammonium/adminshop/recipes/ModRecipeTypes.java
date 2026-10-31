@@ -8,7 +8,7 @@ import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
-/** The Offer recipe types, with their 1.21.1 ids. */
+/** The Offer recipe types. */
 public class ModRecipeTypes {
     public static final DeferredRegister<RecipeType<?>> RECIPE_TYPES = DeferredRegister.create(Registries.RECIPE_TYPE, AdminShop.MODID);
 
@@ -17,7 +17,7 @@ public class ModRecipeTypes {
     public static final DeferredHolder<RecipeType<?>, RecipeType<BuyFluidRecipe>> SHOP_BUY_FLUID = register("fluid_buying");
     public static final DeferredHolder<RecipeType<?>, RecipeType<SellFluidRecipe>> SHOP_SELL_FLUID = register("fluid_selling");
 
-    /** Every Offer type, which the server syncs to clients. */
+    /** Every Offer type. The server syncs these to clients. */
     public static List<RecipeType<?>> offerTypes() {
         return List.of(SHOP_BUY_ITEM.get(), SHOP_SELL_ITEM.get(), SHOP_BUY_FLUID.get(), SHOP_SELL_FLUID.get());
     }

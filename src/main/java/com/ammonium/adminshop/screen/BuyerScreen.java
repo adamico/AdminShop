@@ -16,9 +16,9 @@ import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
 /**
- * A Buyer's screen: its output slots, the goods it buys, the progress to its next purchase and the name of its
- * Account, red "No account" while nobody owns it. Clicking an item in the inventory that a Buy Offer gives sets the
- * Buyer to that Offer; a locked Buyer only a creative player can set.
+ * A Buyer's screen. It shows the output slots, the goods the Buyer buys, its progress to the next purchase and the
+ * name of its Account, or a red "No account" if nobody owns it. Clicking an inventory item that a Buy Offer gives
+ * sets the Buyer to that Offer. Only a creative player can change a locked Buyer.
  */
 public class BuyerScreen extends AbstractContainerScreen<BuyerMenu> {
     private static final int ACCOUNT_COLOR = 0xFFFFFFFF;
@@ -75,6 +75,7 @@ public class BuyerScreen extends AbstractContainerScreen<BuyerMenu> {
         }
     }
 
+    /** Only a creative player changing a locked Buyer can skip the Offer's Permit. */
     @Override
     public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
         if (minecraft.player != null && hoveredSlot != null && hoveredSlot.container instanceof Inventory && hoveredSlot.hasItem()) {
@@ -86,7 +87,6 @@ public class BuyerScreen extends AbstractContainerScreen<BuyerMenu> {
                 if (menu.isLocked() && !minecraft.player.isCreative()) {
                     minecraft.player.sendSystemMessage(Component.translatable("message.adminshop.recipe_locked"));
                 } else if (!menu.isLocked() && !ClientCache.hasPermit(((BuyItemRecipe) offer.get().value()).permit())) {
-                    // As on 1.21.1: only a creative player changing a locked Buyer skips the Permit.
                     minecraft.player.sendSystemMessage(Component.translatable("gui.adminshop.no_permit"));
                 } else {
                     ClientPacketDistributor.sendToServer(new PacketSetBuyerRecipe(offer.get().id()));

@@ -11,8 +11,8 @@ import net.minecraft.network.chat.Component;
 import net.neoforged.neoforge.fluids.FluidStack;
 
 /**
- * A fluid machine screen's tank: the fluid fills it from the bottom as far as the tank is full, with the amount in
- * millibuckets at half size below it. Hovered, its tooltip gives the amount, the capacity and the fluid.
+ * A fluid machine screen's tank. The fluid fills it from the bottom in proportion to how full the tank is, and the
+ * amount in millibuckets shows at half size below it. Its tooltip gives the amount, the capacity and the fluid.
  */
 public class TankGauge extends AbstractWidget {
     private static final int TEXT_COLOR = 0xFFFFFFFF;

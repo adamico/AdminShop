@@ -9,12 +9,13 @@ import dev.emi.emi.api.EmiRegistry;
 import dev.emi.emi.api.stack.EmiStack;
 
 /**
- * Puts the Shop's Offers in EMI, as the Shop Buy and Shop Sell categories. EMI finds this by its annotation and
- * loads it only when EMI is installed; nothing outside this package names an EMI type, so AdminShop loads without it.
+ * Adds the Shop's Offers to EMI as the Shop Buy and Shop Sell categories. EMI finds this class by its annotation and
+ * loads it only when EMI is installed. No code outside this package uses EMI types, so AdminShop runs without EMI.
  *
- * <p>The Offers come from the client shop cache (ADR-0001), never EMI's recipe map. EMI reloads on each recipe sync
- * (login and every {@code /reload}), on a thread it starts from its own listener; {@code ClientShopSync} fills the
- * cache at a higher priority, so the cache already holds the synced Offers when {@link #register} reads them.
+ * <p>The Offers come from the client shop cache, never from EMI's recipe map. EMI reloads on each recipe
+ * sync, at login and after every {@code /reload}, on a thread started from its own listener. {@code ClientShopSync}
+ * fills the cache at a higher priority, so the cache already holds the synced Offers when {@link #register} reads
+ * them.
  */
 @EmiEntrypoint
 public final class AdminShopEmiPlugin implements EmiPlugin {

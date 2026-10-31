@@ -29,19 +29,21 @@ import net.minecraft.resources.Identifier;
 import org.junit.jupiter.api.Test;
 
 /**
- * The Econ Handbook's files, as the jar holds them, are what Patchouli 26.1 reads: strict JSON, and every
- * item, texture, model, category and translation they name exists. Patchouli itself is absent here, as it
- * is from the game tests, so what it ships (the guide book item, its book textures) is not checked.
+ * Tests that the Econ Handbook's files in the jar are strict JSON and that every item, texture, model,
+ * category and translation they name exists. Patchouli is not on the test classpath, so the things it
+ * ships, such as the guide book item and its book textures, are not checked.
  */
 class EconHandbookTest {
 
     private static final Identifier BOOK = Identifier.fromNamespaceAndPath(AdminShop.MODID, "econ_handbook");
     private static final Set<String> PAGE_TYPES = Set.of("patchouli:text", "patchouli:image");
 
-    /** AdminShop's resources' root, as the test classpath holds it. */
+    /**
+     * Finds the root of AdminShop's resources on the test classpath. It starts from a file only AdminShop
+     * has, because other mods' resources share the classpath.
+     */
     private static Path root() {
         try {
-            // A file only AdminShop has: other mods' resources share the classpath.
             Path book = Path.of(EconHandbookTest.class.getResource(
                     "/data/" + BOOK.getNamespace() + "/patchouli_books/" + BOOK.getPath() + "/book.json").toURI());
             return book.getParent().getParent().getParent().getParent().getParent();
@@ -54,7 +56,7 @@ class EconHandbookTest {
         return root().resolve("assets/" + AdminShop.MODID + "/" + path);
     }
 
-    /** A resource under {@code assets/<namespace>/<folder>/}, or {@code null} for another mod's. */
+    /** Resolves a resource under {@code assets/<namespace>/<folder>/}, or returns {@code null} for another mod's. */
     private static Path asset(Identifier id, String folder, String extension) {
         if (!id.getNamespace().equals(AdminShop.MODID)) {
             return null;
@@ -70,7 +72,7 @@ class EconHandbookTest {
         }
     }
 
-    /** Parses strict JSON, refusing a key given twice in one object: Gson would keep the last silently. */
+    /** Parses strict JSON and fails on a key repeated in one object, which Gson would otherwise overwrite. */
     private static JsonObject json(Path file) {
         String text = read(file);
         try (JsonReader reader = new JsonReader(new StringReader(text))) {
@@ -142,6 +144,7 @@ class EconHandbookTest {
         files.forEach(EconHandbookTest::json);
     }
 
+    /** Patchouli renders the book with the client item model it names, from {@code assets/<namespace>/items/}. */
     @Test
     void theBookNamesItsTranslationModelAndCreativeTab() {
         JsonObject book = book();
@@ -150,7 +153,6 @@ class EconHandbookTest {
         assertTrue(lang.has(book.get("name").getAsString()), "the book's name has no translation");
         assertTrue(BuiltInRegistries.CREATIVE_MODE_TAB.containsKey(id(book, "creative_tab")), "the book's creative tab is unknown");
 
-        // Patchouli renders the book with the client item model it names, from assets/<namespace>/items/.
         Path definition = asset(id(book, "model"), "items/", ".json");
         assertExists(definition, "the book's item model");
         Path model = asset(id(json(definition).getAsJsonObject("model"), "model"), "models/", ".json");
@@ -189,6 +191,7 @@ class EconHandbookTest {
         }
     }
 
+    /** Patchouli reads the book from the result's {@code patchouli:book} component, not from custom data. */
     @Test
     void theRecipeNeedsPatchouliAndMakesThisBook() {
         Path file = root().resolve("data/" + AdminShop.MODID + "/recipe/" + BOOK.getPath() + ".json");
@@ -202,7 +205,6 @@ class EconHandbookTest {
         }
         JsonObject result = recipe.getAsJsonObject("result");
         assertEquals("patchouli:guide_book", result.get("id").getAsString());
-        // Patchouli reads the book from its patchouli:book component, not from custom_data.
         assertEquals(BOOK.toString(), result.getAsJsonObject("components").get("patchouli:book").getAsString());
     }
 

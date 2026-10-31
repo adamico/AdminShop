@@ -40,11 +40,11 @@ import net.neoforged.neoforge.transfer.transaction.Transaction;
 import org.jspecify.annotations.Nullable;
 
 /**
- * Offers gated by a Permit: a team that doesn't hold it can't use them, by hand, through a Seller or through a
- * Buyer, and can once it does; a machine that bypasses Permits (the Creative machines) trades without them.
- * Offers from the game tests' datapack, both gated by the Permit {@code gametest_gate}:
- * {@code gametest/buy_gated_emeralds} gives 1 emerald for 10, {@code gametest/sell_gated_flint} takes 4 flint for 5.
- * A team gets a Permit by redeeming a Trade Permit in the shop screen.
+ * Tests Offers gated by a Permit. A team without the Permit cannot use them by hand, through a Seller or through a
+ * Buyer, and can once it holds the Permit. Machines that bypass Permits, the Creative machines, trade without it.
+ * The Offers come from the game tests' datapack and are both gated by the Permit {@code gametest_gate}.
+ * {@code gametest/buy_gated_emeralds} gives 1 emerald for 10, and {@code gametest/sell_gated_flint} takes 4 flint
+ * for 5. A team gets a Permit by redeeming a Trade Permit in the shop screen.
  */
 final class PermitTests {
 
@@ -85,6 +85,7 @@ final class PermitTests {
         helper.assertValueEqual(count(player, Items.EMERALD), 2, "emeralds bought with the Permit");
     }
 
+    /** One sale is sent as a shift-click on the slot sends it. */
     private static void sellingNeedsThePermit(GameTestHelper helper, TestPlayers players) {
         ServerPlayer player = players.join("permit_sell");
         UUID team = team(helper, player);
@@ -93,7 +94,6 @@ final class PermitTests {
 
         helper.assertValueEqual(ShopTrades.sell(player, SELL_FLINT, ShopTrades.ANY_SLOT, 1), ShopTrades.Result.NO_PERMIT,
                 "selling without the Permit");
-        // As a shift-click on the slot sends it.
         helper.assertValueEqual(ShopTrades.sell(player, SELL_FLINT, 3, ShopTrades.ALL), ShopTrades.Result.NO_PERMIT,
                 "selling a slot without the Permit");
         assertBalance(helper, team, 0);
@@ -124,12 +124,12 @@ final class PermitTests {
         });
     }
 
+    /** The server lets the Buyer be set to a gated Offer, but the Buyer does not buy it without the Permit. */
     private static void buyerNeedsThePermit(GameTestHelper helper) {
         UUID team = TestPlayers.session(helper, players -> {
             ServerPlayer owner = players.join("permit_buyer");
             place(helper, owner, ModBlocks.BUYER_1.get());
             use(helper, owner);
-            // The server lets the Buyer be set to a gated Offer, as on 1.21.1; it just doesn't buy it.
             helper.assertTrue(BuyerMenu.select(owner, BUY_EMERALDS), "setting the Buyer's Offer failed");
             return team(helper, owner);
         });
@@ -168,11 +168,11 @@ final class PermitTests {
         helper.assertValueEqual(goods.getAmountAsInt(0), 0, "flint left");
     }
 
+    /** Redeems the Trade Permit as a shift-click on it in the shop screen does. */
     private static void redeeming(GameTestHelper helper, TestPlayers players) {
         ServerPlayer player = players.join("permit_redeem");
         player.getInventory().setItem(5, PermitItem.of("gametest_redeemed").copyWithCount(2));
 
-        // As a shift-click on the Trade Permit in the shop screen asks.
         boolean redeemed = PermitItem.redeem(player, 5);
 
         helper.assertTrue(redeemed, "the Trade Permit wasn't redeemed");

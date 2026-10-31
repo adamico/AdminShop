@@ -14,7 +14,7 @@ import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 
-/** AdminShop's payloads. The client registers the handlers of the clientbound ones, in {@link ClientMessages}. */
+/** Registers AdminShop's payloads. The client registers handlers for the clientbound ones in {@link ClientMessages}. */
 public class Messages {
 
     public static void register(RegisterPayloadHandlersEvent event) {

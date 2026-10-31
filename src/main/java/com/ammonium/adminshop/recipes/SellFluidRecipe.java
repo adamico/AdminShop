@@ -13,9 +13,9 @@ import net.neoforged.neoforge.fluids.FluidStackTemplate;
 import net.neoforged.neoforge.transfer.fluid.FluidResource;
 
 /**
- * A Sell Offer for a fluid: the team gives up {@code result}, a fluid stack in NeoForge's format ({@code id},
- * {@code amount} in millibuckets, optional {@code components}), from a fluid container by hand or from a Fluid
- * Seller's tank, and receives {@code price}. The 1.21.1 field name {@code result} is kept.
+ * A Sell Offer for a fluid. The team gives up {@code result} and receives {@code price}. {@code result} is a NeoForge
+ * fluid stack with {@code id}, {@code amount} in millibuckets and optional {@code components}. The fluid comes from a
+ * fluid container by hand, or from a Fluid Seller's tank.
  */
 public record SellFluidRecipe(long price, FluidStackTemplate result, String permit) implements ShopRecipe {
 
@@ -43,7 +43,7 @@ public record SellFluidRecipe(long price, FluidStackTemplate result, String perm
         return result.amount();
     }
 
-    /** Whether this Offer takes {@code fluid}: the same fluid with the same components, as on 1.21.1. */
+    /** Whether this Offer takes {@code fluid}. It must be the same fluid with the same components. */
     public boolean takes(FluidResource fluid) {
         return !fluid.isEmpty() && fluid.equals(fluid());
     }

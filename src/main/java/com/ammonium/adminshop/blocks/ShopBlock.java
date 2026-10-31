@@ -29,7 +29,7 @@ import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jspecify.annotations.Nullable;
 
-/** The Shop block: using it opens the shop screen. */
+/** The Shop block. Using it opens the Shop screen. */
 public class ShopBlock extends BaseEntityBlock {
     public static final MapCodec<ShopBlock> CODEC = simpleCodec(ShopBlock::new);
     public static final EnumProperty<Direction> FACING = BlockStateProperties.HORIZONTAL_FACING;

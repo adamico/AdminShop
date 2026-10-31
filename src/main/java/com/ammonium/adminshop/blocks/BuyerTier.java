@@ -6,7 +6,7 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.util.StringRepresentable;
 
 /**
- * A Buyer's tier: how many output slots it has, how many ticks each purchase takes, and how its screen looks.
+ * A Buyer's tier. It sets the number of output slots, the ticks between purchases and the screen layout.
  */
 public enum BuyerTier implements StringRepresentable {
     ONE("1", 1, 40, 80, "buyer"),
@@ -29,22 +29,22 @@ public enum BuyerTier implements StringRepresentable {
         this.texture = Identifier.fromNamespaceAndPath(AdminShop.MODID, "textures/gui/" + texture + ".png");
     }
 
-    /** How many output slots the Buyer has. */
+    /** The number of output slots. */
     public int slots() {
         return slots;
     }
 
-    /** How many ticks apart the Buyer's purchases are. */
+    /** The number of ticks between purchases. */
     public int cooldown() {
         return cooldown;
     }
 
-    /** Where the screen's first output slot is; the others follow it to the right. */
+    /** The screen x position of the first output slot. The other slots follow to its right. */
     public int firstSlotX() {
         return firstSlotX;
     }
 
-    /** The screen's background. */
+    /** The screen background texture. */
     public Identifier texture() {
         return texture;
     }

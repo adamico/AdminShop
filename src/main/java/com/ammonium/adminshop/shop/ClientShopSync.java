@@ -16,8 +16,8 @@ public final class ClientShopSync {
     }
 
     /**
-     * Ahead of the recipe viewers' own listeners, which rebuild their categories from the cache: EMI's listens at
-     * the default priority and JEI's at the lowest.
+     * Runs at high priority so the cache is filled before the recipe viewers rebuild their categories from it. EMI
+     * listens at the default priority and JEI at the lowest.
      */
     @SubscribeEvent(priority = EventPriority.HIGH)
     static void receiveOffers(RecipesReceivedEvent event) {

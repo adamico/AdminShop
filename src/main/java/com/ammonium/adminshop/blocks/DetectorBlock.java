@@ -21,8 +21,8 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jspecify.annotations.Nullable;
 
 /**
- * A Detector of one {@link DetectorKind}: gives a redstone signal from its Account's Balance against its threshold,
- * and lights up while it does.
+ * A Detector block of one {@link DetectorKind}. It gives a redstone signal based on its Account's Balance and its
+ * threshold, and lights up while the signal is on.
  */
 public class DetectorBlock extends MachineBlock {
     public static final MapCodec<DetectorBlock> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
@@ -34,8 +34,8 @@ public class DetectorBlock extends MachineBlock {
 
     private final DetectorKind kind;
 
+    /** The Basic Detector has no collision, like a torch. */
     public DetectorBlock(DetectorKind kind, Properties properties) {
-        // The Basic Detector is walked through, like a torch.
         super(kind == DetectorKind.BASIC ? properties.noCollision() : properties);
         this.kind = kind;
         registerDefaultState(defaultBlockState().setValue(LIT, false));

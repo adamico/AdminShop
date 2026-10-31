@@ -13,9 +13,9 @@ import net.neoforged.neoforge.event.AddServerReloadListenersEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 
 /**
- * Warns about a {@code config/adminshop/shop.csv}, which AdminShop 1.x read the shop from: Offers are datapack
- * recipes now and the file is never read. The server looks for it as it loads its datapacks, at start and on
- * {@code /reload}, logs an error while it is there, and tells each player who logs in.
+ * Warns about a leftover {@code config/adminshop/shop.csv}. Offers are datapack recipes and the file is never
+ * read. The server looks for the file each time it loads its datapacks, at start and on {@code /reload}. While
+ * the file exists, it logs an error and warns each player who logs in.
  */
 @EventBusSubscriber(modid = AdminShop.MODID)
 public final class ObsoleteShopCsv {
@@ -27,7 +27,7 @@ public final class ObsoleteShopCsv {
     private ObsoleteShopCsv() {
     }
 
-    /** Looks for the file again; players are warned from now on while it was there. */
+    /** Looks for the file again. Players who log in from now on are warned if it was found. */
     public static void check() {
         found = Files.exists(PATH);
         if (found) {

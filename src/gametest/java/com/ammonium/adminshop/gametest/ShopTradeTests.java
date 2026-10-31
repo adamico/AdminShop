@@ -23,11 +23,11 @@ import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.item.enchantment.ItemEnchantments;
 
 /**
- * Trading by hand through the Shop's server-side trade handling, which the shop screen's trade requests
- * reach. The Offers come from the game tests' datapack: {@code gametest/buy_diamonds} sells 2 diamonds
- * for 50, {@code gametest/sell_wheat} buys 10 wheat for 7, {@code gametest/sell_wool} buys 4 of any wool
- * for 3, {@code gametest/buy_enchanted_book} sells a named, enchanted book for 40 and
- * {@code gametest/sell_named_paper} buys 2 paper named "Ledger" for 9.
+ * Tests trading by hand through the Shop's server-side trade code, which the shop screen's trade requests call.
+ * The Offers come from the game tests' datapack. {@code gametest/buy_diamonds} sells 2 diamonds for 50,
+ * {@code gametest/sell_wheat} buys 10 wheat for 7, {@code gametest/sell_wool} buys 4 of any wool for 3,
+ * {@code gametest/buy_enchanted_book} sells a named, enchanted book for 40 and {@code gametest/sell_named_paper}
+ * buys 2 paper named "Ledger" for 9.
  */
 final class ShopTradeTests {
 
@@ -90,11 +90,11 @@ final class ShopTradeTests {
         helper.assertValueEqual(count(player, Items.DIAMOND), 0, "diamonds bought");
     }
 
+    /** The inventory has room for 5 more diamonds, so two trades of 2 go through out of the 5 asked for. */
     private static void buyingIntoANearlyFullInventory(GameTestHelper helper, TestPlayers players) {
         ServerPlayer player = players.join("buy_nearly_full");
         setBalance(helper, player, 1000);
         fillMainInventory(player, Inventory.INVENTORY_SIZE - 1);
-        // Room for 5 more diamonds: two trades of 2, not the 5 trades asked for.
         player.getInventory().setItem(Inventory.INVENTORY_SIZE - 1, new ItemStack(Items.DIAMOND, 59));
 
         var result = ShopTrades.buy(player, BUY_DIAMONDS, 5);
@@ -116,12 +116,12 @@ final class ShopTradeTests {
         helper.assertValueEqual(count(player, Items.WHEAT), 5, "wheat left");
     }
 
+    /** Sells as a shift-click on the slot does, which asks for as many trades as the stack holds. */
     private static void sellingFromASlot(GameTestHelper helper, TestPlayers players) {
         ServerPlayer player = players.join("sell_slot");
         setBalance(helper, player, 0);
         player.getInventory().setItem(7, new ItemStack(Items.WHEAT, 34));
 
-        // As a shift-click on the slot sends it: as many trades as the stack holds.
         var result = ShopTrades.sell(player, SELL_WHEAT, 7, ShopTrades.ALL);
 
         helper.assertValueEqual(result, ShopTrades.Result.DONE, "the trade's result");
@@ -168,15 +168,17 @@ final class ShopTradeTests {
         helper.assertValueEqual(count(player, Items.WHEAT), 64, "wheat held");
     }
 
+    /**
+     * Two trades from any slot take all 8 wool from the blue stack, because the red one holds too few. The second
+     * sale is sent as a shift-click on the red stack.
+     */
     private static void sellingATaggedItem(GameTestHelper helper, TestPlayers players) {
         ServerPlayer player = players.join("sell_tag");
         setBalance(helper, player, 0);
         player.getInventory().setItem(2, new ItemStack(Items.RED_WOOL, 6));
         player.getInventory().setItem(5, new ItemStack(Items.BLUE_WOOL, 8));
 
-        // Two trades take 8 wool from one stack: the red one holds too few, the blue one enough.
         var fromAnySlot = ShopTrades.sell(player, SELL_WOOL, ShopTrades.ANY_SLOT, 2);
-        // As a shift-click on the red stack sends it.
         var fromASlot = ShopTrades.sell(player, SELL_WOOL, 2, ShopTrades.ALL);
 
         helper.assertValueEqual(fromAnySlot, ShopTrades.Result.DONE, "selling blue wool");

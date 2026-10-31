@@ -13,9 +13,8 @@ import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.transfer.fluid.FluidResource;
 
 /**
- * The shop display layer: the synced Offers turned into what the shop screen lists, Buy and Sell Offers
- * apart and each sorted by id. The shop screen and the recipe viewers read the same lists, so they show
- * the same Offers.
+ * The synced Offers as the shop screen lists them. Buy and Sell Offers are kept in separate lists, each sorted by
+ * id. The shop screen and the recipe viewers read the same lists, so they show the same Offers.
  */
 public record ShopDisplay(List<OfferDisplay> buyOffers, List<OfferDisplay> sellOffers) {
 
@@ -62,8 +61,9 @@ public record ShopDisplay(List<OfferDisplay> buyOffers, List<OfferDisplay> sellO
     }
 
     /**
-     * Orders Offer ids as 1.21.1's shop screen did: by the id without a trailing number, then by that
-     * number, so {@code ore2} comes before {@code ore10} and an id without a number before both.
+     * Orders Offer ids by the id without its trailing number, then by that number. So {@code ore2} comes before
+     * {@code ore10}, and {@code ore} comes before both. If the number is too long for an int, the ids are compared
+     * as plain strings.
      */
     static int compareIds(String left, String right) {
         String leftBase = left.replaceAll("\\d+$", "");
@@ -79,7 +79,6 @@ public record ShopDisplay(List<OfferDisplay> buyOffers, List<OfferDisplay> sellO
             int rightValue = rightNumber.isEmpty() ? -1 : Integer.parseInt(rightNumber);
             return Integer.compare(leftValue, rightValue);
         } catch (NumberFormatException e) {
-            // A number too long for an int.
             return left.compareTo(right);
         }
     }

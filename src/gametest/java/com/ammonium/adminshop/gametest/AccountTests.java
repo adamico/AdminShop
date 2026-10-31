@@ -18,8 +18,8 @@ import net.minecraft.world.level.storage.LevelResource;
 import net.minecraft.world.level.storage.SavedDataStorage;
 
 /**
- * Accounts belong to FTB Teams: every member of a team spends from and earns into the same Balance,
- * a player who leaves a party is back on their own Account, and Balances are saved with the world.
+ * Tests that Accounts belong to FTB Teams. Every member of a team spends from and earns into the same Balance. A
+ * player who leaves a party goes back to their own Account. Balances are saved with the world.
  */
 final class AccountTests {
 
@@ -49,7 +49,10 @@ final class AccountTests {
         helper.assertValueEqual(accounts.getPlayerAccount(member).balance(), expected, "the member's Balance");
     }
 
-    // The server config's starting_money, read as each Account opens: one opened before a change keeps its Balance.
+    /**
+     * A new Account starts with the server config's {@code starting_money}, read when the Account opens. An Account
+     * opened before the config changes keeps its Balance.
+     */
     private static void newAccountStartsWithConfiguredMoney(GameTestHelper helper, TestPlayers players) {
         long configured = Config.STARTING_MONEY.get();
         MoneyHelper accounts = MoneyHelper.get(helper.getLevel());
@@ -87,6 +90,7 @@ final class AccountTests {
                 "the Balance of the party after the member left");
     }
 
+    /** Reads the Accounts back from disk through a second storage on the same folder, which has nothing cached. */
     private static void balanceSurvivesSaveAndReload(GameTestHelper helper, TestPlayers players) {
         ServerPlayer player = players.join("saving_player");
         MinecraftServer server = helper.getLevel().getServer();
@@ -96,7 +100,6 @@ final class AccountTests {
         long balance = accounts.getPlayerAccount(player).balance();
 
         server.getDataStorage().saveAndJoin();
-        // A second storage on the same folder has nothing cached: it reads the Accounts back from disk.
         var reloaded = new SavedDataStorage(null, server.getWorldPath(LevelResource.DATA), server.getFixerUpper(), server.registryAccess())
                 .get(MoneyHelper.TYPE);
 

@@ -3,7 +3,7 @@ package com.ammonium.adminshop.blocks.entity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.state.BlockState;
 
-/** The Creative Seller's block entity: a Seller that sells without Permits. */
+/** The Creative Seller's block entity. It is a Seller that sells without Permits. */
 public class CreativeSellerEntity extends SellerEntity {
 
     public CreativeSellerEntity(BlockPos pos, BlockState state) {

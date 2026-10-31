@@ -19,7 +19,7 @@ import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 
-/** Shop Buy or Shop Sell Offers in JEI: draws a {@link ShopCategory}, one Offer at a time. */
+/** The Shop Buy or Shop Sell category in JEI. It draws a {@link ShopCategory} one Offer at a time. */
 final class ShopJeiCategory implements IRecipeCategory<OfferDisplay> {
 
     private final ShopCategory category;
@@ -59,13 +59,15 @@ final class ShopJeiCategory implements IRecipeCategory<OfferDisplay> {
         return icon;
     }
 
+    /**
+     * A Buy Offer's goods are an output and a Sell Offer's an input. A tag Offer adds every stack, and the slot
+     * cycles through them.
+     */
     @Override
     public void setRecipe(IRecipeLayoutBuilder builder, OfferDisplay offer, IFocusGroup focuses) {
-        // The team receives a Buy Offer's goods and gives up a Sell Offer's.
         RecipeIngredientRole role = category.isBuy() ? RecipeIngredientRole.OUTPUT : RecipeIngredientRole.INPUT;
         IRecipeSlotBuilder slot = builder.addSlot(role, category.slotX(), ShopCategory.SLOT_Y);
         switch (offer.goods()) {
-            // A tag Offer's stacks, which the slot shows in turn.
             case ShopGoods.Items items -> items.stacks().forEach(slot::add);
             case ShopGoods.Fluid fluid ->
                     slot.add(fluid.fluid().fluid().value(), fluid.fluid().amount(), fluid.fluid().components());

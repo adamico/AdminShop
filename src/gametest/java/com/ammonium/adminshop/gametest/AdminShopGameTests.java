@@ -21,10 +21,10 @@ import net.neoforged.neoforge.event.RegisterGameTestsEvent;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
 /**
- * AdminShop's game tests, run by the {@code gameTestServer} Gradle run. Each test stands on the
- * {@code adminshop:gametest/platform} structure, a 9x5x9 stone floor, and places what it needs itself.
- * This class lives in the {@code gametest} source set, which only the mod's own runs load, and hooks
- * itself in, so the {@code @Mod} class names no game-test code.
+ * Registers AdminShop's game tests, which the {@code gameTestServer} Gradle run runs. Each test stands on the
+ * {@code adminshop:gametest/platform} structure, a 9x5x9 stone floor, and places what it needs itself. This
+ * class is in the {@code gametest} source set, which only the mod's own runs load. It registers itself, so the
+ * {@code @Mod} class refers to no game-test code.
  */
 @EventBusSubscriber(modid = AdminShop.MODID)
 public final class AdminShopGameTests {
@@ -41,11 +41,14 @@ public final class AdminShopGameTests {
     private AdminShopGameTests() {
     }
 
+    /**
+     * The test registration event is posted only when game tests are enabled, which they never are in a production
+     * game.
+     */
     @SubscribeEvent
     static void construct(FMLConstructModEvent event) {
         IEventBus modBus = event.getContainer().getEventBus();
         TEST_TYPES.register(modBus);
-        // Posted only when game tests are enabled, which a production game never is.
         modBus.addListener(AdminShopGameTests::registerTests);
     }
 
@@ -74,7 +77,7 @@ public final class AdminShopGameTests {
         return Identifier.fromNamespaceAndPath(AdminShop.MODID, path);
     }
 
-    /** What a test class is handed: a name, a tick budget and a body per test. */
+    /** Passed to each test class to register its tests, each with a name, a tick budget and a body. */
     record Registrar(RegisterGameTestsEvent event, Holder<TestEnvironmentDefinition<?>> environment) {
 
         void test(String name, int maxTicks, Consumer<GameTestHelper> body) {

@@ -12,15 +12,15 @@ import java.util.Properties;
 import org.junit.jupiter.api.Test;
 
 /**
- * The mod id in the code is the one the build names, and one the game accepts as a namespace. The
- * code's id names the game tests and the build's selects them, so a mismatch runs none.
+ * Tests that the mod id in the code matches the build's and is a valid namespace. The code's id names the
+ * game tests and the build's id selects them, so a mismatch runs none.
  */
 class ModIdTest {
 
+    /** The build passes the properties file's path because FML runs the tests from its own directory. */
     @Test
     void theCodeNamesTheBuildsModId() throws IOException {
         var properties = new Properties();
-        // FML runs the tests from a directory of its own, so the build passes the file's path.
         try (Reader reader = Files.newBufferedReader(Path.of(System.getProperty("adminshop.gradleProperties")))) {
             properties.load(reader);
         }

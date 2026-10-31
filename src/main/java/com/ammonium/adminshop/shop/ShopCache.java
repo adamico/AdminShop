@@ -10,20 +10,20 @@ import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeMap;
 
 /**
- * The client shop cache (ADR-0001): the Offers the server last synced. The server sends the Offer recipe
- * types with NeoForge's recipe sync on login and after each {@code /reload}; the client stores them here,
- * and the shop screen, the machine screens and the recipe viewers read Offers only from this cache,
- * never from a recipe manager.
+ * The client shop cache, holding the Offers the server last synced. The server sends the Offer recipe
+ * types through NeoForge's recipe sync on login and after each {@code /reload}, and the client stores them here.
+ * The shop screen, the machine screens and the recipe viewers read Offers only from this cache, never from a
+ * recipe manager.
  */
 public final class ShopCache {
 
-    /** The client's cache, which {@code ShopCacheEvents} fills and empties. */
+    /** The client's cache. {@link ClientShopSync} fills and empties it. */
     public static final ShopCache CLIENT = new ShopCache();
 
     private List<RecipeHolder<ShopRecipe>> offers = List.of();
     private ShopDisplay display = ShopDisplay.EMPTY;
 
-    /** Replaces the cached Offers with the Offers among {@code synced}, the recipes a sync delivered. */
+    /** Replaces the cached Offers with the Offers among {@code synced}, the recipes from one sync. */
     @SuppressWarnings("unchecked")
     public synchronized void replace(RecipeMap synced) {
         List<RecipeHolder<ShopRecipe>> received = new ArrayList<>();
@@ -36,7 +36,7 @@ public final class ShopCache {
         display = ShopDisplay.of(offers);
     }
 
-    /** Forgets every Offer, as when the client leaves the server. */
+    /** Removes every Offer. The client calls this when it leaves the server. */
     public synchronized void clear() {
         offers = List.of();
         display = ShopDisplay.EMPTY;
@@ -47,12 +47,11 @@ public final class ShopCache {
         return offers.stream().filter(holder -> holder.id().equals(key)).findFirst();
     }
 
-    /** Every cached Offer. */
     public synchronized List<RecipeHolder<ShopRecipe>> offers() {
         return offers;
     }
 
-    /** The cached Offers as the shop screen lists them. */
+    /** The cached Offers, arranged as the shop screen lists them. */
     public synchronized ShopDisplay display() {
         return display;
     }

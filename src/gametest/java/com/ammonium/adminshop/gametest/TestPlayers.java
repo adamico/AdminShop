@@ -17,9 +17,9 @@ import net.minecraft.server.network.CommonListenerCookie;
 import net.neoforged.neoforge.network.registration.NetworkRegistry;
 
 /**
- * Players who log in for real, so FTB Teams gives each their own team, with names of their own,
- * which FTB Teams looks players up by. {@link GameTestHelper#makeMockServerPlayerInLevel} names
- * them all alike, and its connection takes no mod's payloads.
+ * Logs in players for real, so FTB Teams gives each one its own team. Each player has a distinct name, because
+ * FTB Teams looks players up by name. {@link GameTestHelper#makeMockServerPlayerInLevel} gives every player the
+ * same name, and its connection accepts no mod payloads.
  */
 final class TestPlayers {
 
@@ -52,16 +52,16 @@ final class TestPlayers {
         };
     }
 
-    /** What a test does with players logged in, and what it keeps from it. */
+    /** Work a test does while players are logged in, and the value it returns. */
     interface Session<T> {
         T run(TestPlayers players) throws Exception;
     }
 
     /**
-     * Runs {@code session} and logs its players out again before returning, for a test that goes on for ticks,
-     * as a machine's does: a mock player can't stay logged in over a tick (NeoForge then expects the config
-     * sync of a real login). Their teams and Accounts stay, and a player who joins again under the same name
-     * is the same player.
+     * Runs {@code session} and logs its players out before returning. Tests that run over several ticks, such as
+     * machine tests, need this because a mock player cannot stay logged in across a tick. NeoForge would then
+     * expect the config sync of a real login. Teams and Accounts remain, and a player who joins again with the
+     * same name is the same player.
      */
     static <T> T session(GameTestHelper helper, Session<T> session) {
         var players = new TestPlayers(helper.getLevel().getServer());
@@ -82,7 +82,11 @@ final class TestPlayers {
         });
     }
 
-    /** Logs in the player with this name, handing {@code heard} every system message the player is sent, from logging in on. */
+    /**
+     * Logs in the player with this name and passes every system message the player receives from login on to
+     * {@code heard}. The connection is set up as a NeoForge client with every mod's payloads, because FTB Library
+     * and AdminShop send theirs on login.
+     */
     ServerPlayer join(String name, Consumer<Component> heard) {
         var cookie = CommonListenerCookie.createInitial(new GameProfile(UUIDUtil.createOfflinePlayerUUID(name), name), false);
         var player = new ServerPlayer(server, server.overworld(), cookie.gameProfile(), cookie.clientInformation()) {
@@ -94,7 +98,6 @@ final class TestPlayers {
         };
         var connection = new Connection(PacketFlow.SERVERBOUND);
         new EmbeddedChannel(connection);
-        // As a NeoForge client with every mod's payloads: FTB Library and AdminShop send theirs on login.
         NetworkRegistry.configureMockConnection(connection);
         server.getPlayerList().placeNewPlayer(connection, player, cookie);
         joined.add(player);

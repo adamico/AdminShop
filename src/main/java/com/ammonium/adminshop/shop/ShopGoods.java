@@ -5,17 +5,18 @@ import net.minecraft.world.item.ItemStackTemplate;
 import net.neoforged.neoforge.fluids.FluidStackTemplate;
 
 /**
- * What one trade of an Offer hands over, as the shop screen and recipe viewers show it. Templates, not
- * item or fluid stacks: they are immutable, and exist before a world's registries give items their components.
+ * What one trade of an Offer hands over, as shown by the shop screen and the recipe viewers. It holds templates
+ * rather than item or fluid stacks, because templates are immutable and can exist before a world's registries give
+ * items their components.
  */
 public sealed interface ShopGoods {
 
-    /** How much one trade hands over: items, or millibuckets of a fluid. */
+    /** How much one trade hands over, in items or in millibuckets of fluid. */
     int count();
 
     /**
-     * Items. {@code stacks} are the stacks the Offer accepts, each with the count one trade takes: one
-     * for an item Offer, one per item of the tag for a tag Offer, which the screen shows in turn.
+     * Items. {@code stacks} are the stacks the Offer accepts, each with the count one trade takes. An item Offer has
+     * one stack. A tag Offer has one per item in the tag, and the screen cycles through them.
      */
     record Items(List<ItemStackTemplate> stacks) implements ShopGoods {
 
@@ -29,7 +30,7 @@ public sealed interface ShopGoods {
         }
     }
 
-    /** A fluid; its count is the millibuckets one trade hands over. */
+    /** A fluid. Its count is the millibuckets one trade hands over. */
     record Fluid(FluidStackTemplate fluid) implements ShopGoods {
 
         @Override

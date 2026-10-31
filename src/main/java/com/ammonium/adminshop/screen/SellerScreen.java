@@ -18,9 +18,9 @@ import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
 /**
- * The Seller's screen: its slot, the progress to its next sale and the name of its Account, red "No account"
- * while nobody owns it. A creative player clicking an item in their inventory locks the Seller to the Sell
- * Offer that takes it.
+ * The Seller's screen. It shows the Seller's slot, its progress to the next sale and the name of its Account, or a
+ * red "No account" if nobody owns it. When a creative player clicks an item in their inventory, the Seller locks to
+ * the Sell Offer that takes it.
  */
 public class SellerScreen extends AbstractContainerScreen<SellerMenu> {
     private static final Identifier TEXTURE = Identifier.fromNamespaceAndPath(AdminShop.MODID, "textures/gui/seller.png");

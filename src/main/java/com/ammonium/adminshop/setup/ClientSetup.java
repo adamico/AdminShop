@@ -13,7 +13,7 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
 
-/** The client's screens for AdminShop's menus. */
+/** Registers the client screens for AdminShop's menus. */
 @EventBusSubscriber(modid = AdminShop.MODID, value = Dist.CLIENT)
 public final class ClientSetup {
 

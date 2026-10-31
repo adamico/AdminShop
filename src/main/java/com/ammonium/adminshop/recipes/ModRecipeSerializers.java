@@ -7,7 +7,7 @@ import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
-/** The serializers of the Offer recipe types, under the same ids as the types: a datapack's {@code type}. */
+/** The Offer recipe serializers. Each uses the same id as its recipe type, which is a datapack's {@code type} field. */
 public class ModRecipeSerializers {
     public static final DeferredRegister<RecipeSerializer<?>> RECIPE_SERIALIZERS = DeferredRegister.create(Registries.RECIPE_SERIALIZER, AdminShop.MODID);
 

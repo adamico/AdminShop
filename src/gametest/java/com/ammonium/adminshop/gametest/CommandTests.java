@@ -19,10 +19,9 @@ import net.minecraft.server.permissions.LevelBasedPermissionSet;
 import net.minecraft.world.item.ItemStack;
 
 /**
- * {@code /adminshop give} and {@code /adminshop remove} change the Balance of the Account of the
- * player they name, for admins only, as on 1.21.1. {@code /adminshop getPermit} gives an admin a Trade Permit,
- * and any player can list their Account's Permits with {@code listOwnedPermits} and drop one with
- * {@code removePermit}.
+ * Tests the commands. {@code /adminshop give} and {@code /adminshop remove} change the Balance of the named
+ * player's Account and are for admins only. {@code /adminshop getPermit} gives an admin a Trade Permit. Any
+ * player can list their Account's Permits with {@code listOwnedPermits} and drop one with {@code removePermit}.
  */
 final class CommandTests {
 
@@ -143,7 +142,7 @@ final class CommandTests {
         };
     }
 
-    /** The server console, which holds every permission. */
+    /** The server console, which has every permission. */
     private static CommandSourceStack admin(GameTestHelper helper) {
         return helper.getLevel().getServer().createCommandSourceStack();
     }

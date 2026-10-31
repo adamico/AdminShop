@@ -7,7 +7,7 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 
-/** The Shop Tablet: using it opens the shop screen anywhere. */
+/** The Shop Tablet item. Using it opens the shop screen anywhere. */
 public class ShopTablet extends LoreItem {
 
     public ShopTablet(Properties properties) {

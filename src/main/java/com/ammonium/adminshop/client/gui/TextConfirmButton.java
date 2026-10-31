@@ -10,7 +10,7 @@ import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 
-/** Confirms the text in a box next to it: a green tick while the text is valid, a red cross while it isn't. */
+/** Confirms the text in the box next to it. It shows a green tick while the text is valid and a red cross otherwise. */
 public class TextConfirmButton extends AbstractButton {
 
     private static final Identifier GUI = Identifier.fromNamespaceAndPath(AdminShop.MODID, "textures/gui/detector.png");

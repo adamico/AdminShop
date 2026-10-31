@@ -36,9 +36,9 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jspecify.annotations.Nullable;
 
 /**
- * A machine's block, facing the player who placed it. Placed by a player, the machine belongs to that player's
- * team; placed otherwise, it belongs to nobody until the first player to use it claims it for their team. Only
- * members of the owning team can open it.
+ * A machine block, facing the player who placed it. A machine placed by a player belongs to that player's team.
+ * If nobody placed it, the first player to use it claims it for their team. Only members of the owning team can
+ * open it.
  */
 public abstract class MachineBlock extends BaseEntityBlock {
     public static final EnumProperty<Direction> FACING = BlockStateProperties.HORIZONTAL_FACING;
@@ -49,7 +49,10 @@ public abstract class MachineBlock extends BaseEntityBlock {
         this(properties, 1.0f, 1.0f);
     }
 
-    /** A machine with its own strength: the Creative machines can't be broken (-1) or blown up. */
+    /**
+     * Takes a custom strength. The Creative machines pass a destroy time of -1 and a very high explosion
+     * resistance, so they cannot be broken or blown up.
+     */
     protected MachineBlock(Properties properties, float destroyTime, float explosionResistance) {
         super(properties
                 .mapColor(MapColor.METAL)
@@ -95,7 +98,7 @@ public abstract class MachineBlock extends BaseEntityBlock {
         }
     }
 
-    /** Gives the machine {@code placer} placed to their team. The Creative machines leave it unclaimed instead. */
+    /** Assigns the placed machine to {@code placer}'s team. The Creative machines leave it unclaimed instead. */
     protected void claimOnPlacement(ServerPlayer placer, MachineEntity machine) {
         machine.setTeamId(team(placer));
     }
@@ -109,15 +112,15 @@ public abstract class MachineBlock extends BaseEntityBlock {
     }
 
     /**
-     * Opens {@code machine}'s screen for {@code player} if they are on its team, claiming it for their team first
-     * if nobody owns it; a player of another team is told they have no access.
+     * Opens {@code machine}'s screen for {@code player} if they are on its team. If nobody owns it, it is claimed
+     * for their team first, and only the claiming player hears the level-up sound. A player of another team gets a
+     * no-access message.
      */
     public static void open(ServerPlayer player, MachineEntity machine) {
         MoneyHelper accounts = MoneyHelper.get(player.level());
         @Nullable UUID owner = machine.getTeamId();
         if (owner == null) {
             machine.setTeamId(team(player));
-            // Heard by the claiming player alone.
             player.connection.send(new ClientboundSoundPacket(BuiltInRegistries.SOUND_EVENT.wrapAsHolder(SoundEvents.PLAYER_LEVELUP),
                     SoundSource.PLAYERS, player.getX(), player.getY(), player.getZ(), 1.0f, 1.0f, player.getRandom().nextLong()));
             player.sendSystemMessage(Component.translatable("message.adminshop.claimed_machine"));
@@ -128,14 +131,16 @@ public abstract class MachineBlock extends BaseEntityBlock {
         show(player, machine);
     }
 
-    /** Opens {@code machine}'s screen for {@code player}, whoever owns it. */
+    /**
+     * Opens {@code machine}'s screen for {@code player} without checking ownership. It syncs the Accounts to the
+     * player first, because the screen shows the Account's name.
+     */
     protected static void show(ServerPlayer player, MachineEntity machine) {
-        // The screen shows the Account's name, so send it fresh.
         MoneyHelper.get(player.level()).syncToPlayer(player);
         player.openMenu(machine, machine.getBlockPos());
     }
 
-    /** The team of {@code player}'s Account, which this opens if need be. */
+    /** The team of {@code player}'s Account. The Account is created if it does not exist yet. */
     private static UUID team(ServerPlayer player) {
         return MoneyHelper.get(player.level()).getPlayerAccount(player).teamId();
     }

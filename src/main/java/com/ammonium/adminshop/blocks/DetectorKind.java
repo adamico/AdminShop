@@ -9,13 +9,13 @@ import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
 /**
- * Whether a Detector is Basic or Advanced: how its signal follows its Account's Balance, which sides it powers,
- * its shape and how its screen looks.
+ * The kind of a Detector, Basic or Advanced. It sets how the signal follows the Account's Balance, which sides
+ * are powered, the shape and the screen texture.
  */
 public enum DetectorKind implements StringRepresentable {
-    /** Full power while the Balance is above the threshold, none at or below it. A post, walked through. */
+    /** Full power while the Balance is above the threshold, and none otherwise. Shaped as a post with no collision. */
     BASIC("basic", Shapes.box(0.375, 0, 0.375, 0.625, 0.625, 0.625), "detector"),
-    /** Power in proportion to the Balance, from none at 0 to 15 at the threshold and above. A plate on the floor. */
+    /** Power proportional to the Balance, from 0 at no Balance to 15 at the threshold and above. Shaped as a floor plate. */
     ADVANCED("advanced", Shapes.box(0, 0, 0, 1, 0.125, 1), "adv_detector");
 
     public static final Codec<DetectorKind> CODEC = StringRepresentable.fromEnum(DetectorKind::values);
@@ -30,18 +30,21 @@ public enum DetectorKind implements StringRepresentable {
         this.texture = Identifier.fromNamespaceAndPath(AdminShop.MODID, "textures/gui/" + texture + ".png");
     }
 
-    /** The redstone signal, 0 to 15, of a Detector of this kind with {@code threshold} over {@code balance}. */
+    /**
+     * The redstone signal, 0 to 15, for {@code balance} against {@code threshold}. The Advanced ratio is computed
+     * in doubles, so with a threshold of 0 any positive Balance gives full power.
+     */
     public int signal(long balance, long threshold) {
         return switch (this) {
             case BASIC -> balance > threshold ? 15 : 0;
-            // As on 1.21.1, in doubles: with no threshold, any Balance gives full power and none gives none.
             case ADVANCED -> balance <= 0 ? 0 : (int) Math.min(Math.floor(balance / (double) threshold * 15), 15);
         };
     }
 
     /**
-     * Whether a Detector of this kind strongly powers the block on its {@code direction} side, as
-     * {@code getDirectSignal} names it (towards the Detector from that block). Neither gives a weak signal upwards.
+     * Whether a Detector of this kind strongly powers the neighbour in {@code direction}. As in
+     * {@code getDirectSignal}, {@code direction} points from that neighbour towards the Detector. Neither kind gives
+     * a weak signal in the {@code UP} direction.
      */
     public boolean powersStrongly(Direction direction) {
         return switch (this) {
@@ -54,7 +57,7 @@ public enum DetectorKind implements StringRepresentable {
         return shape;
     }
 
-    /** The background of this kind's screen; its confirm button is always drawn from the Basic Detector's. */
+    /** This kind's screen background. The confirm button always comes from the Basic Detector's texture. */
     public Identifier texture() {
         return texture;
     }

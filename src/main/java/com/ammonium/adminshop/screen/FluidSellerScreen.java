@@ -14,8 +14,8 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Inventory;
 
 /**
- * The Fluid Seller's screen: its tank, the progress to its next sale and the name of its Account, red "No account"
- * while nobody owns it.
+ * The Fluid Seller's screen. It shows the tank, the progress to the next sale and the name of its Account, or a red
+ * "No account" if nobody owns it.
  */
 public class FluidSellerScreen extends AbstractContainerScreen<FluidSellerMenu> {
     private static final Identifier TEXTURE = Identifier.fromNamespaceAndPath(AdminShop.MODID, "textures/gui/fluid_seller.png");

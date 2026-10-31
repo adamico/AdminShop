@@ -31,10 +31,7 @@ public class BuySellButton extends AbstractButton {
         this.onPress = onPress;
     }
 
-    /**
-     * Switches between Buy and Sell.
-     * @return whether the screen now shows Buy Offers
-     */
+    /** Switches between Buy Offers and Sell Offers. Returns whether the screen now shows Buy Offers. */
     public boolean switchBuySell() {
         isBuy = !isBuy;
         setMessage(isBuy ? buyText : sellText);

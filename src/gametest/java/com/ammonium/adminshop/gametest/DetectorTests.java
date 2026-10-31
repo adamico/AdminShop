@@ -27,18 +27,19 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 
 /**
- * The Basic and Advanced Detectors, as redstone next to them sees them. Every {@link DetectorEntity#TICK_COOLDOWN}
- * ticks a Detector compares its Account's Balance with its threshold: the Basic Detector gives full power while the
- * Balance is above the threshold, and none at or below it; the Advanced Detector gives power in proportion to the
- * Balance, from 0 at none to 15 at the threshold and above. A Detector nobody owns gives none. It belongs to the team
- * that placed it, or to the first team to use it, and keeps its owner and threshold when saved.
+ * Tests the Basic and Advanced Detectors through the redstone signal next to them. Every
+ * {@link DetectorEntity#TICK_COOLDOWN} ticks a Detector compares its Account's Balance with its threshold. The Basic
+ * Detector gives full power while the Balance is above the threshold, and none at or below it. The Advanced Detector
+ * gives power in proportion to the Balance, from 0 at none to 15 at the threshold and above. A Detector nobody owns
+ * gives none. A Detector belongs to the team that placed it, or to the first team to use it, and keeps its owner and
+ * threshold when saved.
  */
 final class DetectorTests {
 
     private static final BlockPos DETECTOR = new BlockPos(4, 1, 4);
     /** Next to the Detector, where a lamp or dust reads its signal. */
     private static final BlockPos NEIGHBOUR = DETECTOR.east();
-    /** Long enough for a Detector to have looked at its Balance again, and for a lamp to go out (4 ticks). */
+    /** Long enough for a Detector to check its Balance again and for a lamp to go out (4 ticks). */
     private static final int CYCLE = DetectorEntity.TICK_COOLDOWN + 5;
 
     private DetectorTests() {
@@ -107,6 +108,10 @@ final class DetectorTests {
                 .thenSucceed();
     }
 
+    /**
+     * The Detector is placed by no player, as with a command. It has no threshold, so any Balance would give full
+     * power.
+     */
     private static void unownedUntilClaimed(GameTestHelper helper) {
         UUID team = TestPlayers.session(helper, players -> {
             ServerPlayer claimer = players.join("detector_claimer");
@@ -114,7 +119,6 @@ final class DetectorTests {
             setBalance(helper, id, 10);
             return id;
         });
-        // Placed by no player, as by a command; with no threshold, any Balance would give full power.
         helper.setBlock(DETECTOR, ModBlocks.ADVANCED_DETECTOR.get());
         helper.setBlock(NEIGHBOUR, Blocks.REDSTONE_WIRE);
 
@@ -163,7 +167,7 @@ final class DetectorTests {
         helper.assertValueEqual(detector(helper).getThreshold(), 123_456_789_012L, "the threshold after a negative one");
     }
 
-    /** A data slot travels as a signed 16-bit number, so the threshold must survive that on the way to the client. */
+    /** Tests that the threshold reaches the client intact, although a data slot travels as a signed 16-bit number. */
     private static void thresholdDataSlots(GameTestHelper helper) {
         for (long threshold : new long[] {0, 1, 0xFFFF, 0x1_0000, 123_456_789_012L, Long.MAX_VALUE}) {
             var sent = DetectorMenu.serverData(threshold, true);

@@ -39,12 +39,12 @@ import net.neoforged.neoforge.transfer.item.ItemResource;
 import net.neoforged.neoforge.transfer.transaction.Transaction;
 
 /**
- * The Creative Buyer and the Creative Seller, as 1.21.1 made them: placed, they stay unclaimed and open for the
- * placer, so a creative player sets their Offer; the first player to use one after that claims it for their team;
- * they trade Offers gated by a Permit their team doesn't hold; the Creative Buyer is a T3 Buyer locked to the Offer
- * it was given, the Creative Seller a Seller; nobody can break them, and nothing crafts them. Offers from
- * {@link PermitTests}: {@code gametest/buy_gated_emeralds} gives 1 emerald for 10, {@code gametest/sell_gated_flint}
- * buys 4 flint for 5, both gated by {@link PermitTests#GATE}.
+ * Tests the Creative Buyer and the Creative Seller. A placed one stays unclaimed and open to the placer, so a
+ * creative player can set its Offer. The first player to use it after that claims it for their team. They trade
+ * Offers gated by a Permit their team does not hold. The Creative Buyer works as a T3 Buyer locked to the Offer it
+ * was given, and the Creative Seller works as a Seller. Nobody can break them, and no recipe crafts them. The Offers
+ * come from {@link PermitTests}. {@code gametest/buy_gated_emeralds} gives 1 emerald for 10, and
+ * {@code gametest/sell_gated_flint} buys 4 flint for 5. Both are gated by {@link PermitTests#GATE}.
  */
 final class CreativeMachineTests {
 
@@ -52,9 +52,9 @@ final class CreativeMachineTests {
     private static final ResourceKey<Recipe<?>> BUY_DIAMONDS = offer("gametest/buy_diamonds");
     private static final ResourceKey<Recipe<?>> SELL_FLINT = offer("gametest/sell_gated_flint");
     private static final BlockPos MACHINE = new BlockPos(4, 1, 4);
-    /** The Creative Buyer's speed, a T3 Buyer's on 1.21.1. */
+    /** The Creative Buyer's cooldown in ticks, the same as a T3 Buyer's. */
     private static final int BUYER_COOLDOWN = 10;
-    /** The Creative Seller's speed, a Seller's on 1.21.1. */
+    /** The Creative Seller's cooldown in ticks, the same as a Seller's. */
     private static final int SELLER_COOLDOWN = 20;
     private static final int CYCLES = 4;
 
@@ -106,6 +106,10 @@ final class CreativeMachineTests {
         helper.assertTrue(seller(helper).getTeamId() == null, "locking claimed the Creative Seller");
     }
 
+    /**
+     * The Balance is checked halfway between the {@code CYCLES}-th purchase and the next. The team holds no Permit
+     * for the Offer.
+     */
     private static void buyerBuysOnceClaimed(GameTestHelper helper) {
         long start = 1_000;
         UUID team = TestPlayers.session(helper, players -> {
@@ -124,7 +128,6 @@ final class CreativeMachineTests {
         });
 
         helper.assertValueEqual(buyer(helper).getTeamId(), team, "the Creative Buyer's owner after the first use");
-        // Halfway between the CYCLES-th purchase and the next; the team holds no Permit for the Offer.
         helper.runAfterDelay((long) CYCLES * BUYER_COOLDOWN + BUYER_COOLDOWN / 2, () -> {
             assertBalance(helper, team, start - CYCLES * 10);
             ResourceHandler<ItemResource> pipe = itemHandler(helper);
@@ -140,6 +143,7 @@ final class CreativeMachineTests {
         });
     }
 
+    /** The Balance is checked halfway between the second sale and the third. The team holds no Permit for the Offer. */
     private static void sellerSellsOnceClaimed(GameTestHelper helper) {
         UUID team = TestPlayers.session(helper, players -> {
             ServerPlayer admin = players.join("creative_seller_admin");
@@ -163,7 +167,6 @@ final class CreativeMachineTests {
         }
 
         helper.assertValueEqual(inserted, 12, "flint piped into the Creative Seller");
-        // Halfway between the second sale and the third; the team holds no Permit for the Offer.
         helper.runAfterDelay(2L * SELLER_COOLDOWN + SELLER_COOLDOWN / 2, () -> {
             assertBalance(helper, team, 10);
             helper.assertValueEqual(seller(helper).inventory().getAmountAsInt(0), 4, "flint left in the Creative Seller");

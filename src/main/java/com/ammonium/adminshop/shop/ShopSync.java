@@ -7,8 +7,8 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.OnDatapackSyncEvent;
 
 /**
- * Sends the Offers to clients (ADR-0001) with NeoForge's recipe sync, which runs as a player joins and
- * for every player after {@code /reload}. The client keeps them in the {@link ShopCache}.
+ * Sends the Offers to clients through NeoForge's recipe sync. The sync runs when a player joins, and for
+ * every player after {@code /reload}. The client keeps the Offers in the {@link ShopCache}.
  */
 @EventBusSubscriber(modid = AdminShop.MODID)
 public final class ShopSync {

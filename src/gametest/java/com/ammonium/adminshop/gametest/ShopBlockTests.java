@@ -13,8 +13,8 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 
 /**
- * The shop screen opens from the Shop block and from the Shop Tablet, wherever the player is; a broken
- * Shop drops itself.
+ * Tests that the shop screen opens from the Shop block and from the Shop Tablet, wherever the player is, and that
+ * a broken Shop drops itself.
  */
 final class ShopBlockTests {
 

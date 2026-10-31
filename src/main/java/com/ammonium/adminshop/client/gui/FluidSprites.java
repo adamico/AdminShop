@@ -7,13 +7,16 @@ import net.minecraft.client.renderer.block.FluidModel;
 import net.minecraft.util.ARGB;
 import net.neoforged.neoforge.fluids.FluidStack;
 
-/** Draws a fluid in a screen as 1.21.1 did: its still texture, tinted with the fluid's colour. */
+/** Draws a fluid in a screen as its still texture, tinted with the fluid's colour. */
 public final class FluidSprites {
 
     private FluidSprites() {
     }
 
-    /** Fills the rectangle at {@code x}, {@code y} with {@code fluid}'s still texture; draws nothing for no fluid. */
+    /**
+     * Fills the rectangle at {@code x}, {@code y} with the still texture of {@code fluid}. Draws nothing for an empty
+     * fluid. A tint without alpha is made opaque, because many tints leave the alpha out and would draw nothing.
+     */
     public static void draw(GuiGraphicsExtractor graphics, FluidStack fluid, int x, int y, int width, int height) {
         if (fluid.isEmpty() || width <= 0 || height <= 0) {
             return;
@@ -24,7 +27,6 @@ public final class FluidSprites {
         }
         var tintSource = model.fluidTintSource();
         int tint = tintSource != null ? tintSource.colorAsStack(fluid) : -1;
-        // Tints often leave out the alpha, which would draw nothing.
         if (ARGB.alpha(tint) == 0) {
             tint = ARGB.opaque(tint);
         }

@@ -35,10 +35,10 @@ import net.neoforged.neoforge.fluids.FluidStackTemplate;
 import org.junit.jupiter.api.Test;
 
 /**
- * The Shop Buy and Shop Sell categories the recipe viewers show: each lists its kind of Offer from the shop
- * display layer, items and fluids alike, in the shop screen's order, names the Offer's Permit as the shop
- * screen does, and has 1.21.1's catalysts. The price line formats money, which needs the client: the client
- * checklist covers it, with the drawing.
+ * Tests the Shop Buy and Shop Sell categories that the recipe viewers show. Each lists its kind of Offer from
+ * the shop display layer, items and fluids alike, in the shop screen's order. Each names the Offer's Permit
+ * as the shop screen does and has the Shop, the Shop Tablet and the matching machines as catalysts. The price
+ * line and the drawing need the client, so the client checklist covers them.
  */
 class ShopCategoryTest {
 
@@ -78,9 +78,9 @@ class ShopCategoryTest {
         assertEquals(List.of(key("cobble"), key("lava")), keys(ShopCategory.SELL.offers(SHOP)));
     }
 
+    /** After {@code /reload} the cache holds a new display, which the viewers read when they restart. */
     @Test
     void theCategoriesListWhatTheLatestSyncHolds() {
-        // After /reload the cache holds a new display, which the viewers read when they restart.
         var reloaded = synced(new RecipeHolder<>(key("gold"), new BuyItemRecipe(300, new ItemStackTemplate(Items.GOLD_INGOT), "")));
         assertEquals(List.of(key("gold")), keys(ShopCategory.BUY.offers(reloaded)));
         assertTrue(ShopCategory.SELL.offers(reloaded).isEmpty());
@@ -101,7 +101,7 @@ class ShopCategoryTest {
     }
 
     @Test
-    void theCategoriesKeep1211sTitlesAndTextures() {
+    void theCategoriesHaveTheirTitlesAndTextures() {
         assertEquals("jei.category.buy.title", ((TranslatableContents) ShopCategory.BUY.title().getContents()).getKey());
         assertEquals("jei.category.sell.title", ((TranslatableContents) ShopCategory.SELL.title().getContents()).getKey());
         for (ShopCategory category : ShopCategory.values()) {

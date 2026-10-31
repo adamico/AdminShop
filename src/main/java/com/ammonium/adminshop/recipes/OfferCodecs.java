@@ -4,7 +4,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.MapCodec;
 
-/** The JSON fields every Offer shares, with their 1.21.1 names. */
+/** The JSON fields every Offer shares. */
 final class OfferCodecs {
 
     private OfferCodecs() {

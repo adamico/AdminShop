@@ -23,13 +23,13 @@ import net.neoforged.neoforge.transfer.item.ItemResource;
 import org.jspecify.annotations.Nullable;
 
 /**
- * A Buyer's block entity: set to one Buy Offer, it buys one trade of it every {@link BuyerTier#cooldown()} ticks
- * into its output slots, charging its Account, while the Account can pay and the goods fit. Pipes take the goods
- * out through the item capability and can put nothing in. With {@code lockedRecipe} set, as a datapack or a
- * command can set it, only a creative player can change its Offer.
+ * A Buyer's block entity. Every {@link BuyerTier#cooldown()} ticks it buys one trade of its Buy Offer into its
+ * output slots and charges its Account, as long as the Account can pay and the goods fit. Pipes can extract the
+ * goods through the item capability but cannot insert. When {@code lockedRecipe} is set, for example by a datapack
+ * or a command, only a creative player can change its Offer.
  */
 public class BuyerEntity extends MachineEntity {
-    // The 1.21.1 names, which admins' block entity data uses.
+    /** Saved data keys. Admins' block entity data refers to them by these names. */
     private static final String OFFER_KEY = "recipe";
     private static final String LOCKED_KEY = "lockedRecipe";
     private static final String INVENTORY_KEY = "inventory";
@@ -39,7 +39,7 @@ public class BuyerEntity extends MachineEntity {
     private final ResourceHandler<ItemResource> output;
     private @Nullable ResourceKey<Recipe<?>> offer;
     private boolean locked;
-    /** Ticks since the last purchase; not saved. */
+    /** Ticks since the last purchase. Not saved. */
     private int ticks;
 
     public BuyerEntity(BlockEntityType<? extends BuyerEntity> type, BuyerTier tier, BlockPos pos, BlockState state) {
@@ -53,22 +53,22 @@ public class BuyerEntity extends MachineEntity {
         return tier;
     }
 
-    /** The Buyer's output slots, which its menu shows. */
+    /** The output slots shown in the menu. */
     public MachineInventory inventory() {
         return inventory;
     }
 
-    /** The output slots as pipes reach them through the item capability: they can only take. */
+    /** The output slots as exposed to pipes through the item capability. Pipes can only extract. */
     public ResourceHandler<ItemResource> output() {
         return output;
     }
 
-    /** The Buy Offer the Buyer buys, or null if it has none yet. */
+    /** The Buy Offer, or null if none is set. */
     public @Nullable ResourceKey<Recipe<?>> offer() {
         return offer;
     }
 
-    /** The goods one purchase gives, or empty if the Buyer has no Offer the server knows. */
+    /** The goods one purchase gives, or empty if the Offer is unset or unknown to the server. */
     public ItemStack target() {
         if (offer == null || !(level instanceof ServerLevel server)) {
             return ItemStack.EMPTY;
@@ -79,8 +79,8 @@ public class BuyerEntity extends MachineEntity {
     }
 
     /**
-     * Sets the Buyer to buy {@code offer}; a locked Buyer's Offer only a creative player can change. Returns
-     * whether it did.
+     * Sets the Buy Offer and returns whether it was set. A locked Buyer only accepts the change from a creative
+     * player.
      */
     public boolean setOffer(ResourceKey<Recipe<?>> offer, boolean creative) {
         if (locked && !creative) {
@@ -101,7 +101,7 @@ public class BuyerEntity extends MachineEntity {
         setChanged();
     }
 
-    /** How far the Buyer is to its next purchase, in {@link #PROGRESS_STEPS} steps. */
+    /** Progress towards the next purchase, from 0 to {@link #PROGRESS_STEPS}. */
     public int progress() {
         return (ticks + 1) * PROGRESS_STEPS / tier.cooldown();
     }
@@ -132,7 +132,7 @@ public class BuyerEntity extends MachineEntity {
         locked = input.getBooleanOr(LOCKED_KEY, false);
     }
 
-    /** Broken, the Buyer drops what it holds; the block drops itself through its loot table. */
+    /** Drops the slot contents when the Buyer is broken. The block itself drops through its loot table. */
     @Override
     public void preRemoveSideEffects(BlockPos pos, BlockState state) {
         if (level != null) {

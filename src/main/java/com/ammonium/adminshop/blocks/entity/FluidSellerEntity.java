@@ -18,34 +18,34 @@ import net.neoforged.neoforge.transfer.fluid.FluidResource;
 import org.jspecify.annotations.Nullable;
 
 /**
- * The Fluid Seller's block entity: a {@link #TANK_CAPACITY} mB tank, which pipes fill through the fluid capability
- * with fluids a fluid Sell Offer takes, and every {@link #TICK_COOLDOWN} ticks one trade of what it holds sold into its
- * Account. Locked to one fluid Sell Offer, as an admin's {@code lockedRecipe} sets it, it takes and sells only through
- * that one.
+ * The Fluid Seller's block entity. Pipes fill its {@link #TANK_CAPACITY} mB tank through the fluid capability with
+ * fluids that a fluid Sell Offer takes. Every {@link #TICK_COOLDOWN} ticks it sells one trade of the tank's contents
+ * into its Account. When an admin locks it to one fluid Sell Offer through {@code lockedRecipe}, it only accepts and
+ * sells through that Offer.
  */
 public class FluidSellerEntity extends MachineEntity {
     public static final int TICK_COOLDOWN = 20;
     public static final int TANK_CAPACITY = 64_000;
 
-    // The 1.21.1 name, which admins' block entity data uses.
+    /** Saved data key. Admins' block entity data refers to it by this name. */
     private static final String LOCKED_OFFER_KEY = "lockedRecipe";
     private static final String TANK_KEY = "tank";
 
     private final MachineTank tank = new MachineTank(TANK_CAPACITY, this::accepts, this::setChanged);
     private @Nullable ResourceKey<Recipe<?>> lockedOffer;
-    /** Ticks since the last sale; not saved. */
+    /** Ticks since the last sale. Not saved. */
     private int ticks;
 
     public FluidSellerEntity(BlockPos pos, BlockState state) {
         super(ModBlockEntities.FLUID_SELLER.get(), pos, state);
     }
 
-    /** The Fluid Seller's tank, which pipes reach through the fluid capability. */
+    /** The tank that pipes reach through the fluid capability. */
     public MachineTank tank() {
         return tank;
     }
 
-    /** The one fluid Sell Offer the Fluid Seller sells through, or null for any. */
+    /** The only fluid Sell Offer the Fluid Seller sells through, or null for any. */
     public @Nullable ResourceKey<Recipe<?>> lockedOffer() {
         return lockedOffer;
     }
@@ -55,7 +55,7 @@ public class FluidSellerEntity extends MachineEntity {
         setChanged();
     }
 
-    /** How far the Fluid Seller is to its next sale, in {@link #PROGRESS_STEPS} steps. */
+    /** Progress towards the next sale, from 0 to {@link #PROGRESS_STEPS}. */
     public int progress() {
         return (ticks + 1) * PROGRESS_STEPS / TICK_COOLDOWN;
     }

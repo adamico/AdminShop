@@ -16,13 +16,13 @@ import net.neoforged.fml.common.Mod;
 import org.slf4j.Logger;
 
 /**
- * AdminShop's entry point, which registers each feature. The game tests hook themselves in from the
- * gametest source set, which never ships.
+ * The mod entry point. It registers every feature. Game tests register themselves from the gametest source set,
+ * which is not shipped.
  */
 @Mod(AdminShop.MODID)
 public class AdminShop {
     public static final Logger LOGGER = LogUtils.getLogger();
-    /** The mod id, which gradle.properties' {@code mod_id} must match. */
+    /** The mod id. It must match {@code mod_id} in gradle.properties. */
     public static final String MODID = "adminshop";
 
     public AdminShop(IEventBus eventBus, ModContainer modContainer) {

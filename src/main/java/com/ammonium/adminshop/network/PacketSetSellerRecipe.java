@@ -14,7 +14,7 @@ import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 /**
  * Asks the server to lock the Seller whose screen the player has open to one Sell Offer. Only creative players
- * may; see {@link SellerMenu#lock}.
+ * may do this. See {@link SellerMenu#lock}.
  */
 public record PacketSetSellerRecipe(ResourceKey<Recipe<?>> offer) implements CustomPacketPayload {
 

@@ -13,12 +13,12 @@ import net.minecraft.world.level.storage.ValueOutput;
 import org.jspecify.annotations.Nullable;
 
 /**
- * The block entity of a machine: it belongs to the team whose Account it trades for, saved with it, and opens a
- * screen for that team's members. {@link com.ammonium.adminshop.blocks.MachineBlock} gives it its owner.
+ * A machine's block entity. It saves the owning team, whose Account it works for, and opens a screen for that
+ * team's members. {@link com.ammonium.adminshop.blocks.MachineBlock} assigns the owner.
  */
 public abstract class MachineEntity extends BlockEntity implements ShopMachine, MenuProvider {
 
-    /** How many steps a machine screen's progress bar has. */
+    /** The number of steps in a machine screen's progress bar. */
     public static final int PROGRESS_STEPS = 8;
 
     private static final String TEAM_KEY = "team";

@@ -11,8 +11,8 @@ import java.util.Locale;
 
 /**
  * Formats money (a Balance or an Offer's price) for display on the client. Amounts are whole numbers
- * in the smallest unit; the language file's {@code gui.money_decimal_offset} says how many of their
- * digits are decimals, and {@code gui.money_format} wraps the number in the currency.
+ * in the smallest unit. The language key {@code gui.money_decimal_offset} sets how many of their digits
+ * are decimals, and {@code gui.money_format} adds the currency.
  */
 public final class MoneyFormat {
     public static final double FORMAT_START = 1000000;
@@ -26,19 +26,19 @@ public final class MoneyFormat {
     private MoneyFormat() {
     }
 
-    // Format value based on config
+    /** Formats in the configured style, or as raw digits while Shift is held. */
     public static String cfgformat(long value) {
         boolean displayFormat = (Config.displayFormat.get() != null) ? Config.displayFormat.get() : true;
         FormatType formattype = displayFormat ? FormatType.SHORT : FormatType.FULL;
         return format(value, formattype, FormatType.RAW);
     }
 
-    // Format is always X irrespective of shift
+    /** Formats in {@code forced} whether or not Shift is held. */
     public static String forcedFormat(long value, FormatType forced) {
         return format(value, forced, forced);
     }
 
-    // If onShift not specified -> onShift = RAW
+    /** Formats in {@code noShift}, or as raw digits while Shift is held. */
     public static String format(long value, FormatType noShift) {
         return format(value, noShift, FormatType.RAW);
     }
@@ -52,12 +52,13 @@ public final class MoneyFormat {
     }
 
     /**
-     * The number part of a formatted amount, without the currency. Amounts below a million (after the
-     * decimal offset) always show in full; larger ones as {@code type} says.
+     * Formats the number part of an amount, without the currency. Amounts below a million (after the
+     * decimal offset) always show in full. Larger ones use {@code type}. A new NumberFormat is made on
+     * each call because the HUD and the screens format from different threads.
      *
      * @param decimalOffset       how many of the amount's digits are decimals
-     * @param ignoreDecimalOffset whether to show the amount undivided, though still with the offset's
-     *                            number of decimals, as 1.21.1 does
+     * @param ignoreDecimalOffset whether to show the amount undivided. It still shows the offset's number
+     *                            of decimals.
      */
     public static String formatAmount(long value, FormatType type, int decimalOffset, boolean ignoreDecimalOffset,
                                       Locale locale) {
@@ -65,12 +66,10 @@ public final class MoneyFormat {
         if (decimalOffset > 0 && !ignoreDecimalOffset) {
             realValue /= Math.pow(10, decimalOffset);
 
-            // Round to the specified number of decimal places
             double scale = Math.pow(10, decimalOffset);
             realValue = Math.round(realValue * scale) / scale;
         }
 
-        // A fresh format per call: the HUD and the screens format from different threads.
         NumberFormat decimalFormat = NumberFormat.getNumberInstance(locale);
         decimalFormat.setMinimumFractionDigits(decimalOffset);
         decimalFormat.setMaximumFractionDigits(decimalOffset);
@@ -86,7 +85,7 @@ public final class MoneyFormat {
         };
     }
 
-    // The three most significant digits, with a point after the thousands group they lead
+    /** The leading thousands group and the next two digits after a point, such as 1.23 for 1234567. */
     private static String getShort(long value) {
         boolean isNegative = value < 0;
         String str = String.valueOf(Math.abs(value));

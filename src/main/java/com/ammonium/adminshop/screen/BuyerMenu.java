@@ -23,12 +23,12 @@ import net.neoforged.neoforge.transfer.item.ResourceHandlerSlot;
 import org.jspecify.annotations.Nullable;
 
 /**
- * A Buyer's menu: the player's inventory, then the Buyer's output slots, which take nothing by hand, then a hidden
- * slot that carries the goods of the Buyer's Offer to the screen. Its progress to the next purchase, whether it has
- * an owner and whether its Offer is locked ride in data slots.
+ * A Buyer's menu. It holds the player's inventory, then the Buyer's output slots, then a hidden slot that sends the
+ * goods of the Buyer's Offer to the screen. Players cannot place items in the output slots. Data slots carry the
+ * progress to the next purchase, whether the Buyer has an owner and whether its Offer is locked.
  */
 public class BuyerMenu extends AbstractContainerMenu {
-    /** The menu slot of the Buyer's first output slot, after the player's 36. */
+    /** The menu slot index of the Buyer's first output slot, after the player's 36 slots. */
     public static final int FIRST_OUTPUT_SLOT = Inventory.INVENTORY_SIZE;
 
     private static final int DATA_PROGRESS = 0;
@@ -41,13 +41,13 @@ public class BuyerMenu extends AbstractContainerMenu {
     private final ContainerData data;
     private final Slot target;
 
-    /** Client side: the slots stand over stubs the menu's sync fills. */
+    /** Creates the client-side menu. Its slots wrap stubs that menu sync fills. */
     public static BuyerMenu client(BuyerTier tier, int containerId, Inventory playerInventory) {
         return new BuyerMenu(ModMenuTypes.buyer(tier), tier, containerId, playerInventory, null,
                 new MachineInventory(tier.slots(), resource -> true, () -> {}), null, new SimpleContainerData(DATA_COUNT));
     }
 
-    /** Server side, over the Buyer's own slots. */
+    /** Creates the server-side menu over the Buyer's own slots. */
     public static BuyerMenu open(int containerId, Inventory playerInventory, BuyerEntity buyer) {
         return new BuyerMenu(ModMenuTypes.buyer(buyer.tier()), buyer.tier(), containerId, playerInventory, buyer,
                 buyer.inventory(), buyer::target, data(buyer));
@@ -106,7 +106,10 @@ public class BuyerMenu extends AbstractContainerMenu {
         return tier;
     }
 
-    /** How far the Buyer is to its next purchase, in {@link BuyerEntity#PROGRESS_STEPS} steps, as the server last sent it. */
+    /**
+     * The Buyer's progress to its next purchase, out of {@link BuyerEntity#PROGRESS_STEPS}, as last sent by the
+     * server.
+     */
     public int progress() {
         return data.get(DATA_PROGRESS);
     }
@@ -121,15 +124,15 @@ public class BuyerMenu extends AbstractContainerMenu {
         return data.get(DATA_LOCKED) != 0;
     }
 
-    /** The goods one purchase of the Buyer's Offer gives, or empty if it has none. */
+    /** The goods one purchase of the Buyer's Offer gives, or empty if it has no Offer. */
     public ItemStack target() {
         return target.getItem();
     }
 
     /**
-     * Sets the Buyer whose menu {@code player} has open to buy the Buy Offer {@code offer}, as a player does by
-     * clicking an item in the Buyer's screen. Returns whether it did: a locked Buyer only a creative player can
-     * set, and only a member of its team can set it otherwise.
+     * Sets the Buyer that {@code player} has open to the Buy Offer {@code offer}. A player does this by clicking an
+     * item in the Buyer's screen. Returns whether the Offer changed. Only a creative player can change a locked Buyer.
+     * Otherwise only a member of the Buyer's team can change it.
      */
     public static boolean select(ServerPlayer player, ResourceKey<Recipe<?>> offer) {
         if (!(player.containerMenu instanceof BuyerMenu menu) || menu.buyer == null) {
@@ -149,11 +152,11 @@ public class BuyerMenu extends AbstractContainerMenu {
         return menu.buyer.setOffer(offer, creative);
     }
 
+    /** Moves a stack from an output slot into the player's inventory. Nothing moves into the output slots. */
     @Override
     public ItemStack quickMoveStack(Player player, int index) {
         Slot slot = slots.get(index);
         int outputsEnd = FIRST_OUTPUT_SLOT + tier.slots();
-        // Only the outputs move, into the player's inventory; nothing moves into them.
         if (index < FIRST_OUTPUT_SLOT || index >= outputsEnd || !slot.hasItem()) {
             return ItemStack.EMPTY;
         }
@@ -176,8 +179,8 @@ public class BuyerMenu extends AbstractContainerMenu {
     }
 
     /**
-     * Carries the Buyer's goods to the client: on the server it reads them from the Buyer, on the client the menu's
-     * sync fills it. Players can neither see nor touch it.
+     * Sends the Buyer's goods to the client. On the server it reads them from the Buyer, and on the client menu sync
+     * fills it. Players can neither see nor touch it.
      */
     private static final class TargetSlot extends Slot {
         private final @Nullable Supplier<ItemStack> source;

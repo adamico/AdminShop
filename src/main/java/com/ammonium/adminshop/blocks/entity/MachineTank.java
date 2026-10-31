@@ -9,8 +9,8 @@ import net.neoforged.neoforge.transfer.fluid.FluidStacksResourceHandler;
 import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 
 /**
- * A fluid machine's one tank, as pipes see it through the fluid capability: it holds up to {@code capacity}
- * millibuckets of one fluid, takes only what {@code accepts} allows, and tells the machine when it changes.
+ * A fluid machine's tank, exposed through the fluid capability. It holds up to {@code capacity} millibuckets of one
+ * fluid, accepts only what {@code accepts} allows and runs {@code changed} on every change.
  */
 public class MachineTank extends FluidStacksResourceHandler {
     private final Predicate<FluidResource> accepts;
@@ -22,7 +22,7 @@ public class MachineTank extends FluidStacksResourceHandler {
         this.changed = changed;
     }
 
-    /** A copy of what the tank holds. */
+    /** A copy of the tank's contents. */
     public FluidStack fluid() {
         return getResource(0).toStack(getAmountAsInt(0));
     }
@@ -31,7 +31,7 @@ public class MachineTank extends FluidStacksResourceHandler {
         return capacity;
     }
 
-    /** The tank as pipes see a machine that only outputs: they can drain it, but fill nothing. */
+    /** A view of the tank for an output-only machine. Pipes can drain it but cannot fill it. */
     public ResourceHandler<FluidResource> extractOnly() {
         return new DelegatingResourceHandler<>(this) {
             @Override

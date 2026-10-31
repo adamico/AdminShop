@@ -7,8 +7,8 @@ import net.minecraft.tags.BlockTags;
 import net.minecraft.world.level.block.Block;
 
 /**
- * What holds for every AdminShop block, so a block added later is covered too: broken, it drops itself,
- * and a pickaxe mines it unless nobody can break it, as the Creative machines.
+ * Tests every AdminShop block, so a block added later is covered too. A broken block drops itself, and a pickaxe
+ * mines every block except the unbreakable ones, such as the Creative machines.
  */
 final class BlockTests {
 
@@ -20,12 +20,12 @@ final class BlockTests {
         tests.test("every_breakable_block_is_mineable_with_a_pickaxe", 20, BlockTests::mineableWithAPickaxe);
     }
 
+    /** The blocks stand two apart, so each drop is found next to its own block only. */
     private static void dropsItself(GameTestHelper helper) {
         var blocks = ModBlocks.BLOCKS.getEntries().stream().map(holder -> (Block) holder.get()).toList();
         helper.assertTrue(blocks.size() <= 16, "more blocks than the platform's spots for this test");
         for (int i = 0; i < blocks.size(); i++) {
             Block block = blocks.get(i);
-            // Two blocks apart, so each block's drop is found next to it alone.
             BlockPos pos = new BlockPos(1 + (i % 4) * 2, 1, 1 + (i / 4) * 2);
             helper.setBlock(pos, block);
 

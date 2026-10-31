@@ -9,8 +9,8 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 
 /**
- * Shop Buy or Shop Sell Offers in EMI. Its id, {@code adminshop:shop_buy} or {@code adminshop:shop_sell}, differs
- * from the JEI categories' ids, which EMI shows JEI plugins' categories under.
+ * The Shop Buy or Shop Sell category in EMI. Its id is {@code adminshop:shop_buy} or {@code adminshop:shop_sell}.
+ * EMI lists JEI plugins' categories under their JEI ids, so these ids differ from the JEI ones to avoid a clash.
  */
 final class ShopEmiCategory extends EmiRecipeCategory {
 

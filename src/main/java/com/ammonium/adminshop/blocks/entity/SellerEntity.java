@@ -19,9 +19,9 @@ import net.neoforged.neoforge.transfer.item.ItemResource;
 import org.jspecify.annotations.Nullable;
 
 /**
- * The Seller's block entity: one slot, which takes only items a Sell Offer takes, and every
- * {@link #TICK_COOLDOWN} ticks one trade of what it holds sold into its Account. A creative player can lock
- * it to one Sell Offer; then it takes and sells only through that one.
+ * The Seller's block entity. It has one slot that accepts only items a Sell Offer takes. Every
+ * {@link #TICK_COOLDOWN} ticks it sells one trade of the slot's contents into its Account. A creative player can
+ * lock it to one Sell Offer, and then it only accepts and sells through that Offer.
  */
 public class SellerEntity extends MachineEntity {
     public static final int TICK_COOLDOWN = 20;
@@ -31,7 +31,7 @@ public class SellerEntity extends MachineEntity {
 
     private final MachineInventory inventory = new MachineInventory(1, this::accepts, this::setChanged);
     private @Nullable ResourceKey<Recipe<?>> lockedOffer;
-    /** Ticks since the last sale; not saved. */
+    /** Ticks since the last sale. Not saved. */
     private int ticks;
 
     public SellerEntity(BlockPos pos, BlockState state) {
@@ -42,12 +42,12 @@ public class SellerEntity extends MachineEntity {
         super(type, pos, state);
     }
 
-    /** The Seller's slot, which pipes reach through the item capability. */
+    /** The slot that pipes reach through the item capability. */
     public MachineInventory inventory() {
         return inventory;
     }
 
-    /** The one Sell Offer the Seller sells through, or null for any. */
+    /** The only Sell Offer the Seller sells through, or null for any. */
     public @Nullable ResourceKey<Recipe<?>> lockedOffer() {
         return lockedOffer;
     }
@@ -57,7 +57,7 @@ public class SellerEntity extends MachineEntity {
         setChanged();
     }
 
-    /** How far the Seller is to its next sale, in {@link #PROGRESS_STEPS} steps. */
+    /** Progress towards the next sale, from 0 to {@link #PROGRESS_STEPS}. */
     public int progress() {
         return (ticks + 1) * PROGRESS_STEPS / TICK_COOLDOWN;
     }
@@ -89,7 +89,7 @@ public class SellerEntity extends MachineEntity {
         lockedOffer = input.read(LOCKED_OFFER_KEY, Recipe.KEY_CODEC).orElse(null);
     }
 
-    /** Broken, the Seller drops what it holds; the block drops itself through its loot table. */
+    /** Drops the slot contents when the Seller is broken. The block itself drops through its loot table. */
     @Override
     public void preRemoveSideEffects(BlockPos pos, BlockState state) {
         if (level != null) {

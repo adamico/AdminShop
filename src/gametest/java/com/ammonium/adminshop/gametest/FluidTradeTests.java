@@ -16,10 +16,10 @@ import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.level.GameType;
 
 /**
- * Trading fluid Offers by hand, as the shop screen does: buying fills a fluid container in the main inventory (an
- * empty bucket becomes a full one), selling drains one. Offers from the game tests' datapack:
- * {@code gametest/buy_water} gives 1000 mB of water for 30, {@code gametest/sell_lava} takes 1000 mB of lava for 20,
- * and, gated by the Permit {@code gametest_gate}, {@code gametest/buy_gated_lava} gives 1000 mB of lava for 10 and
+ * Tests trading fluid Offers by hand, as the shop screen does. Buying fills a fluid container in the main inventory,
+ * so an empty bucket becomes a full one. Selling drains one. The Offers come from the game tests' datapack.
+ * {@code gametest/buy_water} gives 1000 mB of water for 30 and {@code gametest/sell_lava} takes 1000 mB of lava for
+ * 20. Gated by the Permit {@code gametest_gate}, {@code gametest/buy_gated_lava} gives 1000 mB of lava for 10 and
  * {@code gametest/sell_gated_water} takes 250 mB of water for 4.
  */
 final class FluidTradeTests {
@@ -63,13 +63,12 @@ final class FluidTradeTests {
         helper.assertValueEqual(count(player, Items.BUCKET), 3, "empty buckets left");
     }
 
+    /** A bucket full of another fluid takes no water. Two trades are 2000 mB, more than a bucket holds. */
     private static void buyingWithoutAContainer(GameTestHelper helper, TestPlayers players) {
         ServerPlayer player = join(helper, players, "fluid_buy_no_bucket", 100);
-        // A bucket full of something else takes no water.
         player.getInventory().setItem(0, new ItemStack(Items.LAVA_BUCKET));
 
         helper.assertValueEqual(ShopTrades.buy(player, BUY_WATER, 1), ShopTrades.Result.NOT_ENOUGH_SPACE, "the trade's result");
-        // Two trades are 2000 mB, more than a bucket holds.
         player.getInventory().setItem(1, new ItemStack(Items.BUCKET));
         helper.assertValueEqual(ShopTrades.buy(player, BUY_WATER, 2), ShopTrades.Result.NOT_ENOUGH_SPACE, "two trades into a bucket");
         assertBalance(helper, player, 100);
@@ -86,11 +85,11 @@ final class FluidTradeTests {
         helper.assertValueEqual(count(player, Items.WATER_BUCKET), 0, "water buckets bought");
     }
 
+    /** Sells as a shift-click on the slot does. */
     private static void selling(GameTestHelper helper, TestPlayers players) {
         ServerPlayer player = join(helper, players, "fluid_sell", 0);
         player.getInventory().setItem(3, new ItemStack(Items.LAVA_BUCKET));
 
-        // As a shift-click on the slot sends it.
         helper.assertValueEqual(ShopTrades.sell(player, SELL_LAVA, 3, ShopTrades.ALL), ShopTrades.Result.DONE, "the trade's result");
         assertBalance(helper, player, 20);
         helper.assertValueEqual(count(player, Items.LAVA_BUCKET), 0, "lava buckets left");
@@ -108,6 +107,7 @@ final class FluidTradeTests {
         helper.assertValueEqual(count(player, Items.WATER_BUCKET), 1, "water buckets left");
     }
 
+    /** Two trades are 2000 mB, more than a bucket holds. */
     private static void sellingWithoutTheFluid(GameTestHelper helper, TestPlayers players) {
         ServerPlayer player = join(helper, players, "fluid_sell_none", 0);
         player.getInventory().setItem(0, new ItemStack(Items.WATER_BUCKET));
@@ -115,13 +115,13 @@ final class FluidTradeTests {
 
         helper.assertValueEqual(ShopTrades.sell(player, SELL_LAVA, 0, ShopTrades.ALL), ShopTrades.Result.NOT_ENOUGH_GOODS,
                 "selling water to a lava Offer");
-        // Two trades are 2000 mB, more than a bucket holds.
         helper.assertValueEqual(ShopTrades.sell(player, SELL_LAVA, ShopTrades.ANY_SLOT, 2), ShopTrades.Result.NOT_ENOUGH_GOODS,
                 "selling two trades from one bucket");
         assertBalance(helper, player, 0);
         helper.assertValueEqual(count(player, Items.LAVA_BUCKET), 1, "lava buckets left");
     }
 
+    /** A bucket is drained whole or not at all, so a quarter bucket cannot be sold from it, but four quarters can. */
     private static void permits(GameTestHelper helper, TestPlayers players) {
         ServerPlayer player = join(helper, players, "fluid_permit", 100);
         UUID team = MoneyHelper.get(helper.getLevel()).getPlayerAccount(player).teamId();
@@ -136,7 +136,6 @@ final class FluidTradeTests {
         MoneyHelper.get(helper.getLevel()).addPermit(team, PermitTests.GATE);
         helper.assertValueEqual(ShopTrades.buy(player, BUY_GATED_LAVA, 1), ShopTrades.Result.DONE, "buying with the Permit");
         helper.assertValueEqual(count(player, Items.LAVA_BUCKET), 1, "lava buckets bought with the Permit");
-        // A bucket holds a whole bucket or nothing: a quarter of it can't be drained, but four quarters can.
         helper.assertValueEqual(ShopTrades.sell(player, SELL_GATED_WATER, ShopTrades.ANY_SLOT, 1), ShopTrades.Result.NOT_ENOUGH_GOODS,
                 "selling a quarter bucket from a bucket");
         helper.assertValueEqual(ShopTrades.sell(player, SELL_GATED_WATER, 1, ShopTrades.ALL), ShopTrades.Result.DONE,

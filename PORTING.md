@@ -137,7 +137,7 @@ The 1.21.1 file also held `gui.adminshop.tank_empty` and `sellitem.recipe.tag` t
 | `java/…/recipes/BuyItemRecipe.java` | ported in place | #5 (780aa7e) |
 | `java/…/recipes/ModRecipeSerializers.java` | ported in place | #10 (209f08b) |
 | `java/…/recipes/ModRecipeTypes.java` | ported in place | #10 (209f08b) |
-| `java/…/recipes/RecipeManager.java` | dropped: server lookups use `server.getRecipeManager()` by recipe key in `shop/ShopTrades.java`; the client reads `shop/ShopCache.java` / `shop/ShopDisplay.java` (#5, ADR-0001); its last users were the JEI categories (#15) | #15 (ff7a16a) |
+| `java/…/recipes/RecipeManager.java` | dropped: server lookups use `server.getRecipeManager()` by recipe key in `shop/ShopTrades.java`; the client reads `shop/ShopCache.java` / `shop/ShopDisplay.java` (#5); its last users were the JEI categories (#15) | #15 (ff7a16a) |
 | `java/…/recipes/SellFluidRecipe.java` | ported in place | #10 (209f08b) |
 | `java/…/recipes/SellItemRecipe.java` | ported in place | #7 (71d9300) |
 | `java/…/recipes/interfaces/BuyRecipe.java` | merged into `recipes/ShopRecipe.java` (`isBuy()`) | #5 (780aa7e) |

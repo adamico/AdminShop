@@ -23,9 +23,9 @@ import net.neoforged.neoforge.transfer.fluid.FluidResource;
 import net.neoforged.neoforge.transfer.fluid.FluidUtil;
 
 /**
- * The Fluid Buyer's screen: its tank, the fluid it buys, the progress to its next purchase and the name of its
- * Account, red "No account" while nobody owns it. Clicking a fluid container in the inventory whose fluid a fluid Buy
- * Offer gives sets the Fluid Buyer to that Offer; a locked one only a creative player can set.
+ * The Fluid Buyer's screen. It shows the tank, the fluid the Fluid Buyer buys, its progress to the next purchase and
+ * the name of its Account, or a red "No account" if nobody owns it. Clicking a fluid container in the inventory whose
+ * fluid a fluid Buy Offer gives sets the Fluid Buyer to that Offer. Only a creative player can change a locked one.
  */
 public class FluidBuyerScreen extends AbstractContainerScreen<FluidBuyerMenu> {
     private static final Identifier TEXTURE = Identifier.fromNamespaceAndPath(AdminShop.MODID, "textures/gui/fluid_buyer.png");
@@ -81,6 +81,7 @@ public class FluidBuyerScreen extends AbstractContainerScreen<FluidBuyerMenu> {
         }
     }
 
+    /** Only a creative player changing a locked Fluid Buyer can skip the Offer's Permit. */
     @Override
     public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
         if (minecraft.player != null && hoveredSlot != null && hoveredSlot.container instanceof Inventory && hoveredSlot.hasItem()) {
@@ -93,7 +94,6 @@ public class FluidBuyerScreen extends AbstractContainerScreen<FluidBuyerMenu> {
                 if (menu.isLocked() && !minecraft.player.isCreative()) {
                     minecraft.player.sendSystemMessage(Component.translatable("message.adminshop.recipe_locked"));
                 } else if (!menu.isLocked() && !ClientCache.hasPermit(((BuyFluidRecipe) offer.get().value()).permit())) {
-                    // As on 1.21.1: only a creative player changing a locked Fluid Buyer skips the Permit.
                     minecraft.player.sendSystemMessage(Component.translatable("gui.adminshop.no_permit"));
                 } else {
                     ClientPacketDistributor.sendToServer(new PacketSetFluidBuyerRecipe(offer.get().id()));

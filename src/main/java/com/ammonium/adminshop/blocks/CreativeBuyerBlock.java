@@ -10,9 +10,9 @@ import net.minecraft.world.level.block.state.BlockState;
 import org.jspecify.annotations.Nullable;
 
 /**
- * The Creative Buyer: a T3 Buyer nobody can break, whose Offer only a creative player sets and which buys it
- * without the Offer's Permit. Placed, it stays unclaimed and opens for the placer to set its Offer; the first
- * player to use it after that claims it for their team.
+ * The Creative Buyer. It is an unbreakable tier 3 Buyer that buys without the Offer's Permit, and only a creative
+ * player can set its Offer. Placing it leaves it unclaimed and opens its screen for the placer to set the Offer.
+ * The first player to use it after that claims it for their team.
  */
 public class CreativeBuyerBlock extends BuyerBlock {
     public static final MapCodec<CreativeBuyerBlock> CODEC = simpleCodec(CreativeBuyerBlock::new);

@@ -14,7 +14,7 @@ import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.level.material.Fluids;
 
 /**
- * The server loads the Offers of every datapack, skips a malformed one without crashing, and keeps
+ * Tests that the server loads the Offers of every datapack, skips a malformed Offer without crashing, and keeps
  * every Offer out of the vanilla recipe book.
  */
 final class OfferLoadingTests {
@@ -44,8 +44,8 @@ final class OfferLoadingTests {
         helper.succeed();
     }
 
+    /** The server started despite the malformed Offers to reach this test, and it logged why each one is malformed. */
     private static void malformedSkipped(GameTestHelper helper) {
-        // The server got this far, and logged why each Offer is malformed.
         for (String offer : new String[] {"gametest/malformed_negative_price", "gametest/malformed_item_and_tag",
                 "gametest/malformed_no_goods"}) {
             helper.assertTrue(recipes(helper).byKey(ShopTradeTests.offer(offer)).isEmpty(), "the malformed Offer " + offer + " loaded");
@@ -53,6 +53,9 @@ final class OfferLoadingTests {
         helper.succeed();
     }
 
+    /**
+     * The fluid Offer's name is checked here because it reads the fluid's components, which only a loaded world has.
+     */
     private static void examplesLoad(GameTestHelper helper) {
         for (String offer : new String[] {"example_buy_item", "example_buy_nbt"}) {
             var loaded = recipes(helper).byKey(ShopTradeTests.offer(offer));
@@ -66,7 +69,6 @@ final class OfferLoadingTests {
         helper.assertTrue(water.isPresent() && water.get().value() instanceof BuyFluidRecipe, "the example fluid Buy Offer did not load");
         var lava = recipes(helper).byKey(ShopTradeTests.offer("example_sell_fluid"));
         helper.assertTrue(lava.isPresent() && lava.get().value() instanceof SellFluidRecipe, "the example fluid Sell Offer did not load");
-        // A fluid's name reads its components, which only a loaded world has.
         helper.assertValueEqual(((BuyFluidRecipe) water.get().value()).name(), Fluids.WATER.getFluidType().getDescription(), "the example fluid's name");
         var named = (BuyItemRecipe) recipes(helper).byKey(ShopTradeTests.offer("example_buy_nbt")).orElseThrow().value();
         helper.assertValueEqual(named.getItem().getHoverName().getString(), "Special Paper!", "the example's paper name");

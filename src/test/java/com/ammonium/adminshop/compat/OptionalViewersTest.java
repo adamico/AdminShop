@@ -18,13 +18,17 @@ import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
 
 /**
- * JEI and EMI are optional: only the classes in {@code compat/jei} name a JEI type and only those in
- * {@code compat/emi} an EMI type, and no other class names them, so no viewer class loads unless that viewer
- * loads AdminShop's plugin. It reads the compiled classes, whose constant pools hold every class they name.
+ * Tests that JEI and EMI are optional. Only the classes in {@code compat/jei} name a JEI type, and only those
+ * in {@code compat/emi} name an EMI type. No other class names them, so no viewer class loads unless that
+ * viewer loads AdminShop's plugin. The test reads the compiled classes, whose constant pools hold every class
+ * they name.
  */
 class OptionalViewersTest {
 
-    /** A viewer: the package that alone may name it, its API's package, and the annotation it finds plugins by. */
+    /**
+     * A recipe viewer. It holds the only AdminShop package allowed to name the viewer, the viewer's API package,
+     * the annotation that marks its plugins and AdminShop's plugin class file.
+     */
     private record Viewer(String compatPackage, String api, String pluginAnnotation, String plugin) {
     }
 
@@ -33,9 +37,9 @@ class OptionalViewersTest {
     private static final Viewer EMI = new Viewer("com/ammonium/adminshop/compat/emi/", "dev/emi/",
             "dev/emi/emi/api/EmiEntrypoint", "AdminShopEmiPlugin.class");
 
+    /** The build passes the classes' directories because FML runs the tests from its own directory. */
     private static List<Path> mainClasses() throws IOException {
         List<Path> classes = new ArrayList<>();
-        // FML runs the tests from a directory of its own, so the build passes the classes' directories.
         for (String dir : System.getProperty("adminshop.mainClasses").split(File.pathSeparator)) {
             Path root = Path.of(dir);
             if (Files.isDirectory(root)) {
@@ -57,12 +61,18 @@ class OptionalViewersTest {
         return file.toString();
     }
 
-    /** Whether the class names {@code internalName}: class names sit in the constant pool as modified UTF-8. */
+    /**
+     * Returns whether the class file names {@code internalName}. Class names are stored in the constant pool as
+     * modified UTF-8, so a search of the raw bytes finds them.
+     */
     private static boolean names(Path file, String internalName) throws IOException {
         return new String(Files.readAllBytes(file), StandardCharsets.ISO_8859_1).contains(internalName);
     }
 
-    /** The classes outside the viewer's package that name it or its package, and the plugins it would find. */
+    /**
+     * Asserts that no class outside the viewer's package names the viewer or that package, and that the viewer
+     * finds only AdminShop's plugin.
+     */
     private static void assertOnlyItsPackageNames(Viewer viewer) throws IOException {
         List<String> plugins = new ArrayList<>();
         List<String> leaks = new ArrayList<>();
@@ -93,14 +103,14 @@ class OptionalViewersTest {
 
     /**
      * With JEI and EMI both installed, EMI's JEI layer (JEMI) skips every JEI category whose id's namespace is the
-     * mod id of a native EMI plugin, so the Shop categories show once, as AdminShop's EMI ones. EMI takes a plugin's
-     * mod id from the first mod its jar declares, and AdminShop's JEI ids are in {@link AdminShop#MODID}'s namespace:
-     * the jar must declare that mod alone.
+     * mod id of a native EMI plugin. The Shop categories then show once, as AdminShop's EMI ones. EMI takes a
+     * plugin's mod id from the first mod its jar declares, and AdminShop's JEI ids are in {@link AdminShop#MODID}'s
+     * namespace, so the jar must declare only that mod. The pattern matches each {@code [[mods]]} table and the
+     * {@code modId} that opens it.
      */
     @Test
     void emiSkipsTheJeiCategoriesWhenBothAreInstalled() throws IOException {
         String modsToml = Files.readString(Path.of(System.getProperty("adminshop.modsToml")));
-        // Each [[mods]] table and the modId that opens it.
         Matcher tables = Pattern.compile("(?m)^\\[\\[mods]]\\s*$(?:\\R\\s*modId\\s*=\\s*\"([^\"]*)\")?").matcher(modsToml);
         List<String> mods = new ArrayList<>();
         while (tables.find()) {
@@ -109,9 +119,9 @@ class OptionalViewersTest {
         assertEquals(List.of(AdminShop.MODID), mods);
     }
 
+    /** A wrong directory would make the checks above pass on nothing. */
     @Test
     void theClassesAreThere() throws IOException {
-        // A wrong directory would make the checks above pass on nothing.
         assertFalse(mainClasses().isEmpty());
         for (Viewer viewer : List.of(JEI, EMI)) {
             assertTrue(mainClasses().stream().map(OptionalViewersTest::name).anyMatch(name -> name.startsWith(viewer.compatPackage())),

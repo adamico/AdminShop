@@ -34,11 +34,11 @@ import net.neoforged.neoforge.transfer.item.ItemResource;
 import net.neoforged.neoforge.transfer.transaction.Transaction;
 
 /**
- * The Seller, as a pipe and its team see it: items piped in through the item capability that a Sell Offer
- * takes are sold into the owning team's Account, one trade every {@link SellerEntity#TICK_COOLDOWN} ticks; it
- * takes nothing it can't sell; it belongs to the team that placed it, or to the first team to use it; and
- * it keeps its owner, lock and contents when saved. Offers as in {@link ShopTradeTests}: {@code gametest/sell_wheat}
- * buys 10 wheat for 7, {@code gametest/sell_wool} 4 of any wool for 3.
+ * Tests the Seller. Items piped in through the item capability are sold into the owning team's Account if a Sell
+ * Offer takes them, one trade every {@link SellerEntity#TICK_COOLDOWN} ticks. The Seller accepts nothing it cannot
+ * sell. It belongs to the team that placed it, or to the first team to use it, and keeps its owner, lock and
+ * contents when saved. The Offers are those in {@link ShopTradeTests}. {@code gametest/sell_wheat} buys 10 wheat
+ * for 7, and {@code gametest/sell_wool} buys 4 of any wool for 3.
  */
 final class SellerTests {
 
@@ -63,13 +63,13 @@ final class SellerTests {
         tests.test("a_broken_seller_drops_itself_and_its_contents", 20, SellerTests::dropsItselfAndContents);
     }
 
+    /** The Seller makes one trade per cycle, so half the wheat is sold after the first cycle. */
     private static void sellsWhatIsPipedIn(GameTestHelper helper) {
         UUID team = placedBy(helper, "seller_owner");
 
         int inserted = insert(helper, new ItemStack(Items.WHEAT, 20));
 
         helper.assertValueEqual(inserted, 20, "wheat piped in");
-        // One trade per cycle: after the first cycle, half is sold.
         helper.runAfterDelay(SellerEntity.TICK_COOLDOWN + 10, () -> {
             assertBalance(helper, team, 7);
             assertContents(helper, Items.WHEAT, 10);
@@ -128,13 +128,13 @@ final class SellerTests {
         helper.assertTrue(member.containerMenu instanceof SellerMenu, "a member of the owning team could not open the Seller");
     }
 
+    /** The Seller is placed by no player, as with a command or another mod's machine. */
     private static void claimedOnFirstUse(GameTestHelper helper) {
         UUID team = TestPlayers.session(helper, players -> {
             ServerPlayer claimer = players.join("seller_claimer");
             setBalance(helper, claimer, 0);
             return team(helper, claimer);
         });
-        // Placed by no player, as by a command or another mod's machine.
         helper.setBlock(SELLER, ModBlocks.SELLER.get());
         insert(helper, new ItemStack(Items.WHEAT, 10));
 
@@ -209,7 +209,7 @@ final class SellerTests {
         helper.succeed();
     }
 
-    /** A player with no money places a Seller on the platform and logs out; returns their team. */
+    /** A player with no money places a Seller on the platform and logs out. Returns their team. */
     private static UUID placedBy(GameTestHelper helper, String name) {
         return TestPlayers.session(helper, players -> {
             ServerPlayer owner = players.join(name);
@@ -219,7 +219,7 @@ final class SellerTests {
         });
     }
 
-    /** {@code player} places a Seller on the platform, as from their hand. */
+    /** {@code player} places a Seller on the platform as if from their hand. */
     private static void place(GameTestHelper helper, ServerPlayer player) {
         ItemStack stack = new ItemStack(ModBlocks.SELLER.get());
         player.setItemInHand(InteractionHand.MAIN_HAND, stack);
@@ -238,7 +238,7 @@ final class SellerTests {
                 new BlockHitResult(Vec3.atCenterOf(absolute), Direction.UP, absolute, false));
     }
 
-    /** Inserts {@code stack} into the Seller through its item capability, as a pipe would; returns how many went in. */
+    /** Inserts {@code stack} into the Seller through its item capability, as a pipe would. Returns how many went in. */
     private static int insert(GameTestHelper helper, ItemStack stack) {
         ResourceHandler<ItemResource> handler = handler(helper);
         try (var transaction = Transaction.openRoot()) {

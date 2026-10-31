@@ -11,8 +11,8 @@ import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.network.chat.contents.TranslatableContents;
 
 /**
- * A {@code config/adminshop/shop.csv}, which AdminShop 1.x read the shop from and AdminShop no longer reads, is
- * reported at every server start and {@code /reload}, and to each player as they log in, as on 1.21.1.
+ * Tests the warning about {@code config/adminshop/shop.csv}, a file AdminShop no longer reads. While the file
+ * exists, it is reported at every server start and {@code /reload}, and to each player when they log in.
  */
 final class ShopCsvTests {
 
@@ -22,11 +22,12 @@ final class ShopCsvTests {
     private ShopCsvTests() {
     }
 
+    /** One test covers every step, because each step looks for the same file at its real path. */
     static void register(AdminShopGameTests.Registrar tests) {
-        // One test, as every step looks for the one file at its real place.
         tests.test("shop_csv_warns_players_while_present", 1, ShopCsvTests::warnsWhilePresent);
     }
 
+    /** If the file cannot be deleted at the end, the check keeps warning, and the next run's first step reports it. */
     private static void warnsWhilePresent(GameTestHelper helper) {
         try {
             helper.assertValueEqual(warningHeardBy(helper, "csv_none"), List.of(), "the warning with no shop.csv");
@@ -48,14 +49,13 @@ final class ShopCsvTests {
             try {
                 Files.deleteIfExists(ObsoleteShopCsv.PATH);
             } catch (IOException ignored) {
-                // The check below then keeps warning, which the next run's first step reports.
             }
             ObsoleteShopCsv.check();
         }
         helper.succeed();
     }
 
-    /** The warning's lines, as translation keys, that a player logging in now is sent. */
+    /** The translation keys of the warning lines sent to a player who logs in now. */
     private static List<String> warningHeardBy(GameTestHelper helper, String name) {
         var heard = new ArrayList<String>();
         TestPlayers.session(helper, players -> players.join(name, message -> {

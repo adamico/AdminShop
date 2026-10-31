@@ -10,9 +10,9 @@ import net.minecraft.world.level.block.state.BlockState;
 import org.jspecify.annotations.Nullable;
 
 /**
- * The Creative Seller: a Seller nobody can break, which sells without the Offers' Permits. Placed, it stays
- * unclaimed and opens for the placer, so a creative player can lock it to a Sell Offer; the first player to use
- * it after that claims it for their team.
+ * The Creative Seller. It is an unbreakable Seller that sells without the Offers' Permits. Placing it leaves it
+ * unclaimed and opens its screen, so a creative player can lock it to a Sell Offer. The first player to use it
+ * after that claims it for their team.
  */
 public class CreativeSellerBlock extends SellerBlock {
     public static final MapCodec<CreativeSellerBlock> CODEC = simpleCodec(CreativeSellerBlock::new);

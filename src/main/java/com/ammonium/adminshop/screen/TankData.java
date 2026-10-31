@@ -5,9 +5,10 @@ import net.minecraft.world.inventory.ContainerData;
 import net.neoforged.neoforge.fluids.FluidStack;
 
 /**
- * Carries a fluid to a fluid machine's screen in {@link #SLOTS} data slots: the fluid and its amount. A data slot
- * travels as a signed 16-bit number, so each is read back as an unsigned one, up to {@link #MAX_AMOUNT}; the fluid
- * machines' tanks hold less. Components don't travel: the screen only draws the fluid.
+ * Sends a fluid to a fluid machine's screen in {@link #SLOTS} data slots, one for the fluid and one for its amount.
+ * A data slot travels as a signed 16-bit number, so each is read back as unsigned. Amounts are capped at
+ * {@link #MAX_AMOUNT}, which is more than any fluid machine's tank holds. Components are not sent, because the screen
+ * only draws the fluid.
  */
 public final class TankData {
     public static final int SLOTS = 2;
@@ -19,20 +20,22 @@ public final class TankData {
     private TankData() {
     }
 
-    /** Data slot {@code slot} (0 to {@link #SLOTS} - 1) of {@code fluid}. */
+    /**
+     * The value of data slot {@code slot}, from 0 to {@link #SLOTS} - 1, for {@code fluid}. The fluid slot holds the
+     * registry id plus one, so 0 means no fluid.
+     */
     public static int encode(FluidStack fluid, int slot) {
         if (fluid.isEmpty()) {
             return 0;
         }
         return switch (slot) {
-            // 0 is no fluid.
             case FLUID -> BuiltInRegistries.FLUID.getId(fluid.getFluid()) + 1;
             case AMOUNT -> Math.min(fluid.getAmount(), MAX_AMOUNT);
             default -> 0;
         };
     }
 
-    /** The fluid in {@code data}'s slots from {@code first} on, as the client received them. */
+    /** Reads the fluid from the data slots of {@code data}, starting at {@code first}. */
     public static FluidStack decode(ContainerData data, int first) {
         int id = data.get(first + FLUID) & 0xFFFF;
         int amount = data.get(first + AMOUNT) & 0xFFFF;

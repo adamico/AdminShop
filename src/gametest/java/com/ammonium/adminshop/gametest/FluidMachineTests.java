@@ -37,11 +37,11 @@ import net.neoforged.neoforge.transfer.transaction.Transaction;
 import org.jspecify.annotations.Nullable;
 
 /**
- * The Fluid Buyer and the Fluid Seller, as their team and a pipe see them. The Fluid Buyer, set to a fluid Buy Offer
- * from its screen, buys one trade of it every 20 ticks into its 64000 mB tank, charging its Account, while the Account
- * can pay and the trade fits; pipes take the fluid out and can put nothing in. The Fluid Seller takes only fluids a
- * fluid Sell Offer takes and sells one trade every 20 ticks. Both respect Permits and keep their settings and contents
- * when saved. Offers as in {@link FluidTradeTests}.
+ * Tests the Fluid Buyer and the Fluid Seller. A Fluid Buyer set to a fluid Buy Offer from its screen buys one trade
+ * of it every 20 ticks into its 64000 mB tank and charges its Account, while the Account can pay and the trade fits.
+ * Pipes can take the fluid out but put nothing in. The Fluid Seller accepts only fluids that a fluid Sell Offer takes
+ * and sells one trade every 20 ticks. Both respect Permits and keep their settings and contents when saved. The
+ * Offers are those in {@link FluidTradeTests}.
  */
 final class FluidMachineTests {
 
@@ -72,12 +72,10 @@ final class FluidMachineTests {
         tests.test("a_fluid_machines_menu_shows_its_tank", 20, TestPlayers.withPlayers(FluidMachineTests::menusShowTheTank));
     }
 
-    // The Fluid Buyer.
-
+    /** The Balance is checked halfway between the 4th purchase and the 5th. */
     private static void buyerBuys(GameTestHelper helper) {
         UUID team = setUpBuyer(helper, "fluid_buyer_speed", 1_000, FluidTradeTests.BUY_WATER);
 
-        // Halfway between the 4th purchase and the 5th.
         helper.runAfterDelay(4L * CYCLE + CYCLE / 2, () -> {
             assertBalance(helper, team, 1_000 - 4 * 30);
             assertTank(helper, buyer(helper).tank(), Fluids.WATER, 4_000);
@@ -85,8 +83,8 @@ final class FluidMachineTests {
         });
     }
 
+    /** The Account holds enough for one purchase of 30 but not two. */
     private static void buyerStopsWhenBroke(GameTestHelper helper) {
-        // Enough for one purchase of 30, not two.
         UUID team = setUpBuyer(helper, "fluid_buyer_broke", 45, FluidTradeTests.BUY_WATER);
 
         helper.runAfterDelay(5L * CYCLE, () -> {
@@ -96,9 +94,9 @@ final class FluidMachineTests {
         });
     }
 
+    /** The tank has room for 500 mB more, less than a trade's 1000. */
     private static void buyerStopsWhenFull(GameTestHelper helper) {
         UUID team = setUpBuyer(helper, "fluid_buyer_full", 1_000, FluidTradeTests.BUY_WATER);
-        // Room for 500 mB more, not a trade's 1000.
         buyer(helper).tank().set(0, FluidResource.of(Fluids.WATER), CAPACITY - 500);
 
         helper.runAfterDelay(3L * CYCLE, () -> {
@@ -108,8 +106,11 @@ final class FluidMachineTests {
         });
     }
 
+    /**
+     * The server lets the Fluid Buyer be set to a gated Offer, as with the item Buyer, but the Fluid Buyer does not
+     * buy it without the Permit.
+     */
     private static void buyerNeedsThePermit(GameTestHelper helper) {
-        // The server lets the Fluid Buyer be set to a gated Offer, as the item Buyer; it just doesn't buy it.
         UUID team = setUpBuyer(helper, "fluid_buyer_permit", 100, FluidTradeTests.BUY_GATED_LAVA);
 
         helper.runAfterDelay(2L * CYCLE + CYCLE / 2, () -> {
@@ -165,13 +166,13 @@ final class FluidMachineTests {
         helper.assertValueEqual(buyer(helper).offer(), FluidTradeTests.BUY_WATER, "the Fluid Buyer's Offer after refused requests");
     }
 
+    /** Sets the lock as an admin's {@code /data merge block ... {lockedRecipe: true}} does. */
     private static void locking(GameTestHelper helper, TestPlayers players) {
         ServerPlayer player = players.join("fluid_buyer_locker");
         player.setGameMode(GameType.SURVIVAL);
         place(helper, player, ModBlocks.FLUID_BUYER.get());
         use(helper, player);
         FluidBuyerMenu.select(player, FluidTradeTests.BUY_WATER);
-        // As an admin's `/data merge block ... {lockedRecipe: true}` does.
         buyer(helper).setLocked(true);
 
         helper.assertTrue(((FluidBuyerMenu) player.containerMenu).isLocked(), "the menu doesn't show the lock");
@@ -184,6 +185,7 @@ final class FluidMachineTests {
         helper.assertTrue(buyer(helper).isLocked(), "setting the Offer unlocked the Fluid Buyer");
     }
 
+    /** The saved data keys, such as {@code lockedRecipe}, must match the names that admins' block entity data uses. */
     private static void buyerSurvivesSaveAndReload(GameTestHelper helper, TestPlayers players) {
         ServerPlayer owner = players.join("fluid_buyer_saver");
         place(helper, owner, ModBlocks.FLUID_BUYER.get());
@@ -197,7 +199,6 @@ final class FluidMachineTests {
         CompoundTag saved = buyer.saveWithFullMetadata(registries);
         BlockEntity loaded = BlockEntity.loadStatic(buyer.getBlockPos(), buyer.getBlockState(), saved, registries);
 
-        // The 1.21.1 names, which admins' block entity data uses.
         helper.assertTrue(saved.getBooleanOr("lockedRecipe", false), "the lock is not saved as lockedRecipe");
         helper.assertValueEqual(saved.getStringOr("recipe", ""), FluidTradeTests.BUY_WATER.identifier().toString(), "the saved recipe");
         if (!(loaded instanceof FluidBuyerEntity reloaded)) {
@@ -209,11 +210,12 @@ final class FluidMachineTests {
         assertTank(helper, reloaded.tank(), Fluids.WATER, 7_000);
     }
 
-    // The Fluid Seller.
-
+    /**
+     * The Fluid Seller is locked to the test's lava Offer, because the shipped {@code example_sell_fluid} also takes
+     * lava at another price.
+     */
     private static void sellerSells(GameTestHelper helper) {
         UUID team = setUpSeller(helper, "fluid_seller_sells", 0);
-        // The shipped example_sell_fluid takes lava too, at another price.
         seller(helper).lockTo(FluidTradeTests.SELL_LAVA);
         helper.assertValueEqual(fill(helper, Fluids.LAVA, 3_000), 3_000, "lava piped in");
 
@@ -224,13 +226,15 @@ final class FluidMachineTests {
         });
     }
 
+    /**
+     * Lava and water both have a fluid Sell Offer, and no Offer takes flowing lava. The Fluid Seller is then locked to
+     * the lava Offer, as an admin's {@code /data merge block ... {lockedRecipe: "adminshop:gametest/sell_lava"}} does.
+     */
     private static void sellerTakesOnlySellable(GameTestHelper helper) {
         helper.setBlock(MACHINE, ModBlocks.FLUID_SELLER.get());
-        // Lava and water both have a fluid Sell Offer; flowing lava is no fluid anyone sells.
         helper.assertValueEqual(fill(helper, Fluids.FLOWING_LAVA, 1_000), 0, "flowing lava piped in");
         helper.assertValueEqual(fill(helper, Fluids.LAVA, 1_000), 1_000, "lava piped in");
 
-        // Locked to the lava Offer, as an admin's `/data merge block ... {lockedRecipe: "adminshop:gametest/sell_lava"}` does.
         seller(helper).lockTo(FluidTradeTests.SELL_LAVA);
         seller(helper).tank().set(0, FluidResource.EMPTY, 0);
         helper.assertValueEqual(fill(helper, Fluids.WATER, 1_000), 0, "water piped into a Fluid Seller locked to lava");
@@ -238,9 +242,9 @@ final class FluidMachineTests {
         helper.succeed();
     }
 
+    /** 500 mB of lava is less than any lava Offer takes. */
     private static void sellerKeepsTooLittle(GameTestHelper helper) {
         UUID team = setUpSeller(helper, "fluid_seller_too_little", 0);
-        // Less than any lava Offer takes.
         fill(helper, Fluids.LAVA, 500);
 
         helper.runAfterDelay(3L * CYCLE, () -> {
@@ -250,9 +254,9 @@ final class FluidMachineTests {
         });
     }
 
+    /** {@code gametest/sell_gated_water} takes 250 mB of water for 4. */
     private static void sellerNeedsThePermit(GameTestHelper helper) {
         UUID team = setUpSeller(helper, "fluid_seller_permit", 0);
-        // gametest/sell_gated_water takes 250 mB of water for 4.
         fill(helper, Fluids.WATER, 1_000);
 
         helper.runAfterDelay(2L * CYCLE + CYCLE / 2, () -> {
@@ -267,8 +271,8 @@ final class FluidMachineTests {
         });
     }
 
+    /** The Fluid Seller is placed by no player, as with a command. */
     private static void unownedSellerSellsNothing(GameTestHelper helper) {
-        // Placed by no player, as by a command.
         helper.setBlock(MACHINE, ModBlocks.FLUID_SELLER.get());
         fill(helper, Fluids.LAVA, 2_000);
 
@@ -278,6 +282,7 @@ final class FluidMachineTests {
         });
     }
 
+    /** The saved data key {@code lockedRecipe} must match the name that admins' block entity data uses. */
     private static void sellerSurvivesSaveAndReload(GameTestHelper helper, TestPlayers players) {
         ServerPlayer owner = players.join("fluid_seller_saver");
         place(helper, owner, ModBlocks.FLUID_SELLER.get());
@@ -289,7 +294,6 @@ final class FluidMachineTests {
         CompoundTag saved = seller.saveWithFullMetadata(registries);
         BlockEntity loaded = BlockEntity.loadStatic(seller.getBlockPos(), seller.getBlockState(), saved, registries);
 
-        // The 1.21.1 name, which admins' block entity data uses.
         helper.assertValueEqual(saved.getStringOr("lockedRecipe", ""), FluidTradeTests.SELL_LAVA.identifier().toString(),
                 "the saved lockedRecipe");
         if (!(loaded instanceof FluidSellerEntity reloaded)) {
@@ -301,8 +305,9 @@ final class FluidMachineTests {
     }
 
     /**
-     * The menus carry the tank to the screen in data slots, which travel as signed 16-bit numbers: a full tank's
-     * 64000 mB too.
+     * Tests that the menus carry the tank to the screen in data slots, which travel as signed 16-bit numbers, even
+     * for a full tank's 64000 mB. The test decodes what the client reads after the network cuts each data slot to
+     * a short.
      */
     private static void menusShowTheTank(GameTestHelper helper, TestPlayers players) {
         ServerPlayer owner = players.join("fluid_menu_viewer");
@@ -326,7 +331,6 @@ final class FluidMachineTests {
         helper.assertValueEqual(sellerMenu.tank().getFluid(), Fluids.LAVA, "the Fluid Seller menu's fluid");
         helper.assertValueEqual(sellerMenu.tank().getAmount(), 40_000, "the Fluid Seller menu's amount");
 
-        // What the client reads back after the network cut each data slot to a short.
         FluidStack full = new FluidStack(Fluids.LAVA, CAPACITY);
         var received = new SimpleContainerData(TankData.SLOTS);
         for (int slot = 0; slot < TankData.SLOTS; slot++) {
@@ -337,9 +341,10 @@ final class FluidMachineTests {
         helper.assertValueEqual(decoded.getAmount(), CAPACITY, "the amount a client receives");
     }
 
-    // Helpers.
-
-    /** A player with {@code balance} places a Fluid Buyer, sets it to {@code offer} from its screen and logs out; returns their team. */
+    /**
+     * A player with {@code balance} places a Fluid Buyer, sets it to {@code offer} from its screen and logs out.
+     * Returns their team.
+     */
     private static UUID setUpBuyer(GameTestHelper helper, String name, long balance, ResourceKey<Recipe<?>> offer) {
         return TestPlayers.session(helper, players -> {
             ServerPlayer owner = players.join(name);
@@ -351,7 +356,7 @@ final class FluidMachineTests {
         });
     }
 
-    /** A player with {@code balance} places a Fluid Seller and logs out; returns their team. */
+    /** A player with {@code balance} places a Fluid Seller and logs out. Returns their team. */
     private static UUID setUpSeller(GameTestHelper helper, String name, long balance) {
         return TestPlayers.session(helper, players -> {
             ServerPlayer owner = players.join(name);
@@ -379,7 +384,7 @@ final class FluidMachineTests {
                 new BlockHitResult(Vec3.atCenterOf(absolute), Direction.UP, absolute, false));
     }
 
-    /** Pipes {@code amount} of {@code fluid} into the machine; returns how much went in. */
+    /** Pipes {@code amount} of {@code fluid} into the machine. Returns how much went in. */
     private static int fill(GameTestHelper helper, Fluid fluid, int amount) {
         try (var transaction = Transaction.openRoot()) {
             int inserted = handler(helper).insert(FluidResource.of(fluid), amount, transaction);

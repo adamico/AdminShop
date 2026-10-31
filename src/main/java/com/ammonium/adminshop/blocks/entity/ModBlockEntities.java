@@ -52,7 +52,7 @@ public class ModBlockEntities {
                     (pos, state) -> new DetectorEntity(ModBlockEntities.ADVANCED_DETECTOR.get(), DetectorKind.ADVANCED, pos, state),
                     ModBlocks.ADVANCED_DETECTOR.get()));
 
-    /** The block entity type of a Detector of this kind. */
+    /** The block entity type for a Detector of {@code kind}. */
     public static BlockEntityType<DetectorEntity> detector(DetectorKind kind) {
         return switch (kind) {
             case BASIC -> DETECTOR.get();
@@ -60,7 +60,7 @@ public class ModBlockEntities {
         };
     }
 
-    /** The block entity type of a Buyer of this tier. */
+    /** The block entity type for a Buyer of {@code tier}. */
     public static BlockEntityType<BuyerEntity> buyer(BuyerTier tier) {
         return switch (tier) {
             case ONE -> BUYER_1.get();
@@ -75,8 +75,8 @@ public class ModBlockEntities {
     }
 
     /**
-     * Pipes reach a machine's slots through NeoForge's item capability, and a fluid machine's tank through its fluid
-     * capability, from every side; a Buyer's and a Fluid Buyer's they can only take from.
+     * Exposes each machine's slots through NeoForge's item capability and each fluid machine's tank through the fluid
+     * capability, on every side. Buyers and the Fluid Buyer expose an extract-only view.
      */
     private static void registerCapabilities(RegisterCapabilitiesEvent event) {
         event.registerBlockEntity(Capabilities.Item.BLOCK, SELLER.get(), (seller, side) -> seller.inventory());

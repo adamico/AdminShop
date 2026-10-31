@@ -10,7 +10,10 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
-/** Asks the server to set the threshold of the Detector whose screen the player has open; see {@link DetectorMenu#setThreshold}. */
+/**
+ * Asks the server to set the threshold of the Detector whose screen the player has open. See
+ * {@link DetectorMenu#setThreshold}.
+ */
 public record PacketSetDetectorThreshold(long threshold) implements CustomPacketPayload {
 
     public static final Type<PacketSetDetectorThreshold> TYPE =

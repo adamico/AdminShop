@@ -23,11 +23,11 @@ import net.neoforged.neoforge.transfer.item.ResourceHandlerSlot;
 import org.jspecify.annotations.Nullable;
 
 /**
- * The Seller's menu: the player's inventory, then the Seller's slot. Its progress to the next sale and whether
- * it has an owner ride in data slots.
+ * The Seller's menu. It holds the player's inventory followed by the Seller's slot. Data slots carry the Seller's
+ * progress to its next sale and whether it has an owner.
  */
 public class SellerMenu extends AbstractContainerMenu {
-    /** The menu slot of the Seller's own slot, after the player's 36. */
+    /** The menu slot index of the Seller's slot, after the player's 36 slots. */
     public static final int SELLER_SLOT = Inventory.INVENTORY_SIZE;
 
     private static final int DATA_PROGRESS = 0;
@@ -37,7 +37,10 @@ public class SellerMenu extends AbstractContainerMenu {
     private final @Nullable SellerEntity seller;
     private final ContainerData data;
 
-    /** Client side: the slot stands over a stub the menu's sync fills, taking what the client shop cache can sell. */
+    /**
+     * Creates the client-side menu. Its slot wraps a stub that menu sync fills, and it accepts any item that a Sell
+     * Offer in the client shop cache takes.
+     */
     public SellerMenu(int containerId, Inventory playerInventory, RegistryFriendlyByteBuf buffer) {
         this(ModMenuTypes.SELLER_MENU.get(), containerId, playerInventory, null,
                 new MachineInventory(1, resource -> ShopTrades.anySellOfferTakes(ShopCache.CLIENT.offers(), null, resource.toStack(1)),
@@ -62,7 +65,7 @@ public class SellerMenu extends AbstractContainerMenu {
         addDataSlots(data);
     }
 
-    /** Server side, over the Seller's own slot. */
+    /** Creates the server-side menu over the Seller's own slot. */
     public static SellerMenu open(int containerId, Inventory playerInventory, SellerEntity seller) {
         return new SellerMenu(ModMenuTypes.SELLER_MENU.get(), containerId, playerInventory, seller, seller.inventory(), data(seller));
     }
@@ -89,7 +92,10 @@ public class SellerMenu extends AbstractContainerMenu {
         };
     }
 
-    /** How far the Seller is to its next sale, in {@link SellerEntity#PROGRESS_STEPS} steps, as the server last sent it. */
+    /**
+     * The Seller's progress to its next sale, out of {@link SellerEntity#PROGRESS_STEPS}, as last sent by the
+     * server.
+     */
     public int progress() {
         return data.get(DATA_PROGRESS);
     }
@@ -100,8 +106,9 @@ public class SellerMenu extends AbstractContainerMenu {
     }
 
     /**
-     * Locks the Seller whose menu {@code player} has open to the Sell Offer {@code offer}, as a creative player does
-     * by clicking an item in the Seller's screen. Returns whether it did: a survival player can't.
+     * Locks the Seller that {@code player} has open to the Sell Offer {@code offer}. A creative player does this by
+     * clicking an item in the Seller's screen. Returns false if the player is not in creative mode or {@code offer} is
+     * not a Sell Offer.
      */
     public static boolean lock(ServerPlayer player, ResourceKey<Recipe<?>> offer) {
         if (!(player.containerMenu instanceof SellerMenu menu) || menu.seller == null) {

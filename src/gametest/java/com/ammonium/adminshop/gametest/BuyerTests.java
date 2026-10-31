@@ -36,11 +36,11 @@ import net.neoforged.neoforge.transfer.item.ItemResource;
 import net.neoforged.neoforge.transfer.transaction.Transaction;
 
 /**
- * The Buyers, as their team and a pipe see them: set to a Buy Offer from their screen, they buy one trade of it per
- * cycle of their tier, charging the owning team's Account, while it can pay and the goods fit; pipes take the goods
- * out and can put nothing in; {@code lockedRecipe} keeps survival players from changing the Offer; and they keep
- * their settings and contents when saved. Offers as in {@link ShopTradeTests}: {@code gametest/buy_diamonds} gives
- * 2 diamonds for 50, {@code gametest/buy_enchanted_book} a named book for 40.
+ * Tests the Buyers. A Buyer set to a Buy Offer from its screen buys one trade of it per cycle of its tier and charges
+ * the owning team's Account, while the Account can pay and the goods fit. Pipes can take the goods out but put
+ * nothing in. {@code lockedRecipe} stops survival players from changing the Offer. A Buyer keeps its settings and
+ * contents when saved. The Offers are those in {@link ShopTradeTests}. {@code gametest/buy_diamonds} gives 2 diamonds
+ * for 50, and {@code gametest/buy_enchanted_book} gives a named book for 40.
  */
 final class BuyerTests {
 
@@ -69,12 +69,14 @@ final class BuyerTests {
         tests.test("a_broken_buyer_drops_itself_and_its_contents", 20, BuyerTests::dropsItselfAndContents);
     }
 
-    /** {@code cooldown} is the tier's 1.21.1 speed, as its tooltip gives it. */
+    /**
+     * {@code cooldown} is the tier's speed in ticks, as its tooltip shows it. The Balance is checked halfway between
+     * the {@code CYCLES}-th purchase and the next.
+     */
     private static void buysAtItsTierSpeed(GameTestHelper helper, DeferredBlock<BuyerBlock> block, String name, int cooldown) {
         long start = 10_000;
         UUID team = setUp(helper, block, "buyer_speed_" + name, start, BUY_DIAMONDS);
 
-        // Halfway between the CYCLES-th purchase and the next.
         helper.runAfterDelay((long) CYCLES * cooldown + cooldown / 2, () -> {
             assertBalance(helper, team, start - CYCLES * DIAMONDS_PRICE);
             assertDiamonds(helper, 2 * CYCLES);
@@ -82,8 +84,8 @@ final class BuyerTests {
         });
     }
 
+    /** The Account holds enough for one purchase of 50 but not two. */
     private static void stopsWhenBroke(GameTestHelper helper) {
-        // Enough for one purchase of 50, not two.
         UUID team = setUp(helper, ModBlocks.BUYER_3, "buyer_broke", 75, BUY_DIAMONDS);
 
         helper.runAfterDelay(5L * BuyerTier.THREE.cooldown(), () -> {
@@ -93,9 +95,9 @@ final class BuyerTests {
         });
     }
 
+    /** The output has room for 1 more diamond, less than a trade's 2. */
     private static void stopsWhenFull(GameTestHelper helper) {
         UUID team = setUp(helper, ModBlocks.BUYER_1, "buyer_full", 1_000, BUY_DIAMONDS);
-        // Room for 1 more diamond, not a trade's 2.
         buyer(helper).inventory().set(0, ItemResource.of(Items.DIAMOND), 63);
 
         helper.runAfterDelay(3L * BuyerTier.ONE.cooldown(), () -> {
@@ -105,9 +107,12 @@ final class BuyerTests {
         });
     }
 
+    /**
+     * A Buyer with no Offer buys nothing. A Buyer that no player placed, as with a command, buys nothing even when set
+     * to an Offer, because no Account pays.
+     */
     private static void buysNothingUnset(GameTestHelper helper) {
         UUID team = setUp(helper, ModBlocks.BUYER_3, "buyer_no_offer", 1_000, null);
-        // Placed by no player, as by a command, and set to an Offer: nobody's Account pays.
         BlockPos unowned = BUYER.east(2);
         helper.setBlock(unowned, ModBlocks.BUYER_3.get());
         helper.getBlockEntity(unowned, BuyerEntity.class).setOffer(BUY_DIAMONDS, false);
@@ -159,13 +164,13 @@ final class BuyerTests {
         helper.assertValueEqual(buyer(helper).offer(), BUY_DIAMONDS, "the Buyer's Offer after refused requests");
     }
 
+    /** Sets the lock as an admin's {@code /data merge block ... {lockedRecipe: true}} does. */
     private static void locking(GameTestHelper helper, TestPlayers players) {
         ServerPlayer player = players.join("buyer_locker");
         player.setGameMode(GameType.SURVIVAL);
         place(helper, player, ModBlocks.BUYER_1);
         use(helper, player);
         BuyerMenu.select(player, BUY_DIAMONDS);
-        // As an admin's `/data merge block ... {lockedRecipe: true}` does.
         buyer(helper).setLocked(true);
 
         helper.assertTrue(((BuyerMenu) player.containerMenu).isLocked(), "the menu doesn't show the lock");
@@ -178,6 +183,7 @@ final class BuyerTests {
         helper.assertTrue(buyer(helper).isLocked(), "setting the Offer unlocked the Buyer");
     }
 
+    /** The saved data keys, such as {@code lockedRecipe}, must match the names that admins' block entity data uses. */
     private static void survivesSaveAndReload(GameTestHelper helper, TestPlayers players) {
         ServerPlayer owner = players.join("buyer_saver");
         place(helper, owner, ModBlocks.BUYER_2);
@@ -191,7 +197,6 @@ final class BuyerTests {
         CompoundTag saved = buyer.saveWithFullMetadata(registries);
         BlockEntity loaded = BlockEntity.loadStatic(buyer.getBlockPos(), buyer.getBlockState(), saved, registries);
 
-        // The 1.21.1 names, which admins' block entity data uses.
         helper.assertTrue(saved.getBooleanOr("lockedRecipe", false), "the lock is not saved as lockedRecipe");
         helper.assertValueEqual(saved.getStringOr("recipe", ""), BUY_BOOK.identifier().toString(), "the saved recipe");
         if (!(loaded instanceof BuyerEntity reloaded)) {
@@ -218,8 +223,8 @@ final class BuyerTests {
     }
 
     /**
-     * A player with {@code balance} places a Buyer on the platform, sets it to {@code offer} (if any) from its screen
-     * and logs out; returns their team.
+     * A player with {@code balance} places a Buyer on the platform, sets it to {@code offer} from its screen if
+     * {@code offer} is not null, and logs out. Returns the player's team.
      */
     private static UUID setUp(GameTestHelper helper, DeferredBlock<BuyerBlock> block, String name, long balance,
                               ResourceKey<Recipe<?>> offer) {
@@ -235,7 +240,7 @@ final class BuyerTests {
         });
     }
 
-    /** {@code player} places a Buyer on the platform, as from their hand. */
+    /** {@code player} places a Buyer on the platform as if from their hand. */
     private static void place(GameTestHelper helper, ServerPlayer player, DeferredBlock<BuyerBlock> block) {
         ItemStack stack = new ItemStack(block.get());
         player.setItemInHand(InteractionHand.MAIN_HAND, stack);

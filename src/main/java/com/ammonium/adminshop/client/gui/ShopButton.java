@@ -20,11 +20,11 @@ import net.minecraft.world.item.Items;
 import net.neoforged.neoforge.fluids.FluidStack;
 
 /**
- * One Offer in the shop screen's grid: its goods, with the count a click trades (items, or millibuckets of a fluid).
- * Clicking trades it.
+ * One Offer in the shop screen's grid. It shows the Offer's goods and the count a click trades, in items or in
+ * millibuckets of a fluid. Clicking it trades the Offer.
  */
 public class ShopButton extends AbstractButton {
-    /** How long each item of a tag Offer shows before the next. */
+    /** How many ticks each item of a tag Offer shows before the next one. */
     public static final int TAG_DISPLAY_ROTATION_TICKS = 30;
     private static final int TEXT_COLOR = 0xFFFFFFFF;
     private static final int COMPONENTS_COLOR = 0xFFFF55FF;
@@ -38,11 +38,14 @@ public class ShopButton extends AbstractButton {
     /** Whether the mouse was over the button when it last rendered. */
     public boolean isMouseOn = false;
 
+    /**
+     * Creates the button and its item stacks. A stack needs the item components that a loaded world provides, and a
+     * world is loaded by the time the shop screen opens.
+     */
     public ShopButton(OfferDisplay offer, int x, int y, Consumer<ShopButton> onPress) {
         super(x, y, 16, 16, Component.empty());
         this.offer = offer;
         this.onPress = onPress;
-        // Item stacks only exist once a world has given items their components, which it has by now.
         this.stacks = offer.goods() instanceof ShopGoods.Items items
                 ? items.stacks().stream().map(ItemStackTemplate::create).toList()
                 : List.of();
@@ -58,6 +61,10 @@ public class ShopButton extends AbstractButton {
         onPress.accept(this);
     }
 
+    /**
+     * Draws the goods and a hover highlight. At half size it adds the count a click trades and a mark on tag Offers and
+     * on goods that carry components.
+     */
     @Override
     protected void extractContents(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
         int x = getX();
@@ -73,7 +80,6 @@ public class ShopButton extends AbstractButton {
             graphics.fill(x, y, x + width, y + height, HOVER_COLOR);
         }
 
-        // The count a click trades, and a mark on tag Offers and on goods that carry components, at half size.
         Font font = Minecraft.getInstance().font;
         graphics.pose().pushMatrix();
         graphics.pose().scale(0.5f, 0.5f);
@@ -88,7 +94,7 @@ public class ShopButton extends AbstractButton {
         graphics.pose().popMatrix();
     }
 
-    /** The stack shown now: the only one, or for a tag Offer each in turn; a barrier for an empty tag. */
+    /** The stack to show now. A tag Offer cycles through its items, and an empty tag shows a barrier. */
     private ItemStack shownStack() {
         if (stacks.isEmpty()) {
             return new ItemStack(Items.BARRIER);
@@ -104,8 +110,8 @@ public class ShopButton extends AbstractButton {
     }
 
     /**
-     * How many trades a click makes: one, half a stack's worth with shift held, a stack's worth with
-     * control held. A fluid Offer always trades once, as on 1.21.1: one container takes it.
+     * How many trades a click makes. It is one by default, half a stack's worth with shift held and a stack's worth
+     * with control held. A fluid Offer always trades once, since one container takes it.
      */
     public int getQuantity() {
         if (stacks.isEmpty() || offer.count() <= 0) {

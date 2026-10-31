@@ -12,8 +12,8 @@ import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
 import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 
 /**
- * A machine's item slots, as pipes see them through the item capability and players through its menu: they take
- * only what {@code accepts} allows, and tell the machine when they change.
+ * A machine's item slots, shared by the item capability and the menu. The slots accept only what {@code accepts}
+ * allows and run {@code changed} on every change.
  */
 public class MachineInventory extends ItemStacksResourceHandler {
     private final Predicate<ItemResource> accepts;
@@ -30,7 +30,7 @@ public class MachineInventory extends ItemStacksResourceHandler {
         return getResource(index).toStack(getAmountAsInt(index));
     }
 
-    /** These slots as pipes see a machine that only outputs: they can take from them, but put nothing in. */
+    /** A view of these slots for an output-only machine. Pipes can extract from it but cannot insert. */
     public ResourceHandler<ItemResource> extractOnly() {
         return new DelegatingResourceHandler<>(this) {
             @Override
@@ -50,7 +50,7 @@ public class MachineInventory extends ItemStacksResourceHandler {
         };
     }
 
-    /** Drops what the slots hold at {@code pos}, as a machine does when broken. */
+    /** Drops the contents of every slot at {@code pos}. Machines call this when broken. */
     public void dropContents(Level level, BlockPos pos) {
         for (int slot = 0; slot < size(); slot++) {
             ItemStack stack = stack(slot);

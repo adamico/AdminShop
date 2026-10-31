@@ -15,8 +15,8 @@ import net.neoforged.neoforge.common.conditions.ConditionalOps;
 import net.neoforged.neoforge.common.conditions.ICondition;
 
 /**
- * Patchouli is optional: the game test server runs without it, loads AdminShop, and has no Econ Handbook
- * recipe, whose result is Patchouli's item.
+ * Tests that Patchouli is optional. The game test server runs without it, loads AdminShop, and has no Econ
+ * Handbook recipe, because that recipe's result is a Patchouli item.
  */
 final class HandbookTests {
 
@@ -29,15 +29,17 @@ final class HandbookTests {
         tests.test("without_patchouli_there_is_no_handbook_recipe", 1, HandbookTests::noRecipe);
     }
 
+    /**
+     * Only meaningful while the game test server runs without Patchouli. Without its load condition the recipe would
+     * also be missing, but through a load error about Patchouli's unknown item. So the test reads the recipe file as
+     * the recipe loader does and checks that its condition skips it cleanly.
+     */
     private static void noRecipe(GameTestHelper helper) {
-        // The test means something only while the game test server runs without Patchouli.
         helper.assertFalse(ModList.get().isLoaded("patchouli"), "the game test server loaded Patchouli");
         var server = helper.getLevel().getServer();
         helper.assertTrue(server.getRecipeManager().byKey(ShopTradeTests.offer("econ_handbook")).isEmpty(),
                 "the Econ Handbook recipe loaded without Patchouli");
 
-        // Without its condition the recipe would be missing too, but as a load error naming Patchouli's
-        // unknown item: the server reads it as the recipe loader does, and it must be skipped cleanly.
         var resource = server.getResourceManager().getResource(RECIPE_FILE);
         helper.assertTrue(resource.isPresent(), "AdminShop ships no Econ Handbook recipe");
         var ops = new ConditionalOps<>(helper.getLevel().registryAccess().createSerializationContext(JsonOps.INSTANCE), ICondition.IContext.EMPTY);

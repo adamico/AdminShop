@@ -17,17 +17,17 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.ItemLike;
 
 /**
- * Puts the Shop's Offers in JEI, as the Shop Buy and Shop Sell categories. JEI finds this by its annotation and
- * loads it only when JEI is installed; nothing outside this package names a JEI type, so AdminShop loads without it.
+ * Adds the Shop's Offers to JEI as the Shop Buy and Shop Sell categories. JEI finds this class by its annotation and
+ * loads it only when JEI is installed. No code outside this package uses JEI types, so AdminShop runs without JEI.
  *
- * <p>The Offers come from the client shop cache (ADR-0001), never a recipe manager. JEI restarts on each recipe
- * sync (login and every {@code /reload}), listening at the lowest priority, so the cache already holds the synced
- * Offers when {@link #registerRecipes} reads them.
+ * <p>The Offers come from the client shop cache, never from a recipe manager. JEI restarts on each recipe
+ * sync, at login and after every {@code /reload}. It listens at the lowest priority, so the cache already holds the
+ * synced Offers when {@link #registerRecipes} reads them.
  */
 @JeiPlugin
 public final class AdminShopJeiPlugin implements IModPlugin {
 
-    /** The categories' JEI types, with 1.21.1's ids. */
+    /** The JEI recipe type of each category. */
     private static final Map<ShopCategory, IRecipeType<OfferDisplay>> TYPES = new EnumMap<>(Map.of(
             ShopCategory.BUY, IRecipeType.create(AdminShop.MODID, "jei_buy_recipe", OfferDisplay.class),
             ShopCategory.SELL, IRecipeType.create(AdminShop.MODID, "jei_sell_recipe", OfferDisplay.class)));

@@ -14,8 +14,8 @@ import net.neoforged.neoforge.fluids.FluidStack;
 import org.jspecify.annotations.Nullable;
 
 /**
- * The Fluid Seller's menu: the player's inventory only. Its progress to the next sale, whether it has an owner and
- * what its tank holds ride in data slots.
+ * The Fluid Seller's menu. It holds only the player's inventory. Data slots carry the progress to the next sale,
+ * whether the Fluid Seller has an owner and what its tank holds.
  */
 public class FluidSellerMenu extends AbstractContainerMenu {
     private static final int DATA_PROGRESS = 0;
@@ -26,7 +26,7 @@ public class FluidSellerMenu extends AbstractContainerMenu {
     private final @Nullable FluidSellerEntity seller;
     private final ContainerData data;
 
-    /** Client side: the data slots the menu's sync fills. */
+    /** Creates the client-side menu, whose data slots menu sync fills. */
     public FluidSellerMenu(int containerId, Inventory playerInventory, RegistryFriendlyByteBuf buffer) {
         this(containerId, playerInventory, null, new SimpleContainerData(DATA_COUNT));
     }
@@ -46,7 +46,7 @@ public class FluidSellerMenu extends AbstractContainerMenu {
         addDataSlots(data);
     }
 
-    /** Server side, over the Fluid Seller itself. */
+    /** Creates the server-side menu over the Fluid Seller. */
     public static FluidSellerMenu open(int containerId, Inventory playerInventory, FluidSellerEntity seller) {
         return new FluidSellerMenu(containerId, playerInventory, seller, new ContainerData() {
             @Override
@@ -72,7 +72,10 @@ public class FluidSellerMenu extends AbstractContainerMenu {
         });
     }
 
-    /** How far the Fluid Seller is to its next sale, in {@link FluidSellerEntity#PROGRESS_STEPS} steps, as the server last sent it. */
+    /**
+     * The Fluid Seller's progress to its next sale, out of {@link FluidSellerEntity#PROGRESS_STEPS}, as last sent by
+     * the server.
+     */
     public int progress() {
         return data.get(DATA_PROGRESS);
     }
@@ -87,9 +90,9 @@ public class FluidSellerMenu extends AbstractContainerMenu {
         return TankData.decode(data, DATA_TANK);
     }
 
+    /** Moves nothing, since the menu has no slots of its own. */
     @Override
     public ItemStack quickMoveStack(Player player, int index) {
-        // The menu has no slots of its own to move to.
         return ItemStack.EMPTY;
     }
 

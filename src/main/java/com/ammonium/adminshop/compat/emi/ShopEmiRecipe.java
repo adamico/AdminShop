@@ -12,18 +12,17 @@ import java.util.List;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 
-/** One Offer in EMI: draws a {@link ShopCategory}'s background, goods slot, price and Permit lines. */
+/** One Offer in EMI. It draws a {@link ShopCategory}'s background, goods slot, price and Permit lines. */
 final class ShopEmiRecipe extends BasicEmiRecipe {
 
     private final ShopCategory category;
     private final OfferDisplay offer;
 
-    /** EMI keys the recipe by the Offer's id. */
+    /** EMI keys the recipe by the Offer's id. A Buy Offer's goods are outputs and a Sell Offer's are inputs. */
     ShopEmiRecipe(ShopEmiCategory emiCategory, OfferDisplay offer) {
         super(emiCategory, offer.offer().identifier(), ShopCategory.WIDTH, ShopCategory.HEIGHT);
         this.category = emiCategory.category;
         this.offer = offer;
-        // The team receives a Buy Offer's goods and gives up a Sell Offer's.
         if (category.isBuy()) {
             outputs.addAll(goods(offer.goods()));
         } else {
@@ -31,7 +30,7 @@ final class ShopEmiRecipe extends BasicEmiRecipe {
         }
     }
 
-    /** The goods' stacks: one for an item or fluid Offer, one per item of the tag for a tag Offer. */
+    /** The goods' stacks. An item or fluid Offer has one, and a tag Offer has one per item in the tag. */
     private static List<EmiStack> goods(ShopGoods goods) {
         return switch (goods) {
             case ShopGoods.Items items -> items.stacks().stream()
@@ -42,16 +41,18 @@ final class ShopEmiRecipe extends BasicEmiRecipe {
         };
     }
 
+    /**
+     * EMI places a slot by its 18-pixel frame, one pixel outside the goods, and the background already draws that
+     * frame. The price is drawn each frame, as in JEI, so it shows unformatted while Shift is held.
+     */
     @Override
     public void addWidgets(WidgetHolder widgets) {
         widgets.addTexture(category.background(), 0, 0, ShopCategory.WIDTH, ShopCategory.HEIGHT, 0, 0);
-        // EMI places a slot by its 18-pixel frame, which the background already draws, one pixel out from the goods.
         EmiIngredient goods = category.isBuy() ? EmiIngredient.of(outputs) : inputs.getFirst();
         SlotWidget slot = widgets.addSlot(goods, category.slotX() - 1, ShopCategory.SLOT_Y - 1).drawBack(false);
         if (category.isBuy()) {
             slot.recipeContext(this);
         }
-        // Drawn each frame, as JEI draws it, so the price turns raw while Shift is held.
         Font font = Minecraft.getInstance().font;
         widgets.addDrawable(0, 0, ShopCategory.WIDTH, ShopCategory.HEIGHT, (graphics, mouseX, mouseY, delta) ->
                 graphics.text(font, category.price(offer), ShopCategory.TEXT_X, ShopCategory.PRICE_Y, ShopCategory.TEXT_COLOR, true));

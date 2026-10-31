@@ -12,8 +12,8 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 
 /**
- * The shop screen's menu: only the player's inventory. Trades are requests to the server, which the
- * server accepts only from a player with this menu open.
+ * The shop screen's menu. It holds only the player's inventory. The server accepts trade requests only from a
+ * player who has this menu open.
  */
 public class ShopMenu extends AbstractContainerMenu {
 
@@ -22,9 +22,11 @@ public class ShopMenu extends AbstractContainerMenu {
         layoutPlayerInventorySlots(playerInventory, 16, 140);
     }
 
-    /** Opens the shop screen for {@code player}, from the Shop block or the Shop Tablet. */
+    /**
+     * Opens the shop screen for {@code player} from the Shop block or the Shop Tablet. It first syncs the player's
+     * Account, so the screen shows the current Balance.
+     */
     public static void open(ServerPlayer player) {
-        // The screen shows the Balance of the player's Account, so send it fresh.
         MoneyHelper.get(player.level()).syncToPlayer(player);
         player.openMenu(new SimpleMenuProvider((containerId, inventory, ignored) -> new ShopMenu(containerId, inventory),
                 Component.translatable(ShopBlock.SCREEN_ADMINSHOP_SHOP)));
@@ -35,9 +37,9 @@ public class ShopMenu extends AbstractContainerMenu {
         return true;
     }
 
+    /** Moves nothing, since the menu has no slots of its own. */
     @Override
     public ItemStack quickMoveStack(Player player, int index) {
-        // There is no other inventory to move items to.
         return ItemStack.EMPTY;
     }
 

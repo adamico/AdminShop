@@ -7,8 +7,8 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.crafting.Recipe;
 
 /**
- * One Offer as the shop screen, and later JEI and EMI, show it: its recipe key (what a trade request
- * names), whether it is a Buy or a Sell Offer, its goods, price and Permit.
+ * One Offer as shown by the shop screen, JEI and EMI. It holds the Offer's recipe key, which a trade request names,
+ * and exposes whether it is a Buy or Sell Offer, its goods, price and Permit.
  */
 public record OfferDisplay(ResourceKey<Recipe<?>> offer, ShopRecipe recipe) {
 
@@ -35,9 +35,9 @@ public record OfferDisplay(ResourceKey<Recipe<?>> offer, ShopRecipe recipe) {
     }
 
     /**
-     * The Permit's name, translated from {@code adminshop.permit.<permit>} or else the Permit itself, as the shop
-     * screen shows it; empty when the Offer needs none. Like 1.21.1's shop screen, it names no Permit {@code "0"},
-     * though trading still needs it.
+     * The Permit's name as shown on the shop screen. It is translated from {@code adminshop.permit.<permit>}, and
+     * falls back to the Permit itself. It is empty when the Offer needs no Permit. Permit {@code "0"} is not shown,
+     * though trading still requires it.
      */
     public Optional<Component> permitName() {
         String permit = permit();
@@ -47,12 +47,12 @@ public record OfferDisplay(ResourceKey<Recipe<?>> offer, ShopRecipe recipe) {
         return Optional.of(Component.translatableWithFallback("adminshop.permit." + permit, permit));
     }
 
-    /** The goods' name. It reads item components, so only once a world has loaded. */
+    /** The goods' name. It reads item components, so call it only after a world has loaded. */
     public Component name() {
         return recipe.name();
     }
 
-    /** What the search matches. It reads item components, so only once a world has loaded. */
+    /** The text the search matches. It reads item components, so call it only after a world has loaded. */
     public String searchTerm() {
         return recipe.searchTerm();
     }

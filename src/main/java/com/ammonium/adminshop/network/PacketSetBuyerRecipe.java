@@ -12,7 +12,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.crafting.Recipe;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
-/** Asks the server to set the Buyer whose screen the player has open to one Buy Offer; see {@link BuyerMenu#select}. */
+/** Asks the server to set the Buyer whose screen the player has open to one Buy Offer. See {@link BuyerMenu#select}. */
 public record PacketSetBuyerRecipe(ResourceKey<Recipe<?>> offer) implements CustomPacketPayload {
 
     public static final Type<PacketSetBuyerRecipe> TYPE = new Type<>(Identifier.fromNamespaceAndPath(AdminShop.MODID, "set_item_buyer_recipe"));

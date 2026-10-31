@@ -15,8 +15,8 @@ import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import org.jspecify.annotations.Nullable;
 
 /**
- * A Detector's screen: a box for its threshold, a button to confirm it, and the name of its Account, red
- * "No account" while nobody owns it. The box shows the threshold the server sends until the player types in it.
+ * A Detector's screen. It has a box for the threshold, a button to confirm it and the name of its Account, or a red
+ * "No account" if nobody owns it. The box shows the server's threshold until the player types in it.
  */
 public class DetectorScreen extends AbstractContainerScreen<DetectorMenu> {
     private static final int ACCOUNT_COLOR = 0xFFFFFFFF;
@@ -24,7 +24,7 @@ public class DetectorScreen extends AbstractContainerScreen<DetectorMenu> {
 
     private EditBox thresholdBox;
     private TextConfirmButton confirmButton;
-    /** The threshold the box last showed from the server, or null before it showed any. */
+    /** The server threshold the box last showed, or null if it has shown none. */
     private @Nullable Long shownThreshold;
 
     public DetectorScreen(DetectorMenu menu, Inventory inventory, Component title) {
@@ -65,13 +65,13 @@ public class DetectorScreen extends AbstractContainerScreen<DetectorMenu> {
         }
     }
 
+    /** Sends the typed threshold to the server. The box then follows the server's threshold again. */
     private void confirm() {
         Long threshold = typedThreshold();
         if (threshold == null) {
             return;
         }
         ClientPacketDistributor.sendToServer(new PacketSetDetectorThreshold(threshold));
-        // The box follows the server's threshold again from here.
         shownThreshold = threshold;
         if (minecraft.player != null) {
             minecraft.player.sendSystemMessage(Component.translatable("gui.adminshop.set_threshold", threshold));
@@ -104,15 +104,17 @@ public class DetectorScreen extends AbstractContainerScreen<DetectorMenu> {
         }
     }
 
+    /**
+     * While the box has focus, Escape unfocuses it and a second Escape closes the screen. Other keys go to the
+     * box and never close the screen or trigger a keybind.
+     */
     @Override
     public boolean keyPressed(KeyEvent event) {
         if (thresholdBox.isFocused()) {
             if (event.isEscape()) {
-                // Escape leaves the box first; a second Escape closes the screen.
                 thresholdBox.setFocused(false);
                 return true;
             }
-            // Typing in the box never closes the screen or reaches a keybind.
             return thresholdBox.keyPressed(event) || thresholdBox.canConsumeInput();
         }
         return super.keyPressed(event);

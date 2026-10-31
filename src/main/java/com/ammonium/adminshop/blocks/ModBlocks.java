@@ -10,7 +10,7 @@ import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredBlock;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
-/** AdminShop's blocks, each with a block item that carries a line of lore. */
+/** The mod's blocks. Each one has a block item with one line of lore. */
 public class ModBlocks {
     public static final DeferredRegister.Blocks BLOCKS = DeferredRegister.createBlocks(AdminShop.MODID);
 

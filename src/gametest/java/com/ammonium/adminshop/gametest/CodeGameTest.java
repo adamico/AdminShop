@@ -17,9 +17,9 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.Identifier;
 
 /**
- * A game test whose body is a method in the mod. 26.1's test functions are registered during
- * bootstrap, before any mod loads, so a mod registers test instances of its own type instead.
- * The codec, which the datapack registry requires, stores the body's id and looks it up again.
+ * A game test whose body is a method in the mod. Vanilla registers test functions during bootstrap, before
+ * any mod loads, so the mod registers test instances of its own type instead. The codec, which the datapack
+ * registry requires, stores the body's id and looks the body up by it.
  */
 final class CodeGameTest extends GameTestInstance {
 
@@ -33,17 +33,17 @@ final class CodeGameTest extends GameTestInstance {
     private final Identifier id;
     private final Consumer<GameTestHelper> body;
 
+    /** Throws if {@code id} has no body, because a test with no body would pass without testing anything. */
     CodeGameTest(Identifier id, TestData<Holder<TestEnvironmentDefinition<?>>> info) {
         super(info);
         this.id = id;
         this.body = BODIES.get(id);
-        // A test with no body would pass without testing anything.
         if (body == null) {
             throw new IllegalStateException("no game test body for " + id);
         }
     }
 
-    /** Gives the test with this id its body; the tests are registered again on each registry load. */
+    /** Sets the body of the test with this id. The tests are registered again on each registry load. */
     static void define(Identifier id, Consumer<GameTestHelper> body) {
         BODIES.put(id, body);
     }

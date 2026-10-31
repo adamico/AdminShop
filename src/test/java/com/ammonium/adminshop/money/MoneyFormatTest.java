@@ -8,8 +8,8 @@ import java.util.Locale;
 import org.junit.jupiter.api.Test;
 
 /**
- * A Balance or price shows as on 1.21.1. The shipped language file stores money in cents (decimal
- * offset 2); the currency symbol comes from the language file and is not part of these strings.
+ * Tests how a Balance or price is formatted. The shipped language file stores money in cents (decimal
+ * offset 2). The currency symbol comes from the language file and is not part of these strings.
  */
 class MoneyFormatTest {
 

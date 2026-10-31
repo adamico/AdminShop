@@ -12,7 +12,7 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jspecify.annotations.Nullable;
 
-/** A Buyer of one {@link BuyerTier}: buys its Buy Offer on its own, charging its Account. */
+/** A Buyer block of one {@link BuyerTier}. It buys its Buy Offer on its own and charges its Account. */
 public class BuyerBlock extends MachineBlock {
     public static final MapCodec<BuyerBlock> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
             BuyerTier.CODEC.fieldOf("tier").forGetter(BuyerBlock::tier),
@@ -45,9 +45,9 @@ public class BuyerBlock extends MachineBlock {
         return new BuyerEntity(ModBlockEntities.buyer(tier), tier, pos, state);
     }
 
+    /** The ticker accepts any {@link BuyerEntity}, so the Creative Buyer ticks too. */
     @Override
     public <T extends BlockEntity> @Nullable BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
-        // Not tied to one block entity type, so the Creative Buyer's buys too.
         if (level.isClientSide()) {
             return null;
         }

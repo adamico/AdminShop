@@ -18,8 +18,8 @@ import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.client.event.RegisterGuiLayersEvent;
 
 /**
- * The HUD's Balance, in the top left corner: the player's Account Balance, as soon as the server
- * sends a change, and how fast it has changed on average over the last few seconds.
+ * Draws the player's Account Balance in the top left corner of the HUD. It updates as soon as the server
+ * sends a change and also shows the average change per second over the last few seconds.
  */
 @EventBusSubscriber(modid = AdminShop.MODID, value = Dist.CLIENT)
 public class BalanceDisplay {
@@ -84,7 +84,10 @@ public class BalanceDisplay {
         }
     }
 
-    // Samples the Balance at the configured interval, for the change per second.
+    /**
+     * Samples the Balance at the configured interval for the change per second. The first sample is
+     * compared with itself so the whole Balance does not show as a change.
+     */
     @SubscribeEvent
     static void onTick(ClientTickEvent.Post event) {
         if (!shouldRun()) return;
@@ -96,8 +99,6 @@ public class BalanceDisplay {
             if (account == null) {
                 return;
             }
-            // The first sample has nothing to compare with: 1.21.1 compared it with 0, and showed the
-            // whole Balance as a change for the first few seconds.
             history[0] = sampled ? history[1] : account.balance();
             history[1] = account.balance();
             sampled = true;
