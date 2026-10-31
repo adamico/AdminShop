@@ -6,6 +6,7 @@ import com.ammonium.adminshop.money.MoneyHelper;
 import com.ammonium.adminshop.recipes.BuyItemRecipe;
 import com.ammonium.adminshop.recipes.ModRecipeTypes;
 import com.ammonium.adminshop.recipes.SellItemRecipe;
+import com.ammonium.adminshop.recipes.ShopRecipe;
 import java.util.Collection;
 import java.util.Optional;
 import java.util.UUID;
@@ -49,7 +50,9 @@ public final class ShopTrades {
         NOT_ENOUGH_SPACE,
         NOT_ENOUGH_GOODS,
         /** The machine has no Account to trade for: nobody has claimed it, or its team is gone. */
-        NO_ACCOUNT
+        NO_ACCOUNT,
+        /** The Offer is gated by a Permit the team doesn't hold. */
+        NO_PERMIT
     }
 
     private ShopTrades() {
@@ -68,6 +71,9 @@ public final class ShopTrades {
             return Result.REFUSED;
         }
         BuyItemRecipe offer = found.get();
+        if (!permitted(player.level(), team(player), offer, null)) {
+            return refuseWithoutPermit(player, offer);
+        }
         ResourceHandler<ItemResource> inventory = mainInventory(player);
         int trades = tradesThatFit(offer, inventory, quantity);
         if (trades == 0) {
@@ -97,6 +103,9 @@ public final class ShopTrades {
             return Result.NO_SUCH_OFFER;
         }
         BuyItemRecipe offer = found.get();
+        if (!permitted(level, team, offer, machine)) {
+            return Result.NO_PERMIT;
+        }
         if (tradesThatFit(offer, output, 1) == 0) {
             return Result.NOT_ENOUGH_SPACE;
         }
@@ -116,8 +125,7 @@ public final class ShopTrades {
 
     /**
      * Charges {@code team} for {@code trades} trades of {@code offer} and puts their goods into {@code inventory},
-     * which must have room for them, or does neither. Buying by hand and the Buyer both buy through here, so a
-     * check every purchase must pass, such as the Offer's Permit, belongs here.
+     * which must have room for them, or does neither. Buying by hand and the Buyer both buy through here.
      */
     private static Result payAndGive(ServerLevel level, UUID team, ResourceKey<Recipe<?>> offerKey, BuyItemRecipe offer,
                                      ResourceHandler<ItemResource> inventory, int trades) {
@@ -156,6 +164,9 @@ public final class ShopTrades {
             return Result.REFUSED;
         }
         SellItemRecipe offer = found.get();
+        if (!permitted(player.level(), team(player), offer, null)) {
+            return refuseWithoutPermit(player, offer);
+        }
         int perTrade = offer.getCount();
         Inventory inventory = player.getInventory();
 
@@ -207,8 +218,9 @@ public final class ShopTrades {
 
     /**
      * Sells one trade for a machine, from the first of {@code goods}' slots that holds enough for a Sell Offer,
-     * crediting the machine's Account; with {@code only} set, only through that Offer. A machine nobody owns, or
-     * whose team is gone, sells nothing. This is the Seller's sale, once a cycle.
+     * crediting the machine's Account; with {@code only} set, only through that Offer. Sell Offers gated by a Permit
+     * the team doesn't hold are passed over, unless the machine bypasses Permits. A machine nobody owns, or whose
+     * team is gone, sells nothing. This is the Seller's sale, once a cycle.
      */
     public static Result sellFrom(ServerLevel level, ShopMachine machine, ResourceHandler<ItemResource> goods,
                                   @Nullable ResourceKey<Recipe<?>> only) {
@@ -216,19 +228,26 @@ public final class ShopTrades {
         if (team == null || MoneyHelper.get(level).getAccountById(team) == null) {
             return Result.NO_ACCOUNT;
         }
+        boolean gated = false;
         for (RecipeHolder<SellItemRecipe> holder : sellOffers(level.getServer())) {
             if (only != null && !holder.id().equals(only)) {
                 continue;
             }
             SellItemRecipe offer = holder.value();
+            boolean permitted = permitted(level, team, offer, machine);
             for (int index = 0; index < goods.size(); index++) {
                 ItemStack stack = goods.getResource(index).toStack(goods.getAmountAsInt(index));
-                if (offer.isMatchingItemStack(stack) && takeAndPay(level, team, offer, goods, index, 1) == Result.DONE) {
+                if (!offer.isMatchingItemStack(stack)) {
+                    continue;
+                }
+                if (!permitted) {
+                    gated = true;
+                } else if (takeAndPay(level, team, offer, goods, index, 1) == Result.DONE) {
                     return Result.DONE;
                 }
             }
         }
-        return Result.NOT_ENOUGH_GOODS;
+        return gated ? Result.NO_PERMIT : Result.NOT_ENOUGH_GOODS;
     }
 
     /**
@@ -253,6 +272,19 @@ public final class ShopTrades {
         }
         MoneyHelper.get(level).addMoney(team, price);
         return Result.DONE;
+    }
+
+    /**
+     * Whether {@code team} may trade {@code offer}: the Offer needs no Permit, the team holds it, or {@code machine}
+     * bypasses Permits. Every trade, by hand ({@code machine} null) or by a machine, is checked here.
+     */
+    private static boolean permitted(ServerLevel level, UUID team, ShopRecipe offer, @Nullable ShopMachine machine) {
+        return (machine != null && machine.bypassesPermits()) || MoneyHelper.get(level).hasPermit(team, offer.permit());
+    }
+
+    private static Result refuseWithoutPermit(ServerPlayer player, ShopRecipe offer) {
+        player.sendSystemMessage(Component.translatable("message.adminshop.no_permit", offer.permit()));
+        return Result.NO_PERMIT;
     }
 
     /** The Offer of this kind with this key, as the server loaded it. */

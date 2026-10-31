@@ -26,5 +26,6 @@
   "block.adminshop.buyer_2": "T2 Buyer",
   "block.adminshop.buyer_3": "T3 Buyer",
   "container.adminshop.buyer": "Buyer",
-  "message.adminshop.recipe_locked": "This machine's recipe is locked and cannot be changed!"
+  "message.adminshop.recipe_locked": "This machine's recipe is locked and cannot be changed!",
+  "message.adminshop.no_permit": "Your account does not have permit %s"
 }

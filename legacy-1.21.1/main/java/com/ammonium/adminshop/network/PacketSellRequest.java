@@ -1,5 +1,6 @@
 // 26.1 port: the item Sell request is ported (#5, src/main/.../network/PacketSellRequest.java and
-// shop/ShopTrades.java). What is left here is the fluid Sell transaction (#10) and the Permit check (#9).
+// shop/ShopTrades.java), and so is the Permit check (#9, ShopTrades.permitted). What is left here is the fluid Sell
+// transaction (#10), which should check Permits through ShopTrades.permitted too.
 package com.ammonium.adminshop.network;
 
 import com.ammonium.adminshop.AdminShop;

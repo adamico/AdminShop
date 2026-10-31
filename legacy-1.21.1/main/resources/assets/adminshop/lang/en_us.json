@@ -25,7 +25,6 @@
   "message.adminshop.add_permit": "Adding permit %1$s to %2$s",
   "message.adminshop.shop_csv_found_1": "Shop.csv found in config folder. This is no longer used and will not be read from, use datapack recipes!",
   "message.adminshop.shop_csv_found_2": "Please delete the file at config/adminshop/shop.csv to disable this error.",
-  "message.adminshop.no_permit": "Your account does not have permit %s",
   "message.adminshop.permit.default": "Cannot get permit item for default permit",
   "message.adminshop.permit.give.failure": "Unable to give permit to player",
   "message.adminshop.permit.give.success": "Obtained trade permit!",
