@@ -4,6 +4,10 @@
 
 AdminShop 2.3.2 ported from Minecraft 1.21.1 to Minecraft 26.1.2 (NeoForge).
 
+### Added
+
+- EMI support, optional, built for the unofficial EMI port for Minecraft 26.1.2 (EMI 1.1.24 or later): Shop Buy and Shop Sell categories with the same Offers, prices, Permits and machines as JEI's, updated after `/reload`.
+
 ### Changed
 
 - JEI support is built for JEI 29.53 (Minecraft 26.1.2) and needs that version or later; JEI stays optional. Its Shop Buy and Shop Sell categories list the Offers the server sends, and update after `/reload`. An Offer whose Permit is `0` shows no Permit line there, as in the shop screen.
