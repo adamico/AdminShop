@@ -11,6 +11,7 @@ AdminShop 2.3.2 ported from Minecraft 1.21.1 to Minecraft 26.1.2 (NeoForge).
 - The Seller sells once every 20 ticks, as its tooltip says (it was every 21).
 - The T1, T2 and T3 Buyers buy once every 40, 20 and 10 ticks, as their tooltips say (it was every 41, 21 and 11).
 - A Buyer's block entity data keeps the 1.21.1 `recipe` and `lockedRecipe` fields, so presets made with commands or `minecraft:block_entity_data` still work; its contents are now saved under `inventory` (was `Items`).
+- A Permit with no `adminshop.permit.<permit>` translation shows as its own name in the shop screen's tooltip (it showed the raw translation key).
 
 ### Fixed
 
@@ -29,6 +30,7 @@ AdminShop 2.3.2 ported from Minecraft 1.21.1 to Minecraft 26.1.2 (NeoForge).
 - A client could make another team pay: trade requests no longer name a team, and quantities below one are refused.
 - A creative player could lock any Seller anywhere to a Sell Offer by naming its position; the server now locks only the Seller whose screen the player has open.
 - A creative player could set any Buyer anywhere to a Buy Offer by naming its position; the server now sets only the Buyer whose screen the player has open.
+- A client could give any team any Permit, and destroy any item in its inventory, with the add-Permit request; the request now names only the inventory slot, and the server takes the Permit from the Trade Permit in it, for the player's own Account, while the shop screen is open.
 
 ### Offer datapack migration
 
