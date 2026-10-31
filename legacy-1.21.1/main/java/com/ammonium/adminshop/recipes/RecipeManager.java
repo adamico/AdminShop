@@ -1,5 +1,7 @@
 // 26.1 port: the Seller's lookups (#7) are in src's ShopTrades (sellOffers, anySellOfferTakes, sellFrom);
 // the server-side replacement for an Offer lookup is server.getRecipeManager().byKey(key).
+// The Buyers' lookups (#8) are gone too: ShopTrades.buyInto buys, BuyerEntity.target() finds the goods, and
+// BuyerScreen matches a clicked item to a Buy Offer of the client shop cache with ItemStack.isSameItemSameComponents.
 package com.ammonium.adminshop.recipes;
 
 import com.ammonium.adminshop.blocks.interfaces.*;
@@ -53,37 +55,6 @@ public class RecipeManager {
                 level.getRecipeManager().getAllRecipesFor(ModRecipeTypes.SHOP_SELL_ITEM.get()).stream().map(hol -> new RecipeHolder<SellRecipe>(hol.id(), hol.value())),
                 level.getRecipeManager().getAllRecipesFor(ModRecipeTypes.SHOP_SELL_FLUID.get()).stream().map(hol -> new RecipeHolder<SellRecipe>(hol.id(), hol.value()))
         );
-    }
-
-    public static boolean matches(ItemStack item, BuyItemRecipe recipe) {
-        if (recipe.getItem().isEmpty()) return false;
-
-        ItemStack recipeItem = recipe.getItem().get();
-        if (item.isEmpty() || recipeItem.isEmpty()) return false;
-
-        // 1.21.1 Native way to compare Item + All Data Components
-        // This replaces item.getItem() == recipeItem.getItem() AND the tag check
-        return ItemStack.isSameItemSameComponents(item, recipeItem);
-    }
-
-    public static Optional<RecipeHolder<BuyItemRecipe>> isBuyItemRecipe(Level level, ItemStack item) {
-        return level.getRecipeManager()
-                .getAllRecipesFor(ModRecipeTypes.SHOP_BUY_ITEM.get())
-                .stream()
-                .filter(recipe -> matches(item, recipe.value()))
-                .findFirst();
-    }
-
-    public static Optional<BuyItemRecipe> getShopBuyItemRecipe(Level level, @Nullable ResourceLocation id) {
-        if (id == null) { return Optional.empty(); }
-        return level.getRecipeManager().byKey(id)
-                .map(RecipeHolder::value)
-                .filter(v -> v instanceof BuyItemRecipe)
-                .map(v -> (BuyItemRecipe) v);
-    }
-
-    public static boolean checkForBuyItemRecipe(ServerLevel level, ItemBuyerMachine machine, BuyItemRecipe recipe) {
-        return recipe != null && recipe.matches(getAccount(level, machine), machine);
     }
 
     public static Optional<RecipeHolder<SellItemRecipe>> isSellItemRecipe(Level level, ItemStack item) {

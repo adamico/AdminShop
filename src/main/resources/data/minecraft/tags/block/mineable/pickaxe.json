@@ -1,6 +1,9 @@
 {
   "values": [
     "adminshop:shop",
-    "adminshop:seller"
+    "adminshop:seller",
+    "adminshop:buyer_1",
+    "adminshop:buyer_2",
+    "adminshop:buyer_3"
   ]
 }

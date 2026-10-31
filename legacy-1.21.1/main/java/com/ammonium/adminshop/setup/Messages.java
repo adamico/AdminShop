@@ -1,4 +1,5 @@
-// 26.1 port: the Seller (#7) is ported (src/main/...); its PacketSetSellerRecipe is gone from here.
+// 26.1 port: the Seller (#7) and the T1-T3 Buyers (#8) are ported (src/main/...); PacketSetSellerRecipe and
+// PacketSetItemBuyerRecipe (now src's PacketSetBuyerRecipe) are gone from here.
 package com.ammonium.adminshop.setup;
 
 import com.ammonium.adminshop.network.*;
@@ -11,10 +12,6 @@ public class Messages {
 
     public static void register(RegisterPayloadHandlersEvent event) {
         PayloadRegistrar registrar = event.registrar("1");
-        registrar.playToServer(
-                PacketSetItemBuyerRecipe.TYPE,
-                PacketSetItemBuyerRecipe.STREAM_CODEC,
-                PacketSetItemBuyerRecipe::handle);
         registrar.playToServer(
                 PacketSetFluidBuyerRecipe.TYPE,
                 PacketSetFluidBuyerRecipe.STREAM_CODEC,

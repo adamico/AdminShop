@@ -21,5 +21,10 @@
   "gui.adminshop.progress_bar": "Progress Bar",
   "gui.adminshop.no_account": "No account",
   "message.adminshop.no_access": "You don't have access to this machine's account!",
-  "message.adminshop.claimed_machine": "You have claimed this machine as yours!"
+  "message.adminshop.claimed_machine": "You have claimed this machine as yours!",
+  "block.adminshop.buyer_1": "T1 Buyer",
+  "block.adminshop.buyer_2": "T2 Buyer",
+  "block.adminshop.buyer_3": "T3 Buyer",
+  "container.adminshop.buyer": "Buyer",
+  "message.adminshop.recipe_locked": "This machine's recipe is locked and cannot be changed!"
 }

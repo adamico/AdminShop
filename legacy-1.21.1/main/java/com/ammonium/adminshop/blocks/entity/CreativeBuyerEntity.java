@@ -1,3 +1,8 @@
+// 26.1 port: the T1-T3 Buyers (#8) are ported. On 26.1 this builds on src's BuyerBlock / BuyerEntity / BuyerMenu /
+// BuyerScreen with BuyerTier.THREE (5 slots, 10 ticks, buyer_3 texture): a BuyerBlock subclass whose newBlockEntity
+// passes its own BlockEntityType (the ticker already accepts any BuyerEntity), overriding MachineBlock.claimOnPlacement
+// to leave it unclaimed; BuyerEntity's public constructor with setLocked(true) and ShopMachine.bypassesPermits; BuyerMenu's
+// protected constructor with BuyerMenu.data(buyer) and its own MenuType, and ClientSetup registering BuyerScreen for it.
 package com.ammonium.adminshop.blocks.entity;
 
 import com.ammonium.adminshop.screen.CreativeBuyerMenu;

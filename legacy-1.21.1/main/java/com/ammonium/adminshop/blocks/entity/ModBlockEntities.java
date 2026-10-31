@@ -1,4 +1,4 @@
-// 26.1 port: the Seller (#7) is ported (src/main/...); its block entity and item capability is gone from here.
+// 26.1 port: the Seller (#7) and the T1-T3 Buyers (#8) are ported (src/main/...); their block entities and item capabilities are gone from here.
 package com.ammonium.adminshop.blocks.entity;
 
 import com.ammonium.adminshop.AdminShop;
@@ -18,17 +18,6 @@ public class ModBlockEntities {
     public static final DeferredRegister<BlockEntityType<?>> BLOCK_ENTITIES =
             DeferredRegister.create(BuiltInRegistries.BLOCK_ENTITY_TYPE, AdminShop.MODID);
 
-
-    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<BuyerEntity1>> BUYER_1 =
-            BLOCK_ENTITIES.register("buyer_1", () -> BlockEntityType.Builder.of(BuyerEntity1::new,
-                    ModBlocks.BUYER_1.get()).build(null));
-
-    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<BuyerEntity2>> BUYER_2 =
-            BLOCK_ENTITIES.register("buyer_2", () -> BlockEntityType.Builder.of(BuyerEntity2::new,
-                    ModBlocks.BUYER_2.get()).build(null));
-    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<BuyerEntity3>> BUYER_3 =
-            BLOCK_ENTITIES.register("buyer_3", () -> BlockEntityType.Builder.of(BuyerEntity3::new,
-                    ModBlocks.BUYER_3.get()).build(null));
 
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<FluidBuyerEntity>> FLUID_BUYER =
             BLOCK_ENTITIES.register("fluid_buyer", () -> BlockEntityType.Builder.of(FluidBuyerEntity::new,

@@ -6,11 +6,9 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.Containers;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -94,14 +92,8 @@ public class SellerEntity extends MachineEntity {
     /** Broken, the Seller drops what it holds; the block drops itself through its loot table. */
     @Override
     public void preRemoveSideEffects(BlockPos pos, BlockState state) {
-        if (level == null) {
-            return;
-        }
-        for (int slot = 0; slot < inventory.size(); slot++) {
-            ItemStack stack = inventory.stack(slot);
-            if (!stack.isEmpty()) {
-                Containers.dropItemStack(level, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, stack);
-            }
+        if (level != null) {
+            inventory.dropContents(level, pos);
         }
     }
 

@@ -17,6 +17,12 @@ public class ModBlocks {
     public static final DeferredBlock<ShopBlock> SHOP = registerLoreBlock("shop", ShopBlock::new, "Buy and Sell Items!");
     public static final DeferredBlock<SellerBlock> SELLER = registerLoreBlock("seller", SellerBlock::new,
             "Automatically sells once every 20 ticks");
+    public static final DeferredBlock<BuyerBlock> BUYER_1 = registerLoreBlock("buyer_1",
+            properties -> new BuyerBlock(BuyerTier.ONE, properties), "Automatically buys once every 40 ticks");
+    public static final DeferredBlock<BuyerBlock> BUYER_2 = registerLoreBlock("buyer_2",
+            properties -> new BuyerBlock(BuyerTier.TWO, properties), "Automatically buys once every 20 ticks");
+    public static final DeferredBlock<BuyerBlock> BUYER_3 = registerLoreBlock("buyer_3",
+            properties -> new BuyerBlock(BuyerTier.THREE, properties), "Automatically buys once every 10 ticks");
 
     private static <T extends Block> DeferredBlock<T> registerLoreBlock(String name, Function<BlockBehaviour.Properties, T> block,
                                                                        String lore) {

@@ -69,38 +69,73 @@ public final class ShopTrades {
         }
         BuyItemRecipe offer = found.get();
         ResourceHandler<ItemResource> inventory = mainInventory(player);
-        ItemResource goods = ItemResource.of(offer.result());
-        int perTrade = offer.getCount();
-
-        int fit;
-        try (var simulation = Transaction.openRoot()) {
-            int wanted = (int) Math.min((long) perTrade * quantity, Integer.MAX_VALUE);
-            fit = ResourceHandlerUtil.insertStacking(inventory, goods, wanted, simulation);
-            // Not committed: closing rolls the insertion back.
-        }
-        int trades = Math.min(quantity, fit / perTrade);
+        int trades = tradesThatFit(offer, inventory, quantity);
         if (trades == 0) {
             player.sendSystemMessage(Component.translatable("message.adminshop.not_enough_space"));
             return Result.NOT_ENOUGH_SPACE;
         }
+        Result result = payAndGive(player.level(), team(player), offerKey, offer, inventory, trades);
+        if (result == Result.NOT_ENOUGH_MONEY) {
+            player.sendSystemMessage(Component.translatable("message.adminshop.not_enough_money"));
+        }
+        return result;
+    }
 
+    /**
+     * Buys one trade of the Buy Offer {@code offerKey} for a machine, charging the machine's Account and putting
+     * the goods into {@code output}; if they don't all fit, or the Account can't pay, buys nothing. A machine nobody
+     * owns, or whose team is gone, buys nothing. This is the Buyer's purchase, once a cycle.
+     */
+    public static Result buyInto(ServerLevel level, ShopMachine machine, ResourceHandler<ItemResource> output,
+                                 ResourceKey<Recipe<?>> offerKey) {
+        @Nullable UUID team = machine.getTeamId();
+        if (team == null || MoneyHelper.get(level).getAccountById(team) == null) {
+            return Result.NO_ACCOUNT;
+        }
+        Optional<BuyItemRecipe> found = offer(level.getServer(), offerKey, BuyItemRecipe.class);
+        if (found.isEmpty()) {
+            return Result.NO_SUCH_OFFER;
+        }
+        BuyItemRecipe offer = found.get();
+        if (tradesThatFit(offer, output, 1) == 0) {
+            return Result.NOT_ENOUGH_SPACE;
+        }
+        return payAndGive(level, team, offerKey, offer, output, 1);
+    }
+
+    /** How many of {@code wanted} trades of {@code offer} fit whole into {@code inventory}. */
+    private static int tradesThatFit(BuyItemRecipe offer, ResourceHandler<ItemResource> inventory, int wanted) {
+        int perTrade = offer.getCount();
+        try (var simulation = Transaction.openRoot()) {
+            int amount = (int) Math.min((long) perTrade * wanted, Integer.MAX_VALUE);
+            int fit = ResourceHandlerUtil.insertStacking(inventory, ItemResource.of(offer.result()), amount, simulation);
+            // Not committed: closing rolls the insertion back.
+            return Math.min(wanted, fit / perTrade);
+        }
+    }
+
+    /**
+     * Charges {@code team} for {@code trades} trades of {@code offer} and puts their goods into {@code inventory},
+     * which must have room for them, or does neither. Buying by hand and the Buyer both buy through here, so a
+     * check every purchase must pass, such as the Offer's Permit, belongs here.
+     */
+    private static Result payAndGive(ServerLevel level, UUID team, ResourceKey<Recipe<?>> offerKey, BuyItemRecipe offer,
+                                     ResourceHandler<ItemResource> inventory, int trades) {
         long price;
         try {
             price = Math.multiplyExact(offer.price(), trades);
         } catch (ArithmeticException e) {
-            player.sendSystemMessage(Component.translatable("message.adminshop.not_enough_money"));
             return Result.NOT_ENOUGH_MONEY;
         }
-        if (!MoneyHelper.get(player.level()).removeMoney(team(player), price)) {
-            player.sendSystemMessage(Component.translatable("message.adminshop.not_enough_money"));
+        if (!MoneyHelper.get(level).removeMoney(team, price)) {
             return Result.NOT_ENOUGH_MONEY;
         }
+        int amount = trades * offer.getCount();
         try (var transaction = Transaction.openRoot()) {
-            int inserted = ResourceHandlerUtil.insertStacking(inventory, goods, trades * perTrade, transaction);
+            int inserted = ResourceHandlerUtil.insertStacking(inventory, ItemResource.of(offer.result()), amount, transaction);
             transaction.commit();
-            if (inserted != trades * perTrade) {
-                AdminShop.LOGGER.warn("Bought {} of {} for {}, but only {} fit", trades * perTrade, offerKey.identifier(),
-                        player.getPlainTextName(), inserted);
+            if (inserted != amount) {
+                AdminShop.LOGGER.warn("Bought {} of {} for team {}, but only {} fit", amount, offerKey.identifier(), team, inserted);
             }
         }
         return Result.DONE;
@@ -222,7 +257,11 @@ public final class ShopTrades {
 
     /** The Offer of this kind with this key, as the server loaded it. */
     private static <T extends Recipe<?>> Optional<T> offer(ServerPlayer player, ResourceKey<Recipe<?>> key, Class<T> kind) {
-        return player.level().getServer().getRecipeManager().byKey(key)
+        return offer(player.level().getServer(), key, kind);
+    }
+
+    private static <T extends Recipe<?>> Optional<T> offer(MinecraftServer server, ResourceKey<Recipe<?>> key, Class<T> kind) {
+        return server.getRecipeManager().byKey(key)
                 .map(holder -> holder.value())
                 .filter(kind::isInstance)
                 .map(kind::cast);
