@@ -1,5 +1,7 @@
 package com.ammonium.adminshop.setup;
 
+import com.ammonium.adminshop.network.PacketBuyRequest;
+import com.ammonium.adminshop.network.PacketSellRequest;
 import com.ammonium.adminshop.network.PacketSyncMoneyToClient;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.server.level.ServerPlayer;
@@ -15,6 +17,14 @@ public class Messages {
         registrar.playToClient(
                 PacketSyncMoneyToClient.TYPE,
                 PacketSyncMoneyToClient.STREAM_CODEC);
+        registrar.playToServer(
+                PacketBuyRequest.TYPE,
+                PacketBuyRequest.STREAM_CODEC,
+                PacketBuyRequest::handle);
+        registrar.playToServer(
+                PacketSellRequest.TYPE,
+                PacketSellRequest.STREAM_CODEC,
+                PacketSellRequest::handle);
     }
 
     public static <MSG extends CustomPacketPayload> void sendToPlayer(MSG message, ServerPlayer player) {

@@ -1,3 +1,5 @@
+// 26.1 port: the Offer button is ported (#5, src/main/.../client/gui/ShopButton.java). What is left
+// here is fluid rendering and the "mb" count (#10), the tag "#" mark (#6) and the Permit tooltip (#9).
 package com.ammonium.adminshop.client.gui;
 
 import com.ammonium.adminshop.AdminShop;

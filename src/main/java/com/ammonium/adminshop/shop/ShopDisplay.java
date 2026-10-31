@@ -1,9 +1,12 @@
 package com.ammonium.adminshop.shop;
 
+import com.ammonium.adminshop.recipes.SellItemRecipe;
 import com.ammonium.adminshop.recipes.ShopRecipe;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeHolder;
 
 /**
@@ -38,6 +41,13 @@ public record ShopDisplay(List<OfferDisplay> buyOffers, List<OfferDisplay> sellO
             return offers;
         }
         return offers.stream().filter(display -> display.searchTerm().contains(term)).toList();
+    }
+
+    /** The first Sell Offer that takes {@code stack}'s item, whatever its count. */
+    public Optional<OfferDisplay> sellOfferFor(ItemStack stack) {
+        return sellOffers.stream()
+                .filter(display -> display.recipe() instanceof SellItemRecipe offer && offer.isMatchingItemNoCount(stack))
+                .findFirst();
     }
 
     /**

@@ -11,14 +11,6 @@ public class Messages {
     public static void register(RegisterPayloadHandlersEvent event) {
         PayloadRegistrar registrar = event.registrar("1");
         registrar.playToServer(
-                PacketBuyRequest.TYPE,
-                PacketBuyRequest.STREAM_CODEC,
-                PacketBuyRequest::handle);
-        registrar.playToServer(
-                PacketSellRequest.TYPE,
-                PacketSellRequest.STREAM_CODEC,
-                PacketSellRequest::handle);
-        registrar.playToServer(
                 PacketSetItemBuyerRecipe.TYPE,
                 PacketSetItemBuyerRecipe.STREAM_CODEC,
                 PacketSetItemBuyerRecipe::handle);

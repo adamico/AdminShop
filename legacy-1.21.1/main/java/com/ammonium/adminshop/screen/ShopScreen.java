@@ -1,3 +1,5 @@
+// 26.1 port: the shop screen is ported (#5, src/main/.../screen/ShopScreen.java). What is left here is
+// mouseClicked's shift-click on a Trade Permit (#9) and on a fluid container (#10).
 package com.ammonium.adminshop.screen;
 
 import com.ammonium.adminshop.AdminShop;

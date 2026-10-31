@@ -21,7 +21,6 @@ public class ClientSetup {
 
     @SubscribeEvent
     public static void registerScreens(RegisterMenuScreensEvent event) {
-        event.register(ModMenuTypes.SHOP_MENU.get(), ShopScreen::new);
         event.register(ModMenuTypes.SELLER_MENU.get(), (SellerMenu menu, Inventory playerInventory, Component title) ->
                 new SellerScreen<>(menu, playerInventory, title, menu.getBlockEntity().getBlockPos()));
         event.register(ModMenuTypes.BUYER_1_MENU.get(), (BuyerMenu1 menu, Inventory playerInventory, Component title) ->

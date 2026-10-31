@@ -1,3 +1,5 @@
+// 26.1 port: the item Buy request is ported (#5, src/main/.../network/PacketBuyRequest.java and
+// shop/ShopTrades.java). What is left here is the fluid Buy transaction (#10) and the Permit check (#9).
 package com.ammonium.adminshop.network;
 
 import com.ammonium.adminshop.AdminShop;
