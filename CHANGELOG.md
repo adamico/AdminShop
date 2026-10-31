@@ -8,18 +8,23 @@ AdminShop 2.3.2 ported from Minecraft 1.21.1 to Minecraft 26.1.2 (NeoForge).
 
 - The HUD Balance updates as soon as the server sends it (it was every 5 seconds).
 - The shop screen's search updates as you type, and an open shop screen refreshes after `/reload`.
+- The Seller sells once every 20 ticks, as its tooltip says (it was every 21).
 
 ### Fixed
 
 - After joining or leaving a party, the client kept showing and using the old team's Account; the server now resends the Account.
 - For the first 5 seconds after joining, the HUD showed the whole Balance as a "+X/s" change.
 - Buying into an inventory that couldn't hold everything charged the full price and lost the rest; buying is now capped to what fits.
-- The Shop block drops itself when broken.
+- The Shop and the Seller drop themselves when broken (their loot tables were in the pre-1.21 `loot_tables` folder).
+- AdminShop's blocks mine faster with a pickaxe; they still drop when broken by hand, as before (the mineable tags were empty, and in the pre-1.21 `tags/blocks` folder).
+- Shift-clicking the item in the Seller's slot moves it to your inventory; it did nothing.
+- A Seller locked to a Sell Offer sells only through that Offer; it could sell through another Offer that takes the same item.
 - A tag Sell Offer with a `count` of 0 or less took no items for its price; such an Offer is now rejected at load.
 
 ### Security
 
 - A client could make another team pay: trade requests no longer name a team, and quantities below one are refused.
+- A creative player could lock any Seller anywhere to a Sell Offer by naming its position; the server now locks only the Seller whose screen the player has open.
 
 ### Offer datapack migration
 
