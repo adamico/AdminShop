@@ -6,6 +6,7 @@ AdminShop 2.3.2 ported from Minecraft 1.21.1 to Minecraft 26.1.2 (NeoForge).
 
 ### Changed
 
+- JEI support is built for JEI 29.53 (Minecraft 26.1.2) and needs that version or later; JEI stays optional. Its Shop Buy and Shop Sell categories list the Offers the server sends, and update after `/reload`. An Offer whose Permit is `0` shows no Permit line there, as in the shop screen.
 - Patchouli is now optional. Without it, the Econ Handbook and its recipe are absent; with it, the handbook is crafted from a book and an emerald as before.
 - The Econ Handbook's Permits page names the shop screen's "Permit: ..." line (it said "Requires: ...") and no longer speaks of permit tiers.
 - The HUD Balance updates as soon as the server sends it (it was every 5 seconds).
@@ -21,7 +22,7 @@ AdminShop 2.3.2 ported from Minecraft 1.21.1 to Minecraft 26.1.2 (NeoForge).
 - The Basic and Advanced Detectors look at their Account's Balance once every 20 ticks (it was every 21), and as soon as they are placed or loaded; a Basic Detector no longer gives full power for its first second after being placed, whatever the Balance.
 - A Detector keeps its signal when saved, so an Advanced Detector's signal no longer drops to 0 for a second after its chunk loads.
 - A Detector's screen shows the Detector's threshold; it showed 0, or the last threshold set from that client.
-- A Permit with no `adminshop.permit.<permit>` translation shows as its own name in the shop screen's tooltip (it showed the raw translation key).
+- A Permit with no `adminshop.permit.<permit>` translation shows as its own name in the shop screen's tooltip and in JEI (it showed the raw translation key).
 - The warning about an obsolete `config/adminshop/shop.csv` stops once the file is deleted and the server runs `/reload`; it lasted until the server restarted.
 - The server no longer logs how many Offers of each kind it has at every login, nor AdminShop's recipe serializers at start.
 
