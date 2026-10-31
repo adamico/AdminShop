@@ -30,6 +30,7 @@ final class AccountTests {
         tests.test("party_members_share_one_account", 20, TestPlayers.withPlayers(AccountTests::partyMembersShareOneAccount));
         tests.test("leaving_a_party_returns_to_the_own_account", 20, TestPlayers.withPlayers(AccountTests::leavingReturnsToOwnAccount));
         tests.test("a_balance_survives_a_save_and_reload", 20, TestPlayers.withPlayers(AccountTests::balanceSurvivesSaveAndReload));
+        tests.test("a_new_account_starts_with_the_configured_money", 20, TestPlayers.withPlayers(AccountTests::newAccountStartsWithConfiguredMoney));
     }
 
     private static void partyMembersShareOneAccount(GameTestHelper helper, TestPlayers players) throws CommandSyntaxException {
@@ -46,6 +47,23 @@ final class AccountTests {
         long expected = Config.STARTING_MONEY.get() + 200;
         helper.assertValueEqual(accounts.getPlayerAccount(owner).balance(), expected, "the owner's Balance");
         helper.assertValueEqual(accounts.getPlayerAccount(member).balance(), expected, "the member's Balance");
+    }
+
+    // The server config's starting_money, read as each Account opens: one opened before a change keeps its Balance.
+    private static void newAccountStartsWithConfiguredMoney(GameTestHelper helper, TestPlayers players) {
+        long configured = Config.STARTING_MONEY.get();
+        MoneyHelper accounts = MoneyHelper.get(helper.getLevel());
+        ServerPlayer before = players.join("starting_before");
+        try {
+            Config.STARTING_MONEY.set(1234L);
+            ServerPlayer after = players.join("starting_after");
+
+            helper.assertValueEqual(accounts.getPlayerAccount(after).balance(), 1234L, "the new Account's Balance");
+            helper.assertValueEqual(accounts.getPlayerAccount(before).balance(), configured,
+                    "the Balance of the Account opened before the change");
+        } finally {
+            Config.STARTING_MONEY.set(configured);
+        }
     }
 
     private static void leavingReturnsToOwnAccount(GameTestHelper helper, TestPlayers players) throws CommandSyntaxException {
