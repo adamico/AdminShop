@@ -121,6 +121,7 @@ public class ShopButton extends AbstractButton {
                 : MoneyFormat.forcedFormat(price, MoneyFormat.FormatType.SHORT);
         List<Component> tooltip = new ArrayList<>();
         tooltip.add(Component.translatable("shopbutton.description", priceFormatted, getNumItems() + "x", offer.name()));
+        offer.permitName().ifPresent(permit -> tooltip.add(Component.translatable("shopbutton.permit", permit)));
         return tooltip;
     }
 

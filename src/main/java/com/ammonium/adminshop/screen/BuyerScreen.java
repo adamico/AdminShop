@@ -85,6 +85,9 @@ public class BuyerScreen extends AbstractContainerScreen<BuyerMenu> {
             if (offer.isPresent()) {
                 if (menu.isLocked() && !minecraft.player.isCreative()) {
                     minecraft.player.sendSystemMessage(Component.translatable("message.adminshop.recipe_locked"));
+                } else if (!menu.isLocked() && !ClientCache.hasPermit(((BuyItemRecipe) offer.get().value()).permit())) {
+                    // As on 1.21.1: only a creative player changing a locked Buyer skips the Permit.
+                    minecraft.player.sendSystemMessage(Component.translatable("gui.adminshop.no_permit"));
                 } else {
                     ClientPacketDistributor.sendToServer(new PacketSetBuyerRecipe(offer.get().id()));
                 }

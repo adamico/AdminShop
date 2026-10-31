@@ -34,5 +34,8 @@
   "message.adminshop.permit.give.failure": "Unable to give permit to player",
   "message.adminshop.permit.give.success": "Obtained trade permit!",
   "message.adminshop.permit.remove.success": "Removed trade permit",
-  "message.adminshop.permits.empty": "Your account has not unlocked any permits yet."
+  "message.adminshop.permits.empty": "Your account has not unlocked any permits yet.",
+  "shopbutton.permit": "Permit: %s",
+  "gui.adminshop.no_permit": "You don't have the necessary permit!",
+  "adminshop.permit.gems": "Gems"
 }

@@ -1,13 +1,17 @@
 package com.ammonium.adminshop.shop;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.ammonium.adminshop.AdminShop;
 import com.ammonium.adminshop.recipes.BuyItemRecipe;
 import com.ammonium.adminshop.recipes.SellItemRecipe;
 import java.util.List;
+import java.util.Optional;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.contents.TranslatableContents;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.ItemStackTemplate;
@@ -80,6 +84,31 @@ class ShopDisplayTest {
         assertEquals(1, goods.stacks().size());
         assertEquals(new ItemStackTemplate(Items.DIAMOND, 3), goods.stacks().getFirst());
         assertEquals(3, display.count());
+    }
+
+    @Test
+    void aDisplayNamesThePermitTheOfferNeeds() {
+        var cache = new ShopCache();
+        cache.replace(synced(buy("diamonds", 250, new ItemStackTemplate(Items.DIAMOND, 3), "gems")));
+
+        Component name = cache.display().buyOffers().getFirst().permitName().orElseThrow();
+        // Translated from adminshop.permit.<permit>; an untranslated Permit shows as itself.
+        var contents = assertInstanceOf(TranslatableContents.class, name.getContents());
+        assertEquals("adminshop.permit.gems", contents.getKey());
+        assertEquals("gems", contents.getFallback());
+    }
+
+    @Test
+    void aDisplayNamesNoPermitForAnOfferThatNeedsNone() {
+        var cache = new ShopCache();
+        cache.replace(synced(
+                buy("free", 10, new ItemStackTemplate(Items.APPLE), ""),
+                // 1.21.1's shop screen showed no Permit "0" either.
+                buy("zero", 10, new ItemStackTemplate(Items.BREAD), "0")));
+
+        for (OfferDisplay display : cache.display().buyOffers()) {
+            assertEquals(Optional.empty(), display.permitName(), display.offer().toString());
+        }
     }
 
     @Test

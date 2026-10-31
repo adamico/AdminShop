@@ -1,6 +1,7 @@
 package com.ammonium.adminshop.shop;
 
 import com.ammonium.adminshop.recipes.ShopRecipe;
+import java.util.Optional;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.crafting.Recipe;
@@ -31,6 +32,19 @@ public record OfferDisplay(ResourceKey<Recipe<?>> offer, ShopRecipe recipe) {
     /** The Permit the Offer needs, or the empty string for none. */
     public String permit() {
         return recipe.permit();
+    }
+
+    /**
+     * The Permit's name, translated from {@code adminshop.permit.<permit>} or else the Permit itself, as the shop
+     * screen shows it; empty when the Offer needs none. Like 1.21.1's shop screen, it names no Permit {@code "0"},
+     * though trading still needs it.
+     */
+    public Optional<Component> permitName() {
+        String permit = permit();
+        if (permit.isEmpty() || permit.equals("0")) {
+            return Optional.empty();
+        }
+        return Optional.of(Component.translatableWithFallback("adminshop.permit." + permit, permit));
     }
 
     /** The goods' name. It reads item components, so only once a world has loaded. */
