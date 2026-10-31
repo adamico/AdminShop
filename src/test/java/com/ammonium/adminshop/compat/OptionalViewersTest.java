@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.ammonium.adminshop.AdminShop;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -11,6 +12,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
 
@@ -86,6 +89,24 @@ class OptionalViewersTest {
     @Test
     void onlyTheEmiPackageNamesEmi() throws IOException {
         assertOnlyItsPackageNames(EMI);
+    }
+
+    /**
+     * With JEI and EMI both installed, EMI's JEI layer (JEMI) skips every JEI category whose id's namespace is the
+     * mod id of a native EMI plugin, so the Shop categories show once, as AdminShop's EMI ones. EMI takes a plugin's
+     * mod id from the first mod its jar declares, and AdminShop's JEI ids are in {@link AdminShop#MODID}'s namespace:
+     * the jar must declare that mod alone.
+     */
+    @Test
+    void emiSkipsTheJeiCategoriesWhenBothAreInstalled() throws IOException {
+        String modsToml = Files.readString(Path.of(System.getProperty("adminshop.modsToml")));
+        // Each [[mods]] table and the modId that opens it.
+        Matcher tables = Pattern.compile("(?m)^\\[\\[mods]]\\s*$(?:\\R\\s*modId\\s*=\\s*\"([^\"]*)\")?").matcher(modsToml);
+        List<String> mods = new ArrayList<>();
+        while (tables.find()) {
+            mods.add(tables.group(1));
+        }
+        assertEquals(List.of(AdminShop.MODID), mods);
     }
 
     @Test
