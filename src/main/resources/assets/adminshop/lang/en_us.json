@@ -29,6 +29,8 @@
   "container.adminshop.buyer": "Buyer",
   "block.adminshop.fluid_buyer": "Fluid Buyer",
   "block.adminshop.fluid_seller": "Fluid Seller",
+  "block.adminshop.creative_buyer": "Creative Buyer",
+  "block.adminshop.creative_seller": "Creative Seller",
   "gui.adminshop.tank_empty": "Empty",
   "message.adminshop.recipe_locked": "This machine's recipe is locked and cannot be changed!",
   "message.adminshop.no_permit": "Your account does not have permit %s",

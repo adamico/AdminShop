@@ -3,8 +3,6 @@
   "gui.item_tag": "Any item: ",
   "gui.fluid_tag": "Any fluid: ",
   "gui.adminshop.tank_gauge": "Tank Gauge",
-  "block.adminshop.creative_buyer": "Creative Buyer",
-  "block.adminshop.creative_seller": "Creative Seller",
   "block.adminshop.detector": "Balance Detector",
   "screen.adminshop.detector": "Detector",
   "block.adminshop.adv_detector": "Advanced Balance Detector",

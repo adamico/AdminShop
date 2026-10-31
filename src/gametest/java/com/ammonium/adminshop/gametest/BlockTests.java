@@ -8,7 +8,7 @@ import net.minecraft.world.level.block.Block;
 
 /**
  * What holds for every AdminShop block, so a block added later is covered too: broken, it drops itself,
- * and a pickaxe mines it.
+ * and a pickaxe mines it unless nobody can break it, as the Creative machines.
  */
 final class BlockTests {
 
@@ -17,7 +17,7 @@ final class BlockTests {
 
     static void register(AdminShopGameTests.Registrar tests) {
         tests.test("every_block_drops_itself", 20, BlockTests::dropsItself);
-        tests.test("every_block_is_mineable_with_a_pickaxe", 20, BlockTests::mineableWithAPickaxe);
+        tests.test("every_breakable_block_is_mineable_with_a_pickaxe", 20, BlockTests::mineableWithAPickaxe);
     }
 
     private static void dropsItself(GameTestHelper helper) {
@@ -39,6 +39,9 @@ final class BlockTests {
     private static void mineableWithAPickaxe(GameTestHelper helper) {
         for (var holder : ModBlocks.BLOCKS.getEntries()) {
             Block block = holder.get();
+            if (block.defaultDestroyTime() < 0) {
+                continue;
+            }
             helper.assertTrue(block.defaultBlockState().is(BlockTags.MINEABLE_WITH_PICKAXE),
                     holder.getId() + " is not mineable with a pickaxe");
         }

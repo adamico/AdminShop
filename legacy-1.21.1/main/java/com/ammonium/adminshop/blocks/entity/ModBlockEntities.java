@@ -1,4 +1,5 @@
-// 26.1 port: the Seller (#7), the T1-T3 Buyers (#8) and the Fluid Buyer and Fluid Seller (#10) are ported (src/main/...);
+// 26.1 port: the Seller (#7), the T1-T3 Buyers (#8), the Fluid Buyer and Fluid Seller (#10) and the Creative Buyer and
+// Creative Seller (#11) are ported (src/main/...);
 // their block entities and capabilities are gone from here.
 package com.ammonium.adminshop.blocks.entity;
 
@@ -20,14 +21,6 @@ public class ModBlockEntities {
             DeferredRegister.create(BuiltInRegistries.BLOCK_ENTITY_TYPE, AdminShop.MODID);
 
 
-    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<CreativeBuyerEntity>> CREATIVE_BUYER =
-            BLOCK_ENTITIES.register("creative_buyer", () -> BlockEntityType.Builder.of(CreativeBuyerEntity::new,
-                    ModBlocks.CREATIVE_BUYER.get()).build(null));
-
-    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<CreativeSellerEntity>> CREATIVE_SELLER =
-            BLOCK_ENTITIES.register("creative_seller", () -> BlockEntityType.Builder.of(CreativeSellerEntity::new,
-                    ModBlocks.CREATIVE_SELLER.get()).build(null));
-
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<BasicDetectorEntity>> BASIC_DETECTOR =
             BLOCK_ENTITIES.register("detector", () -> BlockEntityType.Builder.of(BasicDetectorEntity::new,
                     ModBlocks.DETECTOR.get()).build(null));
@@ -42,12 +35,5 @@ public class ModBlockEntities {
 
     @SubscribeEvent
     public static void registerCapabilities(RegisterCapabilitiesEvent event) {
-
-        // Creative Seller
-        event.registerBlockEntity(
-                Capabilities.ItemHandler.BLOCK,
-                ModBlockEntities.CREATIVE_SELLER.get(),
-                (be, side) -> be.getInventory()
-        );
     }
 }

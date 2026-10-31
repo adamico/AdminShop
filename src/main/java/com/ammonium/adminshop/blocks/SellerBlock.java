@@ -18,6 +18,10 @@ public class SellerBlock extends MachineBlock {
         super(properties);
     }
 
+    protected SellerBlock(Properties properties, float destroyTime, float explosionResistance) {
+        super(properties, destroyTime, explosionResistance);
+    }
+
     @Override
     protected MapCodec<? extends SellerBlock> codec() {
         return CODEC;

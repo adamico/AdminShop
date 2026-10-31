@@ -46,10 +46,15 @@ public abstract class MachineBlock extends BaseEntityBlock {
     private static final VoxelShape SHAPE = Shapes.box(0.1, 0.1, 0.1, 0.9, 0.9, 0.9);
 
     protected MachineBlock(Properties properties) {
+        this(properties, 1.0f, 1.0f);
+    }
+
+    /** A machine with its own strength: the Creative machines can't be broken (-1) or blown up. */
+    protected MachineBlock(Properties properties, float destroyTime, float explosionResistance) {
         super(properties
                 .mapColor(MapColor.METAL)
                 .sound(SoundType.METAL)
-                .strength(1.0f)
+                .strength(destroyTime, explosionResistance)
                 .dynamicShape()
                 .forceSolidOn()
                 .noOcclusion()
@@ -120,8 +125,13 @@ public abstract class MachineBlock extends BaseEntityBlock {
             player.sendSystemMessage(Component.translatable("message.adminshop.no_access"));
             return;
         }
+        show(player, machine);
+    }
+
+    /** Opens {@code machine}'s screen for {@code player}, whoever owns it. */
+    protected static void show(ServerPlayer player, MachineEntity machine) {
         // The screen shows the Account's name, so send it fresh.
-        accounts.syncToPlayer(player);
+        MoneyHelper.get(player.level()).syncToPlayer(player);
         player.openMenu(machine, machine.getBlockPos());
     }
 

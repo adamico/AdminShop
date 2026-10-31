@@ -26,6 +26,11 @@ public class BuyerBlock extends MachineBlock {
         this.tier = tier;
     }
 
+    protected BuyerBlock(BuyerTier tier, Properties properties, float destroyTime, float explosionResistance) {
+        super(properties, destroyTime, explosionResistance);
+        this.tier = tier;
+    }
+
     public BuyerTier tier() {
         return tier;
     }

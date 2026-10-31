@@ -37,6 +37,11 @@ public class ModBlockEntities {
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<FluidSellerEntity>> FLUID_SELLER =
             BLOCK_ENTITIES.register("fluid_seller", () -> new BlockEntityType<>(FluidSellerEntity::new, ModBlocks.FLUID_SELLER.get()));
 
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<CreativeBuyerEntity>> CREATIVE_BUYER =
+            BLOCK_ENTITIES.register("creative_buyer", () -> new BlockEntityType<>(CreativeBuyerEntity::new, ModBlocks.CREATIVE_BUYER.get()));
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<CreativeSellerEntity>> CREATIVE_SELLER =
+            BLOCK_ENTITIES.register("creative_seller", () -> new BlockEntityType<>(CreativeSellerEntity::new, ModBlocks.CREATIVE_SELLER.get()));
+
     /** The block entity type of a Buyer of this tier. */
     public static BlockEntityType<BuyerEntity> buyer(BuyerTier tier) {
         return switch (tier) {
@@ -57,9 +62,11 @@ public class ModBlockEntities {
      */
     private static void registerCapabilities(RegisterCapabilitiesEvent event) {
         event.registerBlockEntity(Capabilities.Item.BLOCK, SELLER.get(), (seller, side) -> seller.inventory());
+        event.registerBlockEntity(Capabilities.Item.BLOCK, CREATIVE_SELLER.get(), (seller, side) -> seller.inventory());
         for (var buyer : List.of(BUYER_1, BUYER_2, BUYER_3)) {
             event.registerBlockEntity(Capabilities.Item.BLOCK, buyer.get(), (entity, side) -> entity.output());
         }
+        event.registerBlockEntity(Capabilities.Item.BLOCK, CREATIVE_BUYER.get(), (buyer, side) -> buyer.output());
         event.registerBlockEntity(Capabilities.Fluid.BLOCK, FLUID_BUYER.get(), (buyer, side) -> buyer.output());
         event.registerBlockEntity(Capabilities.Fluid.BLOCK, FLUID_SELLER.get(), (seller, side) -> seller.tank());
     }
