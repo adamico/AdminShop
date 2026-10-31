@@ -11,6 +11,7 @@ public class ModItems {
 
     public static final DeferredItem<ShopTablet> TABLET = ITEMS.registerItem("tablet", ShopTablet::new,
             properties -> properties.stacksTo(1));
+    public static final DeferredItem<PermitItem> PERMIT = ITEMS.registerItem("permit", PermitItem::new);
 
     public static void register(IEventBus eventBus) {
         ITEMS.register(eventBus);

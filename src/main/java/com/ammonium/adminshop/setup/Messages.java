@@ -1,5 +1,6 @@
 package com.ammonium.adminshop.setup;
 
+import com.ammonium.adminshop.network.PacketAccountAddPermit;
 import com.ammonium.adminshop.network.PacketBuyRequest;
 import com.ammonium.adminshop.network.PacketSellRequest;
 import com.ammonium.adminshop.network.PacketSetBuyerRecipe;
@@ -35,6 +36,10 @@ public class Messages {
                 PacketSetBuyerRecipe.TYPE,
                 PacketSetBuyerRecipe.STREAM_CODEC,
                 PacketSetBuyerRecipe::handle);
+        registrar.playToServer(
+                PacketAccountAddPermit.TYPE,
+                PacketAccountAddPermit.STREAM_CODEC,
+                PacketAccountAddPermit::handle);
     }
 
     public static <MSG extends CustomPacketPayload> void sendToPlayer(MSG message, ServerPlayer player) {

@@ -7,11 +7,14 @@ import com.ammonium.adminshop.blocks.ModBlocks;
 import com.ammonium.adminshop.blocks.entity.BuyerEntity;
 import com.ammonium.adminshop.blocks.entity.MachineInventory;
 import com.ammonium.adminshop.blocks.interfaces.ShopMachine;
+import com.ammonium.adminshop.item.ModItems;
+import com.ammonium.adminshop.item.PermitItem;
 import com.ammonium.adminshop.money.MoneyHelper;
 import com.ammonium.adminshop.screen.BuyerMenu;
 import com.ammonium.adminshop.shop.ShopTrades;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.network.chat.Component;
@@ -23,6 +26,7 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.level.block.Block;
@@ -40,6 +44,7 @@ import org.jspecify.annotations.Nullable;
  * Buyer, and can once it does; a machine that bypasses Permits (the Creative machines) trades without them.
  * Offers from the game tests' datapack, both gated by the Permit {@code gametest_gate}:
  * {@code gametest/buy_gated_emeralds} gives 1 emerald for 10, {@code gametest/sell_gated_flint} takes 4 flint for 5.
+ * A team gets a Permit by redeeming a Trade Permit in the shop screen.
  */
 final class PermitTests {
 
@@ -59,6 +64,8 @@ final class PermitTests {
         tests.test("a_seller_sells_to_a_gated_offer_only_with_its_permit", 2 * TWO_CYCLES + 20, PermitTests::sellerNeedsThePermit);
         tests.test("a_buyer_buys_a_gated_offer_only_with_its_permit", 2 * TWO_CYCLES + 20, PermitTests::buyerNeedsThePermit);
         tests.test("a_machine_that_bypasses_permits_trades_without_them", 20, TestPlayers.withPlayers(PermitTests::bypassing));
+        tests.test("redeeming_a_trade_permit_unlocks_its_permit", 20, TestPlayers.withPlayers(PermitTests::redeeming));
+        tests.test("only_a_trade_permit_with_a_permit_is_redeemed", 20, TestPlayers.withPlayers(PermitTests::redeemingOthers));
     }
 
     private static void buyingNeedsThePermit(GameTestHelper helper, TestPlayers players) {
@@ -159,6 +166,36 @@ final class PermitTests {
         assertBalance(helper, team, 100 - 10 + 5);
         helper.assertValueEqual(emeralds(output), 1, "emeralds bought");
         helper.assertValueEqual(goods.getAmountAsInt(0), 0, "flint left");
+    }
+
+    private static void redeeming(GameTestHelper helper, TestPlayers players) {
+        ServerPlayer player = players.join("permit_redeem");
+        player.getInventory().setItem(5, PermitItem.of("gametest_redeemed").copyWithCount(2));
+
+        // As a shift-click on the Trade Permit in the shop screen asks.
+        boolean redeemed = PermitItem.redeem(player, 5);
+
+        helper.assertTrue(redeemed, "the Trade Permit wasn't redeemed");
+        helper.assertTrue(MoneyHelper.get(helper.getLevel()).getPlayerAccount(player).permits().contains("gametest_redeemed"),
+                "the Account didn't get the Permit");
+        helper.assertValueEqual(player.getInventory().getItem(5).getCount(), 1, "Trade Permits left in the slot");
+    }
+
+    private static void redeemingOthers(GameTestHelper helper, TestPlayers players) {
+        ServerPlayer player = players.join("permit_redeem_other");
+        ItemStack paper = new ItemStack(Items.PAPER);
+        CustomData.set(DataComponents.CUSTOM_DATA, paper, PermitItem.of("gametest_paper").get(DataComponents.CUSTOM_DATA).copyTag());
+        player.getInventory().setItem(0, paper);
+        player.getInventory().setItem(1, new ItemStack(ModItems.PERMIT.get()));
+
+        helper.assertFalse(PermitItem.redeem(player, 0), "paper was redeemed");
+        helper.assertFalse(PermitItem.redeem(player, 1), "a Trade Permit without a Permit was redeemed");
+        helper.assertFalse(PermitItem.redeem(player, 2), "an empty slot was redeemed");
+        helper.assertFalse(PermitItem.redeem(player, -1), "a slot outside the inventory was redeemed");
+        helper.assertTrue(MoneyHelper.get(helper.getLevel()).getPlayerAccount(player).permits().isEmpty(),
+                "the Account got a Permit");
+        helper.assertValueEqual(player.getInventory().getItem(0).getCount(), 1, "paper left");
+        helper.assertValueEqual(player.getInventory().getItem(1).getCount(), 1, "Trade Permits left");
     }
 
     private static ShopMachine machine(UUID team, boolean bypasses) {

@@ -1,14 +1,28 @@
 package com.ammonium.adminshop.gametest;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+
+import com.ammonium.adminshop.item.ModItems;
+import com.ammonium.adminshop.item.PermitItem;
 import com.ammonium.adminshop.money.MoneyHelper;
+import com.google.common.collect.ImmutableSet;
 import com.ammonium.adminshop.setup.Config;
+import net.minecraft.commands.CommandSource;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.gametest.framework.GameTestHelper;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.permissions.LevelBasedPermissionSet;
+import net.minecraft.world.item.ItemStack;
 
 /**
  * {@code /adminshop give} and {@code /adminshop remove} change the Balance of the Account of the
- * player they name, for admins only, as on 1.21.1.
+ * player they name, for admins only, as on 1.21.1. {@code /adminshop getPermit} gives an admin a Trade Permit,
+ * and any player can list their Account's Permits with {@code listOwnedPermits} and drop one with
+ * {@code removePermit}.
  */
 final class CommandTests {
 
@@ -21,6 +35,9 @@ final class CommandTests {
         tests.test("remove_never_takes_more_than_the_balance", 20, TestPlayers.withPlayers(CommandTests::removeNeverOverdraws));
         tests.test("give_and_remove_refuse_amounts_below_one", 20, TestPlayers.withPlayers(CommandTests::refusesNonPositive));
         tests.test("give_and_remove_are_for_admins_only", 20, TestPlayers.withPlayers(CommandTests::adminsOnly));
+        tests.test("get_permit_gives_an_admin_a_trade_permit", 20, TestPlayers.withPlayers(CommandTests::getPermit));
+        tests.test("remove_permit_takes_a_permit_from_the_players_account", 20, TestPlayers.withPlayers(CommandTests::removePermit));
+        tests.test("list_owned_permits_lists_the_accounts_permits", 20, TestPlayers.withPlayers(CommandTests::listOwnedPermits));
     }
 
     private static void giveAdds(GameTestHelper helper, TestPlayers players) {
@@ -56,6 +73,74 @@ final class CommandTests {
         run(helper, player.createCommandSourceStack(), "adminshop give cmd_not_admin 300");
         run(helper, player.createCommandSourceStack(), "adminshop remove cmd_not_admin 50");
         assertBalance(helper, player, Config.STARTING_MONEY.get());
+    }
+
+    private static void getPermit(GameTestHelper helper, TestPlayers players) {
+        ServerPlayer admin = players.join("cmd_get_permit");
+        ServerPlayer player = players.join("cmd_get_permit_not_admin");
+
+        run(helper, admin.createCommandSourceStack().withPermission(LevelBasedPermissionSet.ADMIN), "adminshop getPermit gems");
+        run(helper, player.createCommandSourceStack(), "adminshop getPermit gems");
+
+        ItemStack permit = admin.getInventory().getItem(0);
+        helper.assertValueEqual(permit.getItem(), ModItems.PERMIT.get(), "the admin's first slot");
+        helper.assertValueEqual(PermitItem.permit(permit), Optional.of("gems"), "the Trade Permit's Permit");
+        helper.assertTrue(player.getInventory().isEmpty(), "a player who is no admin got a Trade Permit");
+        helper.assertTrue(MoneyHelper.get(helper.getLevel()).getPlayerAccount(admin).permits().isEmpty(),
+                "getPermit unlocked the Permit itself");
+    }
+
+    private static void removePermit(GameTestHelper helper, TestPlayers players) {
+        ServerPlayer player = players.join("cmd_remove_permit");
+        MoneyHelper accounts = MoneyHelper.get(helper.getLevel());
+        UUID team = accounts.getPlayerAccount(player).teamId();
+        accounts.addPermit(team, "gems");
+        accounts.addPermit(team, "mining");
+
+        run(helper, player.createCommandSourceStack(), "adminshop removePermit gems");
+
+        helper.assertValueEqual(accounts.getPlayerAccount(player).permits(), ImmutableSet.of("mining"), "the Account's Permits");
+    }
+
+    private static void listOwnedPermits(GameTestHelper helper, TestPlayers players) {
+        ServerPlayer player = players.join("cmd_list_permits");
+        var heard = new ArrayList<String>();
+        CommandSourceStack source = player.createCommandSourceStack().withSource(listener(heard));
+
+        run(helper, source, "adminshop listOwnedPermits");
+        MoneyHelper accounts = MoneyHelper.get(helper.getLevel());
+        UUID team = accounts.getPlayerAccount(player).teamId();
+        accounts.addPermit(team, "gems");
+        accounts.addPermit(team, "mining");
+        run(helper, source, "adminshop listOwnedPermits");
+
+        helper.assertValueEqual(heard, List.of("Your account has not unlocked any permits yet.", "gems, mining"),
+                "what listOwnedPermits said");
+    }
+
+    /** A command source that keeps the text of what it is told. */
+    private static CommandSource listener(List<String> heard) {
+        return new CommandSource() {
+            @Override
+            public void sendSystemMessage(Component message) {
+                heard.add(message.getString());
+            }
+
+            @Override
+            public boolean acceptsSuccess() {
+                return true;
+            }
+
+            @Override
+            public boolean acceptsFailure() {
+                return true;
+            }
+
+            @Override
+            public boolean shouldInformAdmins() {
+                return false;
+            }
+        };
     }
 
     /** The server console, which holds every permission. */

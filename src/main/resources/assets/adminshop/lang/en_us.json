@@ -27,5 +27,12 @@
   "block.adminshop.buyer_3": "T3 Buyer",
   "container.adminshop.buyer": "Buyer",
   "message.adminshop.recipe_locked": "This machine's recipe is locked and cannot be changed!",
-  "message.adminshop.no_permit": "Your account does not have permit %s"
+  "message.adminshop.no_permit": "Your account does not have permit %s",
+  "item.adminshop.permit": "Trade Permit",
+  "message.adminshop.add_permit": "Adding permit %1$s to %2$s",
+  "message.adminshop.permit.default": "Cannot get permit item for default permit",
+  "message.adminshop.permit.give.failure": "Unable to give permit to player",
+  "message.adminshop.permit.give.success": "Obtained trade permit!",
+  "message.adminshop.permit.remove.success": "Removed trade permit",
+  "message.adminshop.permits.empty": "Your account has not unlocked any permits yet."
 }

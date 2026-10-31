@@ -1,9 +1,11 @@
 package com.ammonium.adminshop.commands;
 
 import com.ammonium.adminshop.AdminShop;
+import com.ammonium.adminshop.item.PermitItem;
 import com.ammonium.adminshop.money.MoneyHelper;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.LongArgumentType;
+import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.minecraft.commands.CommandSourceStack;
@@ -17,7 +19,7 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
 
-/** {@code /adminshop}: lets admins moderate the economy. */
+/** {@code /adminshop}: lets admins moderate the economy, and players see and drop their Account's Permits. */
 @EventBusSubscriber(modid = AdminShop.MODID)
 public class AdminShopCommand {
 
@@ -51,8 +53,26 @@ public class AdminShopCommand {
                     return removeMoney(context.getSource(), playerSelector, amount);
                 })));
 
+        // adminshop getPermit {permit}
+        LiteralArgumentBuilder<CommandSourceStack> getPermitCommand = Commands.literal("getPermit")
+                .requires(Commands.hasPermission(Commands.LEVEL_ADMINS))
+                .then(Commands.argument("tier", StringArgumentType.string())
+                .executes(context -> getPermit(context.getSource(), StringArgumentType.getString(context, "tier"))));
+
+        // adminshop removePermit {permit}
+        LiteralArgumentBuilder<CommandSourceStack> removePermitCommand = Commands.literal("removePermit")
+                .then(Commands.argument("tier", StringArgumentType.string())
+                .executes(context -> removePermit(context.getSource(), StringArgumentType.getString(context, "tier"))));
+
+        // adminshop listOwnedPermits
+        LiteralArgumentBuilder<CommandSourceStack> listOwnedPermitsCommand = Commands.literal("listOwnedPermits")
+                .executes(context -> listOwnedPermits(context.getSource()));
+
         adminShopCommand.then(giveMoneyCommand)
-                        .then(removeMoneyCommand);
+                        .then(removeMoneyCommand)
+                        .then(getPermitCommand)
+                        .then(removePermitCommand)
+                        .then(listOwnedPermitsCommand);
 
         dispatcher.register(adminShopCommand);
     }
@@ -95,6 +115,45 @@ public class AdminShopCommand {
         }
 
         source.sendSuccess(() -> Component.translatable("message.adminshop.remove.success", amount), true);
+        return 1;
+    }
+
+    static int listOwnedPermits(CommandSourceStack source) throws CommandSyntaxException {
+        ServerPlayer player = source.getPlayerOrException();
+        MoneyHelper.MoneyAccount account = MoneyHelper.get(source.getLevel()).getPlayerAccount(player);
+        if (account.permits().isEmpty()) {
+            source.sendSuccess(() -> Component.translatable("message.adminshop.permits.empty"), true);
+            return 0;
+        }
+        String permits = String.join(", ", account.permits());
+        source.sendSuccess(() -> Component.literal(permits), true);
+        return 1;
+    }
+
+    /** Gives the player running it a Trade Permit for {@code permit}; it unlocks nothing until redeemed. */
+    static int getPermit(CommandSourceStack source, String permit) throws CommandSyntaxException {
+        ServerPlayer player = source.getPlayerOrException();
+        if (permit.isEmpty()) {
+            source.sendFailure(Component.translatable("message.adminshop.permit.default"));
+            return 0;
+        }
+        if (!player.getInventory().add(PermitItem.of(permit))) {
+            source.sendFailure(Component.translatable("message.adminshop.permit.give.failure"));
+            return 0;
+        }
+        source.sendSuccess(() -> Component.translatable("message.adminshop.permit.give.success", permit), true);
+        return 1;
+    }
+
+    static int removePermit(CommandSourceStack source, String permit) throws CommandSyntaxException {
+        ServerPlayer player = source.getPlayerOrException();
+        if (permit.isEmpty()) {
+            source.sendFailure(Component.translatable("message.adminshop.permit.default"));
+            return 0;
+        }
+        MoneyHelper accounts = MoneyHelper.get(source.getLevel());
+        accounts.removePermit(accounts.getPlayerAccount(player).teamId(), permit);
+        source.sendSuccess(() -> Component.translatable("message.adminshop.permit.remove.success", permit), true);
         return 1;
     }
 }

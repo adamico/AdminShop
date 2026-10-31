@@ -3,9 +3,11 @@ package com.ammonium.adminshop.screen;
 import com.ammonium.adminshop.AdminShop;
 import com.ammonium.adminshop.client.gui.BuySellButton;
 import com.ammonium.adminshop.client.gui.ShopButton;
+import com.ammonium.adminshop.item.PermitItem;
 import com.ammonium.adminshop.money.ClientCache;
 import com.ammonium.adminshop.money.MoneyFormat;
 import com.ammonium.adminshop.money.MoneyHelper;
+import com.ammonium.adminshop.network.PacketAccountAddPermit;
 import com.ammonium.adminshop.network.PacketBuyRequest;
 import com.ammonium.adminshop.network.PacketSellRequest;
 import com.ammonium.adminshop.shop.OfferDisplay;
@@ -153,8 +155,13 @@ public class ShopScreen extends AbstractContainerScreen<ShopMenu> {
         }
         Slot slot = hoveredSlot;
         if (slot != null && event.hasShiftDown() && slot.hasItem()) {
-            // Sell the whole stack, in as many trades as it holds.
             ItemStack stack = slot.getItem();
+            if (slot.container instanceof Inventory && PermitItem.permit(stack).isPresent()) {
+                // Redeem the Trade Permit for the Account.
+                ClientPacketDistributor.sendToServer(new PacketAccountAddPermit(slot.getContainerSlot()));
+                return true;
+            }
+            // Sell the whole stack, in as many trades as it holds.
             Optional<OfferDisplay> offer = ShopCache.CLIENT.display().sellOfferFor(stack);
             if (offer.isPresent()) {
                 if (stack.getCount() >= offer.get().count()) {
