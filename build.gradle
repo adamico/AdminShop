@@ -18,9 +18,6 @@ base {
 // Minecraft 26.1 runs on Java 25.
 java.toolchain.languageVersion = JavaLanguageVersion.of(25)
 
-// The 1.21.1 sources in legacy-1.21.1/ are reference only: no source set names them, so they are
-// neither compiled nor packaged.
-
 // The game tests and their resources: loaded by the mod's own runs, never part of the jar.
 sourceSets {
     gametest

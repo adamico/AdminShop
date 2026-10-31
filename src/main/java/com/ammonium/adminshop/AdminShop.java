@@ -16,8 +16,8 @@ import net.neoforged.fml.common.Mod;
 import org.slf4j.Logger;
 
 /**
- * AdminShop's entry point. The 26.1.2 port registers each feature here as it moves over from
- * legacy-1.21.1/. The game tests hook themselves in from the gametest source set, which never ships.
+ * AdminShop's entry point, which registers each feature. The game tests hook themselves in from the
+ * gametest source set, which never ships.
  */
 @Mod(AdminShop.MODID)
 public class AdminShop {
