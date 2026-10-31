@@ -2,10 +2,11 @@ package com.ammonium.adminshop.shop;
 
 import java.util.List;
 import net.minecraft.world.item.ItemStackTemplate;
+import net.neoforged.neoforge.fluids.FluidStackTemplate;
 
 /**
  * What one trade of an Offer hands over, as the shop screen and recipe viewers show it. Templates, not
- * item stacks: they are immutable, and exist before a world's registries give items their components.
+ * item or fluid stacks: they are immutable, and exist before a world's registries give items their components.
  */
 public sealed interface ShopGoods {
 
@@ -25,6 +26,15 @@ public sealed interface ShopGoods {
         @Override
         public int count() {
             return stacks.isEmpty() ? 0 : stacks.getFirst().count();
+        }
+    }
+
+    /** A fluid; its count is the millibuckets one trade hands over. */
+    record Fluid(FluidStackTemplate fluid) implements ShopGoods {
+
+        @Override
+        public int count() {
+            return fluid.amount();
         }
     }
 }

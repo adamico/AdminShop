@@ -18,12 +18,14 @@ import net.minecraft.tags.ItemTags;
 import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.level.material.Fluids;
+import net.neoforged.neoforge.fluids.FluidStackTemplate;
 import org.junit.jupiter.api.Test;
 
 /**
- * An item Offer written in a datapack decodes to the Offer it describes and encodes back to the same
- * JSON. The JSON uses AdminShop's own 1.21.1 fields ({@code price}, {@code permit}, {@code count})
- * around 26.1's vanilla item stack format.
+ * An Offer written in a datapack decodes to the Offer it describes and encodes back to the same JSON.
+ * The JSON uses AdminShop's own 1.21.1 fields ({@code price}, {@code permit}, {@code count}) around
+ * 26.1's vanilla item stack format, or NeoForge's fluid stack format ({@code id}, {@code amount}).
  */
 class OfferJsonTest {
 
@@ -237,5 +239,54 @@ class OfferJsonTest {
     void aSellOfferOfAMalformedItemIsRejectedEvenWithATag() {
         assertTrue(rejects("""
                 {"type": "adminshop:item_selling", "price": 1, "item": {"id": "adminshop:no_such_item"}, "tag": "minecraft:wool"}"""));
+    }
+
+    // Fluid Offers: the goods are a fluid stack in `result`, with its amount in millibuckets.
+
+    @Test
+    void theExampleFluidOffersDecode() {
+        assertEquals(new BuyFluidRecipe(100, new FluidStackTemplate(Fluids.WATER, 1000), ""), decode(shipped("example_buy_fluid")));
+        assertEquals(new SellFluidRecipe(100, new FluidStackTemplate(Fluids.LAVA, 1000), ""), decode(shipped("example_sell_fluid")));
+    }
+
+    @Test
+    void the1211ExampleFluidOffersDecodeUnchanged() {
+        assertEquals(new BuyFluidRecipe(100, new FluidStackTemplate(Fluids.WATER, 1000), ""), decode("""
+                {"type": "adminshop:fluid_buying", "price": 100, "result": {"id": "minecraft:water", "amount": 1000}}"""));
+        assertEquals(new SellFluidRecipe(100, new FluidStackTemplate(Fluids.LAVA, 1000), ""), decode("""
+                {"type": "adminshop:fluid_selling", "price": 100, "result": {"id": "minecraft:lava", "amount": 1000}}"""));
+    }
+
+    @Test
+    void aFluidBuyOfferEncodesBackToItsJson() {
+        String full = """
+                {"type": "adminshop:fluid_buying", "price": 40, "result": {"id": "minecraft:lava", "amount": 250}, "permit": "nether"}""";
+        assertEquals(json(full), encode(decode(full)));
+    }
+
+    @Test
+    void aFluidSellOfferEncodesBackToItsJson() {
+        String full = """
+                {"type": "adminshop:fluid_selling", "price": 3, "result": {"id": "minecraft:water", "amount": 500}, "permit": "farming"}""";
+        assertEquals(json(full), encode(decode(full)));
+    }
+
+    @Test
+    void aFluidMayBeJustAFluidIdForABucketsWorth() {
+        assertEquals(new BuyFluidRecipe(7, new FluidStackTemplate(Fluids.WATER, 1000), ""), decode("""
+                {"type": "adminshop:fluid_buying", "price": 7, "result": "minecraft:water"}"""));
+    }
+
+    @Test
+    void aMalformedFluidOfferIsRejected() {
+        // No price, a negative price, no fluid, an unknown fluid, no fluid at all, no amount.
+        for (String type : new String[] {"adminshop:fluid_buying", "adminshop:fluid_selling"}) {
+            assertTrue(rejects("{\"type\": \"" + type + "\", \"result\": {\"id\": \"minecraft:water\", \"amount\": 1000}}"), type);
+            assertTrue(rejects("{\"type\": \"" + type + "\", \"price\": -1, \"result\": {\"id\": \"minecraft:water\", \"amount\": 1000}}"), type);
+            assertTrue(rejects("{\"type\": \"" + type + "\", \"price\": 1}"), type);
+            assertTrue(rejects("{\"type\": \"" + type + "\", \"price\": 1, \"result\": {\"id\": \"adminshop:no_such_fluid\", \"amount\": 1000}}"), type);
+            assertTrue(rejects("{\"type\": \"" + type + "\", \"price\": 1, \"result\": {\"id\": \"minecraft:empty\", \"amount\": 1000}}"), type);
+            assertTrue(rejects("{\"type\": \"" + type + "\", \"price\": 1, \"result\": {\"id\": \"minecraft:water\", \"amount\": 0}}"), type);
+        }
     }
 }

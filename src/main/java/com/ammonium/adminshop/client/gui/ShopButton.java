@@ -17,8 +17,12 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.Items;
+import net.neoforged.neoforge.fluids.FluidStack;
 
-/** One Offer in the shop screen's grid: its goods, with the count a click trades. Clicking trades it. */
+/**
+ * One Offer in the shop screen's grid: its goods, with the count a click trades (items, or millibuckets of a fluid).
+ * Clicking trades it.
+ */
 public class ShopButton extends AbstractButton {
     /** How long each item of a tag Offer shows before the next. */
     public static final int TAG_DISPLAY_ROTATION_TICKS = 30;
@@ -29,6 +33,7 @@ public class ShopButton extends AbstractButton {
 
     private final OfferDisplay offer;
     private final List<ItemStack> stacks;
+    private final FluidStack fluid;
     private final Consumer<ShopButton> onPress;
     /** Whether the mouse was over the button when it last rendered. */
     public boolean isMouseOn = false;
@@ -41,6 +46,7 @@ public class ShopButton extends AbstractButton {
         this.stacks = offer.goods() instanceof ShopGoods.Items items
                 ? items.stacks().stream().map(ItemStackTemplate::create).toList()
                 : List.of();
+        this.fluid = offer.goods() instanceof ShopGoods.Fluid goods ? goods.fluid().create() : FluidStack.EMPTY;
     }
 
     public OfferDisplay getOffer() {
@@ -56,8 +62,11 @@ public class ShopButton extends AbstractButton {
     protected void extractContents(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
         int x = getX();
         int y = getY();
-        ItemStack shown = shownStack();
-        graphics.item(shown, x, y);
+        if (!fluid.isEmpty()) {
+            FluidSprites.draw(graphics, fluid, x, y, width, height);
+        } else {
+            graphics.item(shownStack(), x, y);
+        }
 
         isMouseOn = isHovered();
         if (isMouseOn) {
@@ -89,14 +98,14 @@ public class ShopButton extends AbstractButton {
         return stacks.get((int) (turn % stacks.size()));
     }
 
-    /** How many items a click trades. */
+    /** How many items, or millibuckets of a fluid, a click trades. */
     private int getNumItems() {
         return offer.count() * getQuantity();
     }
 
     /**
      * How many trades a click makes: one, half a stack's worth with shift held, a stack's worth with
-     * control held.
+     * control held. A fluid Offer always trades once, as on 1.21.1: one container takes it.
      */
     public int getQuantity() {
         if (stacks.isEmpty() || offer.count() <= 0) {
@@ -120,7 +129,7 @@ public class ShopButton extends AbstractButton {
                 ? MoneyFormat.forcedFormat(price, MoneyFormat.FormatType.RAW)
                 : MoneyFormat.forcedFormat(price, MoneyFormat.FormatType.SHORT);
         List<Component> tooltip = new ArrayList<>();
-        tooltip.add(Component.translatable("shopbutton.description", priceFormatted, getNumItems() + "x", offer.name()));
+        tooltip.add(Component.translatable("shopbutton.description", priceFormatted, getNumItems() + (fluid.isEmpty() ? "x" : "mb"), offer.name()));
         offer.permitName().ifPresent(permit -> tooltip.add(Component.translatable("shopbutton.permit", permit)));
         return tooltip;
     }

@@ -1,6 +1,8 @@
 package com.ammonium.adminshop.gametest;
 
+import com.ammonium.adminshop.recipes.BuyFluidRecipe;
 import com.ammonium.adminshop.recipes.BuyItemRecipe;
+import com.ammonium.adminshop.recipes.SellFluidRecipe;
 import com.ammonium.adminshop.recipes.SellItemRecipe;
 import com.ammonium.adminshop.shop.ShopGoods;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -9,6 +11,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.crafting.RecipeManager;
+import net.minecraft.world.level.material.Fluids;
 
 /**
  * The server loads the Offers of every datapack, skips a malformed one without crashing, and keeps
@@ -59,6 +62,12 @@ final class OfferLoadingTests {
             var loaded = recipes(helper).byKey(ShopTradeTests.offer(offer));
             helper.assertTrue(loaded.isPresent() && loaded.get().value() instanceof SellItemRecipe, "the example Sell Offer " + offer + " did not load");
         }
+        var water = recipes(helper).byKey(ShopTradeTests.offer("example_buy_fluid"));
+        helper.assertTrue(water.isPresent() && water.get().value() instanceof BuyFluidRecipe, "the example fluid Buy Offer did not load");
+        var lava = recipes(helper).byKey(ShopTradeTests.offer("example_sell_fluid"));
+        helper.assertTrue(lava.isPresent() && lava.get().value() instanceof SellFluidRecipe, "the example fluid Sell Offer did not load");
+        // A fluid's name reads its components, which only a loaded world has.
+        helper.assertValueEqual(((BuyFluidRecipe) water.get().value()).name(), Fluids.WATER.getFluidType().getDescription(), "the example fluid's name");
         var named = (BuyItemRecipe) recipes(helper).byKey(ShopTradeTests.offer("example_buy_nbt")).orElseThrow().value();
         helper.assertValueEqual(named.getItem().getHoverName().getString(), "Special Paper!", "the example's paper name");
         helper.succeed();
@@ -86,7 +95,8 @@ final class OfferLoadingTests {
     }
 
     private static void notInRecipeBook(GameTestHelper helper) {
-        for (String offer : new String[] {"gametest/buy_diamonds", "gametest/sell_wheat", "gametest/sell_wool"}) {
+        for (String offer : new String[] {"gametest/buy_diamonds", "gametest/sell_wheat", "gametest/sell_wool", "example_buy_fluid",
+                "example_sell_fluid"}) {
             int[] displays = {0};
             recipes(helper).listDisplaysForRecipe(ShopTradeTests.offer(offer), display -> displays[0]++);
             helper.assertValueEqual(displays[0], 0, "recipe book displays of " + offer);

@@ -14,10 +14,12 @@ public class ModRecipeTypes {
 
     public static final DeferredHolder<RecipeType<?>, RecipeType<BuyItemRecipe>> SHOP_BUY_ITEM = register("item_buying");
     public static final DeferredHolder<RecipeType<?>, RecipeType<SellItemRecipe>> SHOP_SELL_ITEM = register("item_selling");
+    public static final DeferredHolder<RecipeType<?>, RecipeType<BuyFluidRecipe>> SHOP_BUY_FLUID = register("fluid_buying");
+    public static final DeferredHolder<RecipeType<?>, RecipeType<SellFluidRecipe>> SHOP_SELL_FLUID = register("fluid_selling");
 
     /** Every Offer type, which the server syncs to clients. */
     public static List<RecipeType<?>> offerTypes() {
-        return List.of(SHOP_BUY_ITEM.get(), SHOP_SELL_ITEM.get());
+        return List.of(SHOP_BUY_ITEM.get(), SHOP_SELL_ITEM.get(), SHOP_BUY_FLUID.get(), SHOP_SELL_FLUID.get());
     }
 
     private static <T extends ShopRecipe> DeferredHolder<RecipeType<?>, RecipeType<T>> register(String name) {

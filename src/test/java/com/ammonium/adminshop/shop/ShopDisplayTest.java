@@ -5,7 +5,9 @@ import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.ammonium.adminshop.AdminShop;
+import com.ammonium.adminshop.recipes.BuyFluidRecipe;
 import com.ammonium.adminshop.recipes.BuyItemRecipe;
+import com.ammonium.adminshop.recipes.SellFluidRecipe;
 import com.ammonium.adminshop.recipes.SellItemRecipe;
 import java.util.List;
 import java.util.Optional;
@@ -21,6 +23,8 @@ import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeMap;
 import net.minecraft.world.item.crafting.StonecutterRecipe;
+import net.minecraft.world.level.material.Fluids;
+import net.neoforged.neoforge.fluids.FluidStackTemplate;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -173,5 +177,33 @@ class ShopDisplayTest {
 
         assertEquals(List.of(key("apple"), key("ore"), key("ore1"), key("ore2"), key("ore10")),
                 offers(cache.display().buyOffers()));
+    }
+
+    @Test
+    void fluidOffersAreListedWithTheItemOffers() {
+        var cache = new ShopCache();
+        cache.replace(synced(
+                buy("iron", 100, new ItemStackTemplate(Items.IRON_INGOT), ""),
+                new RecipeHolder<>(key("water"), new BuyFluidRecipe(20, new FluidStackTemplate(Fluids.WATER, 1000), "")),
+                new RecipeHolder<>(key("lava"), new SellFluidRecipe(30, new FluidStackTemplate(Fluids.LAVA, 500), "nether")),
+                sell("cobble", 100, new ItemStackTemplate(Items.COBBLESTONE, 32))));
+
+        assertEquals(List.of(key("iron"), key("water")), offers(cache.display().buyOffers()));
+        assertEquals(List.of(key("cobble"), key("lava")), offers(cache.display().sellOffers()));
+    }
+
+    @Test
+    void aFluidDisplayCarriesTheFluidItsAmountPriceAndPermit() {
+        var cache = new ShopCache();
+        cache.replace(synced(new RecipeHolder<>(key("lava"), new SellFluidRecipe(30, new FluidStackTemplate(Fluids.LAVA, 500), "nether"))));
+
+        OfferDisplay display = cache.display().sellOffers().getFirst();
+        assertTrue(!display.isBuy());
+        assertEquals(30, display.price());
+        assertEquals("nether", display.permit());
+        ShopGoods.Fluid goods = assertInstanceOf(ShopGoods.Fluid.class, display.goods());
+        assertEquals(new FluidStackTemplate(Fluids.LAVA, 500), goods.fluid());
+        // In millibuckets.
+        assertEquals(500, display.count());
     }
 }

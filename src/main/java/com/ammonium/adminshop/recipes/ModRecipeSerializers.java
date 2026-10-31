@@ -15,6 +15,10 @@ public class ModRecipeSerializers {
             RECIPE_SERIALIZERS.register("item_buying", () -> BuyItemRecipe.SERIALIZER);
     public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<SellItemRecipe>> SHOP_SELL_ITEM =
             RECIPE_SERIALIZERS.register("item_selling", () -> SellItemRecipe.SERIALIZER);
+    public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<BuyFluidRecipe>> SHOP_BUY_FLUID =
+            RECIPE_SERIALIZERS.register("fluid_buying", () -> BuyFluidRecipe.SERIALIZER);
+    public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<SellFluidRecipe>> SHOP_SELL_FLUID =
+            RECIPE_SERIALIZERS.register("fluid_selling", () -> SellFluidRecipe.SERIALIZER);
 
     public static void register(IEventBus eventBus) {
         RECIPE_SERIALIZERS.register(eventBus);
