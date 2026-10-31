@@ -2,6 +2,7 @@ package com.ammonium.adminshop.setup;
 
 import com.ammonium.adminshop.AdminShop;
 import com.ammonium.adminshop.screen.ModMenuTypes;
+import com.ammonium.adminshop.screen.BuyerScreen;
 import com.ammonium.adminshop.screen.SellerScreen;
 import com.ammonium.adminshop.screen.ShopScreen;
 import net.neoforged.api.distmarker.Dist;
@@ -20,5 +21,8 @@ public final class ClientSetup {
     static void registerScreens(RegisterMenuScreensEvent event) {
         event.register(ModMenuTypes.SHOP_MENU.get(), ShopScreen::new);
         event.register(ModMenuTypes.SELLER_MENU.get(), SellerScreen::new);
+        event.register(ModMenuTypes.BUYER_1_MENU.get(), BuyerScreen::new);
+        event.register(ModMenuTypes.BUYER_2_MENU.get(), BuyerScreen::new);
+        event.register(ModMenuTypes.BUYER_3_MENU.get(), BuyerScreen::new);
     }
 }

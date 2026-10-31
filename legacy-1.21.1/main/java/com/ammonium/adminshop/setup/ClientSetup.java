@@ -1,4 +1,5 @@
-// 26.1 port: the Seller (#7) is ported (src/main/...); its screen registration is gone from here. The Creative Seller's screen (#11) is src's SellerScreen.
+// 26.1 port: the Seller (#7) and the T1-T3 Buyers (#8) are ported (src/main/...); their screen registrations are gone from here.
+// The Creative Seller's screen (#11) is src's SellerScreen; the Creative Buyer's is src's BuyerScreen (tier THREE's texture).
 package com.ammonium.adminshop.setup;
 
 import com.ammonium.adminshop.AdminShop;
@@ -22,12 +23,6 @@ public class ClientSetup {
 
     @SubscribeEvent
     public static void registerScreens(RegisterMenuScreensEvent event) {
-        event.register(ModMenuTypes.BUYER_1_MENU.get(), (BuyerMenu1 menu, Inventory playerInventory, Component title) ->
-                new BuyerScreen1(menu, playerInventory, title, menu.getBlockEntity().getBlockPos()));
-        event.register(ModMenuTypes.BUYER_2_MENU.get(), (BuyerMenu2 menu, Inventory playerInventory, Component title) ->
-                new BuyerScreen2(menu, playerInventory, title, menu.getBlockEntity().getBlockPos()));
-        event.register(ModMenuTypes.BUYER_3_MENU.get(), (BuyerMenu3 menu, Inventory playerInventory, Component title) ->
-                new BuyerScreen3(menu, playerInventory, title, menu.getBlockEntity().getBlockPos()));
         event.register(ModMenuTypes.FLUID_BUYER_MENU.get(), (FluidBuyerMenu menu, Inventory playerInventory, Component title) ->
                 new FluidBuyerScreen(menu, playerInventory, title, menu.getBlockEntity().getBlockPos()));
         event.register(ModMenuTypes.FLUID_SELLER_MENU.get(), (FluidSellerMenu menu, Inventory playerInventory, Component title) ->
