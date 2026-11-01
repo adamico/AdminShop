@@ -1,0 +1,22 @@
+{
+  "type": "adminshop:item_buying",
+  "price": 40,
+  "result": {
+    "id": "minecraft:enchanted_book",
+    "components": {
+      "minecraft:stored_enchantments": {
+        "minecraft:efficiency": 3
+      },
+      "minecraft:custom_name": {
+        "text": "Miner's Manual",
+        "color": "gold"
+      },
+      "minecraft:lore": [
+        {
+          "text": "From the Shop",
+          "italic": false
+        }
+      ]
+    }
+  }
+}

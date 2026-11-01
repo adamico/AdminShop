@@ -1,0 +1,9 @@
+{
+  "type": "adminshop:fluid_buying",
+  "price": 10,
+  "permit": "gametest_gate",
+  "result": {
+    "id": "minecraft:lava",
+    "amount": 1000
+  }
+}

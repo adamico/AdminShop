@@ -1,0 +1,9 @@
+{
+  "type": "adminshop:fluid_selling",
+  "price": 4,
+  "permit": "gametest_gate",
+  "result": {
+    "id": "minecraft:water",
+    "amount": 250
+  }
+}

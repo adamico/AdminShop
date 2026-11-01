@@ -1,0 +1,9 @@
+{
+  "type": "adminshop:item_buying",
+  "price": 10,
+  "permit": "gametest_gate",
+  "result": {
+    "id": "minecraft:emerald",
+    "count": 1
+  }
+}

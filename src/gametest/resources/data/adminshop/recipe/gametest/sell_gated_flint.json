@@ -1,0 +1,9 @@
+{
+  "type": "adminshop:item_selling",
+  "price": 5,
+  "permit": "gametest_gate",
+  "item": {
+    "id": "minecraft:flint",
+    "count": 4
+  }
+}
