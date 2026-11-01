@@ -20,6 +20,14 @@ base {
 // Mojang ships Java 25 to end users in 26.1, so mods should target Java 25.
 java.toolchain.languageVersion = JavaLanguageVersion.of(25)
 
+// The game tests and their resources: loaded by the mod's own runs, never part of the jar.
+sourceSets {
+    gametest
+}
+
+// The report the game test server writes, which runGameTestServer reads.
+def gameTestReport = layout.buildDirectory.file('reports/gametest.xml')
+
 println "Java: ${System.getProperty 'java.version'}, JVM: ${System.getProperty 'java.vm.version'} (${System.getProperty 'java.vendor'}), Arch: ${System.getProperty 'os.arch'}"
 
 neoForge {
@@ -66,6 +74,10 @@ runs {
     gameTestServer {
         type = "gameTestServer"
         systemProperty 'neoforge.enabledGameTestNamespaces', project.mod_id
+        gameDirectory = file('run/gametest')
+        // Runs from the gametest source set, whose classpath leaves out JEI.
+        sourceSet = sourceSets.gametest
+        programArguments.addAll '--tests', "${mod_id}:*", '--report', gameTestReport.get().asFile.absolutePath
     }
 
     data {
@@ -80,7 +92,16 @@ mods {
     // define mod <-> source bindings
     "${mod_id}" {
         sourceSet(sourceSets.main)
+        sourceSet(sourceSets.gametest)
     }
+}
+
+addModdingDependenciesTo sourceSets.gametest
+
+// JUnit under FML, so Offers can be decoded with the game's registries and AdminShop's recipe types.
+unitTest {
+    enable()
+    testedMod = mods."${mod_id}"
 }
 }
 
@@ -94,6 +115,12 @@ sourceSets.main.resources { srcDir 'src/generated/resources' }
 configurations {
     localRuntime
     runtimeClasspath.extendsFrom localRuntime
+    gametestImplementation.extendsFrom implementation
+    gametestRuntimeClasspath.extendsFrom localRuntime
+    // The game test server runs with Patchouli and FTB Teams but without JEI.
+    gametestRuntimeClasspath {
+        exclude group: 'mezz.jei'
+    }
 }
 
 repositories {
@@ -167,9 +194,49 @@ dependencies {
     implementation("dev.ftb.mods:ftb-library-neoforge:${ftblib_version}") { transitive = false }
     implementation("dev.ftb.mods:ftb-teams-neoforge:${ftbteams_version}") { transitive = false }
 
+    gametestImplementation sourceSets.main.output
+
+    testImplementation platform('org.junit:junit-bom:5.10.2')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    // FML loads AdminShop for the JUnit tests too, and AdminShop requires Patchouli.
+    testRuntimeOnly "maven.modrinth:patchouli:${patchouli_version}"
+
     // For more info...
     // http://www.gradle.org/docs/current/userguide/artifact_dependencies_tutorial.html
     // http://www.gradle.org/docs/current/userguide/dependency_management.html
+}
+
+// The report, not the exit code, decides, and names each test: a run that ran none fails.
+tasks.named('runGameTestServer') {
+    def report = gameTestReport.get().asFile
+    ignoreExitValue = true
+    doFirst {
+        report.delete()
+        report.parentFile.mkdirs()
+    }
+    doLast { task ->
+        if (!report.exists()) throw new GradleException("The game test server wrote no report at $report")
+        def cases = new groovy.xml.XmlSlurper().parse(report).'**'.findAll { it.name() == 'testcase' }
+        if (cases.isEmpty()) throw new GradleException('The game test server ran no tests')
+        cases.each { task.logger.lifecycle("${it.failure.size() ? 'FAILED' : 'passed'}  ${it.@name}") }
+        def failed = cases.count { it.failure.size() }
+        if (failed) throw new GradleException("$failed of ${cases.size()} game tests failed")
+    }
+}
+
+// The JUnit tests run under FML with the registries bootstrapped but no world: they test what reads no
+// world state, and the game tests the rest.
+tasks.named('test', Test) {
+    useJUnitPlatform()
+    // MoneyFormat formats with the default locale.
+    systemProperty 'user.language', 'en'
+    systemProperty 'user.country', 'US'
+    systemProperty 'adminshop.gradleProperties', file('gradle.properties').absolutePath
+    // OptionalViewersTest reads the mod's compiled classes.
+    systemProperty 'adminshop.mainClasses', sourceSets.main.output.classesDirs.asPath
+    // EconHandbookTest reads the expanded mods.toml.
+    systemProperty 'adminshop.modsToml', file("${sourceSets.main.output.resourcesDir}/META-INF/neoforge.mods.toml").absolutePath
 }
 
 // This block of code expands all declared replace properties in the specified resource targets.
